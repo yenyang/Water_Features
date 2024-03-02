@@ -17,7 +17,7 @@ namespace Water_Features.Systems
     /// <summary>
     /// System for adding new prefabs for custom water sources.
     /// </summary>
-    public class AddPrefabsSystem : GameSystemBase
+    public partial class AddPrefabsSystem : GameSystemBase
     {
         private const string PrefabPrefix = "WaterSource ";
         private const string TabName = "WaterTool";

@@ -1,13 +1,4 @@
-<Publish>
-  <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-  <ModId Value="" />
-  <!--Name of the mod to display to players-->
-  <DisplayName Value="Water Features" />
-  <!--Short description of the mod-->
-  <ShortDescription Value="In-Game Water Tool, Optional Seasonal Streams, and Optional Waves and Tides" />
-  <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-  <!--LongDescription Value="" /-->
-  <LongDescription>In-Game Water Tool - Place and remove water sources. Lakes, Streams, Rivers, and Seas.
+﻿In-Game Water Tool - Place and remove water sources. Lakes, Streams, Rivers, and Seas.
 Optional Opt-out: Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
 Optional Opt-in: Waves and Tides - Sea level rises and falls.
 
@@ -71,27 +62,4 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * T.D.W., krzychu124, and Quboid - Cooperative Development and Code Sharing
 * Localization: Hendrix (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish)
 * ST-Apps - Help with UI and Code Sharing
-* Tigon Ologdring, Dante - Testing, Feedback</LongDescription>
-  <!--Thumbnail-->
-  <Thumbnail Value="Properties/Thumbnail.png" />
-  <!--Screenshot, can be set multiple-->
-  <Screenshot Value="" />
-  <!--Tag, can be set multiple-->
-  <Tag Value="Code Mod" />
-  <!--Link to the forum post where the mod can be discussed-->
-  <ForumLink Value="" />
-  <!--Version of the mod-->
-  <ModVersion Value="1.1.0" />
-  <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.0.*" />
-  <!--Dependency for the mod, can be set multiple-->
-  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="0.1" />
-  <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog Value="" />
-  <!--ChangeLog>
-	</ChangeLog-->
-  <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-  <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
-  <ExternalLink Type="discord" Url="https://discord.com/invite/DgH7rDKZ6r" />
-  <ExternalLink Type="github" Url="https://github.com/yenyang/Water_Features" />
-</Publish>
+* Tigon Ologdring, Dante - Testing, Feedback

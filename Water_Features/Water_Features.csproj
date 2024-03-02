@@ -17,6 +17,8 @@
 		
 		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
 		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
+		<AssemblyVersion>1.1.0</AssemblyVersion>
+		<FileVersion>1.1.0</FileVersion>
 	</PropertyGroup>
 	
 	<!--Imports must be after PropertyGroup block-->
@@ -127,4 +129,18 @@
 	  </None>
 	</ItemGroup>
 
+	<Target Name="CopyFiles" BeforeTargets="AfterBuild">
+		<ItemGroup>
+			<UIFiles Include="bin\UI\**\*.*" />
+		</ItemGroup>
+
+		<Exec Command="npm run build --prefix UI" />
+
+		<Copy SourceFiles="@(UIFiles)" DestinationFiles="@(UIFiles->'$(OutputPath)\%(RecursiveDir)%(Filename)%(Extension)')" />
+	</Target>
+
+	<Target Name="SetupAttributes" BeforeTargets="BeforeBuild">
+		<XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)/LongDescription.md))" Query="//LongDescription" />
+		<XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)/ChangeLog.md))" Query="//ChangeLog" />
+	</Target>
 </Project>

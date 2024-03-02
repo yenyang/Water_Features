@@ -91,7 +91,7 @@ namespace Water_Features.Settings
         /// Gets or sets the evaporatin rate for the whole map.
         /// </summary>
         [SettingsUISection(WaterToolGroup, WaterToolGroup)]
-        [SettingsUISlider(min = 0.1f, max = 1f, step = 0.1f, unit = "percentageSingleFraction", scalarMultiplier = 1000f)]
+        [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = "percentageSingleFraction", scalarMultiplier = 1000f)]
         public float EvaporationRate { get; set; }
 
         /// <summary>
