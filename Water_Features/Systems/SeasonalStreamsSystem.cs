@@ -131,20 +131,20 @@ namespace Water_Features.Systems
             float seasonalFlows = 0f;
             if (m_MaxSeasonMeanPrecipitation > 0)
             {
-                seasonalFlows = m_CurrentSeasonMeanPrecipitation / m_MaxSeasonMeanPrecipitation * WaterFeaturesMod.Settings.StreamSeasonality;
+                seasonalFlows = m_CurrentSeasonMeanPrecipitation / m_MaxSeasonMeanPrecipitation * WaterFeaturesMod.Instance.Settings.StreamSeasonality;
             }
 
             // If it's not snowing, according to the climate system calculate runoff for job.
             if (m_ClimateSystem.isSnowing == false)
             {
                 // Calculate water source multiplier based on precipiattion, spring water, and seasonality.
-                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + (m_ClimateSystem.precipitation * WaterFeaturesMod.Settings.StreamStormwaterEffects) + WaterFeaturesMod.Settings.ConstantFlowRate, WaterFeaturesMod.Settings.MinimumMultiplier, WaterFeaturesMod.Settings.MaximumMultiplier);
+                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + (m_ClimateSystem.precipitation * WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects) + WaterFeaturesMod.Instance.Settings.ConstantFlowRate, WaterFeaturesMod.Instance.Settings.MinimumMultiplier, WaterFeaturesMod.Instance.Settings.MaximumMultiplier);
                 reviseWaterSourcesJob.m_SnowAccumulationMultiplier = 0f;
 
                 // If the temperature is high enough to melt snow record the temperature and the leftover multiplier that can be used for snow melt.
-                if (WaterFeaturesMod.Settings.SimulateSnowMelt == true && m_ClimateSystem.temperature.value > m_ClimateSystem.freezingTemperature && reviseWaterSourcesJob.m_WaterSourceMultiplier < WaterFeaturesMod.Settings.MaximumMultiplier)
+                if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt == true && m_ClimateSystem.temperature.value > m_ClimateSystem.freezingTemperature && reviseWaterSourcesJob.m_WaterSourceMultiplier < WaterFeaturesMod.Instance.Settings.MaximumMultiplier)
                 {
-                    reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = WaterFeaturesMod.Settings.MaximumMultiplier - reviseWaterSourcesJob.m_WaterSourceMultiplier;
+                    reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = WaterFeaturesMod.Instance.Settings.MaximumMultiplier - reviseWaterSourcesJob.m_WaterSourceMultiplier;
                     reviseWaterSourcesJob.m_TemperatureDifferential = m_ClimateSystem.temperature.value - m_ClimateSystem.freezingTemperature;
                 }
                 else
@@ -155,11 +155,11 @@ namespace Water_Features.Systems
             }
 
             // If snowing and if simulating snowmelt then calculate the snow accumulation multiplier from precipiation.
-            else if (WaterFeaturesMod.Settings.SimulateSnowMelt == true)
+            else if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt == true)
             {
                 // Seasonal water flow and spring water still continue during snow.
-                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + WaterFeaturesMod.Settings.ConstantFlowRate, WaterFeaturesMod.Settings.MinimumMultiplier, WaterFeaturesMod.Settings.MaximumMultiplier);
-                reviseWaterSourcesJob.m_SnowAccumulationMultiplier = m_ClimateSystem.precipitation * WaterFeaturesMod.Settings.StreamStormwaterEffects;
+                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + WaterFeaturesMod.Instance.Settings.ConstantFlowRate, WaterFeaturesMod.Instance.Settings.MinimumMultiplier, WaterFeaturesMod.Instance.Settings.MaximumMultiplier);
+                reviseWaterSourcesJob.m_SnowAccumulationMultiplier = m_ClimateSystem.precipitation * WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects;
                 reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = 0f;
                 reviseWaterSourcesJob.m_TemperatureDifferential = 0f;
             }
@@ -182,7 +182,7 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-            if (!WaterFeaturesMod.Settings.EnableSeasonalStreams)
+            if (!WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams)
             {
                 m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnCreate)} Seasonal Streams disabled.");
                 Enabled = false;

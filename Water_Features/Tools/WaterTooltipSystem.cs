@@ -191,7 +191,7 @@ namespace Water_Features.Tools
                                 label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
                             };
                             AddMouseTooltip(maxElevationTooptip);
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
+                            if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
                             {
                                 FloatTooltip snowAccumulation = new FloatTooltip
                                 {
@@ -232,7 +232,7 @@ namespace Water_Features.Tools
                                 label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MinElevation", "Min Elevation"),
                             };
                             AddMouseTooltip(minElevationTooptip);
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
+                            if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
                             {
                                 FloatTooltip snowAccumulation = new FloatTooltip
                                 {
@@ -255,7 +255,7 @@ namespace Water_Features.Tools
                             };
                             AddMouseTooltip(originalAmount);
 
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
+                            if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
                             {
                                 FloatTooltip snowAccumulation = new FloatTooltip
                                 {

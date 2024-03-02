@@ -116,7 +116,7 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-            if (!WaterFeaturesMod.Settings.IncludeDetentionBasins)
+            if (!WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins)
             {
                 Enabled = false;
                 return;

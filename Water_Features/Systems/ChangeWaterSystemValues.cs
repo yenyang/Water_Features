@@ -74,24 +74,24 @@ namespace Water_Features.Systems
             }
 
             // This is for changin the evaporation rate with the settings.
-            if (!Mathf.Approximately(WaterFeaturesMod.Settings.EvaporationRate, m_WaterSystem.m_Evaporation))
+            if (!Mathf.Approximately(WaterFeaturesMod.Instance.Settings.EvaporationRate, m_WaterSystem.m_Evaporation))
             {
                 if (m_TimeSystem.normalizedTime > m_TimeLastChanged + m_ResetTimeLimit || m_DateLastChange > m_DateLastChange + m_ResetTimeLimit)
                 {
-                    m_WaterSystem.m_Evaporation = WaterFeaturesMod.Settings.EvaporationRate;
-                    m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate back to {WaterFeaturesMod.Settings.EvaporationRate}");
+                    m_WaterSystem.m_Evaporation = WaterFeaturesMod.Instance.Settings.EvaporationRate;
+                    m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate back to {WaterFeaturesMod.Instance.Settings.EvaporationRate}");
                 }
             }
 
             // This is for changing the damping constant with the settings.
-            if (!Mathf.Approximately(m_WaterSystem.m_Damping, WaterFeaturesMod.Settings.Damping) && WaterFeaturesMod.Settings.EnableWavesAndTides && !m_TemporarilyUseOriginalDamping)
+            if (!Mathf.Approximately(m_WaterSystem.m_Damping, WaterFeaturesMod.Instance.Settings.Damping) && WaterFeaturesMod.Instance.Settings.EnableWavesAndTides && !m_TemporarilyUseOriginalDamping)
             {
-                m_WaterSystem.m_Damping = WaterFeaturesMod.Settings.Damping;
+                m_WaterSystem.m_Damping = WaterFeaturesMod.Instance.Settings.Damping;
             }
-            else if ((!Mathf.Approximately(m_WaterSystem.m_Damping, m_OriginalDamping) && !WaterFeaturesMod.Settings.EnableWavesAndTides) || m_TemporarilyUseOriginalDamping)
+            else if ((!Mathf.Approximately(m_WaterSystem.m_Damping, m_OriginalDamping) && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides) || m_TemporarilyUseOriginalDamping)
             {
                 m_WaterSystem.m_Damping = m_OriginalDamping;
-                if (m_WaterSystem.WaterSimSpeed == 0 && !WaterFeaturesMod.Settings.EnableWavesAndTides)
+                if (m_WaterSystem.WaterSimSpeed == 0 && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
                 {
                     m_WaterSystem.WaterSimSpeed = 1;
                 }

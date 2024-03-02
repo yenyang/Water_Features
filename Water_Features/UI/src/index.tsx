@@ -1,11 +1,9 @@
 import { ModRegistrar } from "modding/types";
-import { AnarchyRowComponent } from "mods/anarchyRow";
-import { ChirperModComponent } from "mods/chirperMod";
+import { WaterToolComponent } from "mods/waterToolSections";
 
 const register: ModRegistrar = (moduleRegistry) => {
      // console.log('mr', moduleRegistry);
-     moduleRegistry.extend("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", 'MouseToolOptions', AnarchyRowComponent(moduleRegistry));
-     moduleRegistry.extend("game-ui/game/components/right-menu/right-menu.tsx", "RightMenu", ChirperModComponent(moduleRegistry))
+     moduleRegistry.extend("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", 'MouseToolOptions', WaterToolComponent(moduleRegistry));
 }
 
 export default register;

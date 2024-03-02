@@ -5,27 +5,32 @@ import { MouseEvent, useCallback } from "react";
 export const unselectedImageSource : string = "coui://uil/Standard/Anarchy.svg";
 export const selectedImageSource : string = "coui://uil/Colored/Anarchy.svg";
 
-export const AnarchyRowComponent = (moduleRegistry: ModuleRegistry) => (Component: any) => {
+export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component: any) => {
     // The module registrys are found by logging console.log('mr', moduleRegistry); in the index file and finding appropriate one.
     const toolMouseModule = moduleRegistry.registry.get("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx");
     const toolButtonModule = moduleRegistry.registry.get("game-ui/game/components/tool-options/tool-button/tool-button.tsx")!!;
     const theme = moduleRegistry.registry.get("game-ui/game/components/tool-options/tool-button/tool-button.module.scss")?.classes;
+    const mouseToolTheme = moduleRegistry.registry.get("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.module.scss")?.classes;
     // These are found in the minified JS file after searching for module.
     const Section: any = toolMouseModule?.Section;
-    const ToolButton: any = toolButtonModule?.ToolButton;
+    const StepToolButton: any = toolButtonModule?.StepToolButton;
+    const ValueToolButton: any = toolButtonModule?.ValueToolButton;
 
     return (props: any) => {
         const { children, ...otherProps} = props || {};
         const { api: { api: { useValue, bindValue, trigger } } } = useModding();
         const { engine } = useModding();
 
-        // This establishes the binding with C# side. Without C# side game ui will crash.
-        const anarchyEnabled$ = bindValue<boolean>('Anarchy', 'AnarchyEnabled');
-        const anarchyEnabled = useValue(anarchyEnabled$);
+        console.log("Hello");
+        // These establish the binding with C# side. Without C# side game ui will crash.
 
-        // This establishes the binding with C# side. Without C# side game ui will crash.
-        const showToolIcon$ = bindValue<boolean>('Anarchy', 'ShowToolIcon');
-        const showToolIcon = useValue(showToolIcon$);
+        // This binding is for whether the tool is active.
+        // const toolActive$ = bindValue<boolean>('WaterTool', 'ToolActive');
+        // const toolActive = useValue(toolActive$);
+
+        // This binding is for what amount to show in Amount field.
+        // const AmountValue$ = bindValue<Number> ('WaterTool', 'AmountValue');
+        // const AmountValue = useValue(AmountValue$);
 
 
         const handleClick = useCallback ((ev: MouseEvent<HTMLButtonElement>) => {
@@ -34,13 +39,13 @@ export const AnarchyRowComponent = (moduleRegistry: ModuleRegistry) => (Componen
         }, [])
         
         // This will return original component and children if there is nothing to insert.
-        if (!showToolIcon) {
+         /*if (!toolActive) {
             return (
                 <Component {...otherProps}>
                     {children}
                 </Component>
             );
-        }
+            }*/
         
         var result = Component();
         result.props.children?.unshift(
@@ -50,8 +55,8 @@ export const AnarchyRowComponent = (moduleRegistry: ModuleRegistry) => (Componen
             Tooltip is translated based on localization key. OnSelect run callback fucntion here to trigger event. 
             Anarchy specific image source changes bases on Anarchy Enabled binding. 
             */
-            <Section title={engine.translate("YY_ANARCHY.Anarchy")}>
-                <ToolButton className = {theme.button} selected = {anarchyEnabled} tooltip = {engine.translate("YY_ANARCHY_DESCRIPTION.AnarchyButton")} onSelect={handleClick} src={anarchyEnabled ? selectedImageSource : unselectedImageSource}></ToolButton>
+            <Section title="Flow">
+                <ValueToolButton className = {mouseToolTheme.numberField} value = "1"></ValueToolButton>
             </Section>)
         return <>{result}</>;
     };

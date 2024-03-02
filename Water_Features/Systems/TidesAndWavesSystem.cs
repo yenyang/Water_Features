@@ -154,9 +154,9 @@ namespace Water_Features.Systems
                     }
                 }
 
-                m_PreviousWaveAndTideHeight = WaterFeaturesMod.Settings.WaveHeight + WaterFeaturesMod.Settings.TideHeight;
+                m_PreviousWaveAndTideHeight = WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
 
-                seaLevel -= WaterFeaturesMod.Settings.WaveHeight + WaterFeaturesMod.Settings.TideHeight;
+                seaLevel -= WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
                 WaterSourceData waterSourceData = new WaterSourceData()
                 {
                     m_Amount = seaLevel,
@@ -192,7 +192,7 @@ namespace Water_Features.Systems
                 m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
                 m_TidesAndWavesDataType = __TypeHandle.__TidesAndWavesData_RO_ComponentTypeHandle,
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-                m_WaveHeight = (WaterFeaturesMod.Settings.WaveHeight / 2f * Mathf.Sin(2f * Mathf.PI * WaterFeaturesMod.Settings.WaveFrequency * m_TimeSystem.normalizedTime)) + (WaterFeaturesMod.Settings.TideHeight / 2f * Mathf.Cos(2f * Mathf.PI * (float)WaterFeaturesMod.Settings.TideClassification * m_TimeSystem.normalizedDate)) + (WaterFeaturesMod.Settings.WaveHeight / 2f) + (WaterFeaturesMod.Settings.TideHeight / 2f),
+                m_WaveHeight = (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f * Mathf.Sin(2f * Mathf.PI * WaterFeaturesMod.Instance.Settings.WaveFrequency * m_TimeSystem.normalizedTime)) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f * Mathf.Cos(2f * Mathf.PI * (float)WaterFeaturesMod.Instance.Settings.TideClassification * m_TimeSystem.normalizedDate)) + (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f),
             };
             JobHandle jobHandle = JobChunkExtensions.Schedule(alterSeaWaterSourcesJob, m_WaterSourceQuery, Dependency);
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
@@ -212,7 +212,7 @@ namespace Water_Features.Systems
             base.OnGameLoadingComplete(purpose, mode);
 
             // This will disable the system if the user has the setting for Waves and Tides disabled.
-            if (!WaterFeaturesMod.Settings.EnableWavesAndTides)
+            if (!WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
             {
                 m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnGameLoadingComplete)} Waves and Tides disabled.");
                 Enabled = false;
