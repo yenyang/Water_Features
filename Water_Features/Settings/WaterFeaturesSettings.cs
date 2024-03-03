@@ -10,6 +10,7 @@ namespace Water_Features.Settings
     using Game.Modding;
     using Game.Settings;
     using Game.Simulation;
+    using Game.UI;
     using Unity.Entities;
     using UnityEngine;
     using Water_Features.Systems;
@@ -91,7 +92,7 @@ namespace Water_Features.Settings
         /// Gets or sets the evaporatin rate for the whole map.
         /// </summary>
         [SettingsUISection(WaterToolGroup, WaterToolGroup)]
-        [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = "percentageSingleFraction", scalarMultiplier = 1000f)]
+        [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = Unit.kFloatTwoFractions, scalarMultiplier = 1000f)]
         public float EvaporationRate { get; set; }
 
         /// <summary>

@@ -39,21 +39,30 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
         const AmountLocaleKey$ = bindValue<string> ('WaterTool', 'AmountLocaleKey');
         const AmountLocaleKey = useValue(AmountLocaleKey$);
 
+        // This binding is for what value to show in Min Depth field.
+        const AmountStep$ = bindValue<string> ('WaterTool', 'AmountStep');
+        const AmountStep = useValue(AmountStep$);
+
+        // This binding is for what value to show in Min Depth field.
+        const RadiusStep$ = bindValue<string> ('WaterTool', 'RadiusStep');
+        const RadiusStep = useValue(RadiusStep$);
+
+        // This binding is for what value to show in Min Depth field.
+        const MinDepthStep$ = bindValue<string> ('WaterTool', 'MinDepthStep');
+        const MinDepthStep = useValue(MinDepthStep$);
+
         const handleClick = useCallback ((ev: MouseEvent<HTMLButtonElement>) => {
             // This triggers an event on C# side and C# designates the method to implement.
             trigger("Anarchy", "AnarchyToggled");
-        }, [])
+        }, []);
         
         const showMinDepth : boolean = false;
-        // This will return original component and children if there is nothing to insert.
-        if (!toolActive) {
-            return (
-                <Component {...otherProps}>
-                    {children}
-                </Component>
-            );
-        }
-        
+       
+        const renderedAmount : string = AmountValue.toString();
+        const amountTitle : string = engine.translate(AmountLocaleKey);
+        const renderedMinDepth : string = MinDepthValue.toString() + " m";
+        const renderedRadius : string = RadiusValue.toString() + " m";
+
         var result = Component();
         result.props.children?.unshift(
             /* 
@@ -63,19 +72,19 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
             Anarchy specific image source changes bases on Anarchy Enabled binding. 
             */
             <>
-                <Section title={AmountLocaleKey}>
+                <Section title={amountTitle}>
                     <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-down-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                    <div className={mouseToolTheme.numberField}>{AmountValue.toString()}</div>
+                    <div className={mouseToolTheme.numberField}>{renderedAmount}</div>
                     <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-up-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
-                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={0.25}></StepToolButton>
+                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={AmountStep}></StepToolButton>
                 </Section>
-                { showMinDepth? 
+                /*{ showMinDepth? 
 
                 <Section title={engine.translate("YY_WATER_FEATURES.MinDepth")}>
                     <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                    <div className={mouseToolTheme.numberField}>{MinDepthValue.toString() + " m"}</div>
+                    <div className={mouseToolTheme.numberField}>{renderedMinDepth}</div>
                     <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-up-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
-                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={0.25}></StepToolButton>
+                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={MinDepthStep}></StepToolButton>
                 </Section> 
                 
                 : <></>
@@ -83,12 +92,21 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
 
                 <Section title={engine.translate("YY_WATER_FEATURES.Radius")}>
                     <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-down-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                    <div className={mouseToolTheme.numberField}>{RadiusValue.toString() + " m"}</div>
+                    <div className={mouseToolTheme.numberField}>{renderedRadius}</div>
                     <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-up-arrow")} onSelect={handleClick} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
-                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={0.25}></StepToolButton>
+                    <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-rate-of-change")} onSelect={handleClick} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={RadiusStep}></StepToolButton>
                 </Section>
             </>
-            )
+            );
+          /*  
+        // This will return original component and children if there is nothing to insert.
+        if (!toolActive) {
+            return (
+                <Component {...otherProps}>
+                    {children}
+                </Component>
+            );
+        }*/
         return result;
     };
 }

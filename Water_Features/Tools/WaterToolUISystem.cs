@@ -201,7 +201,7 @@ namespace Water_Features.Tools
             m_ToolSystem.EventPrefabChanged = (Action<PrefabBase>)Delegate.Combine(toolSystem2.EventPrefabChanged, new Action<PrefabBase>(OnPrefabChanged));
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
-            
+
             // This binding communicates whether Water Tool is active.
             AddBinding(m_ToolActive = new ValueBinding<bool>("WaterTool", "ToolActive", false));
 
@@ -227,6 +227,7 @@ namespace Water_Features.Tools
             AddBinding(m_MinDepthStep = new ValueBinding<float>("WaterTool", "MinDepthStep", 1f));
 
             // This binding listens for whether the Anarchy tool icon has been toggled.
+
             // AddBinding(new TriggerBinding("WaterTool", "AnarchyToggled", AnarchyToggled));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
@@ -571,9 +572,11 @@ namespace Water_Features.Tools
 
         private void OnToolChanged(ToolBaseSystem tool)
         {
-            bool flag = (tool == m_CustomWaterToolSystem);
+            bool flag = tool == m_CustomWaterToolSystem;
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnToolChanged)}");
             if (m_ToolActive.value != flag)
             {
+                m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnToolChanged)} tool active.");
                 m_ToolActive.Update(flag);
             }
         }
@@ -586,16 +589,12 @@ namespace Water_Features.Tools
                 m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnPrefabChanged)} prefab is water source.");
                 WaterSourcePrefab waterSourcePrefab = prefabBase as WaterSourcePrefab;
 
-                
                 float tempRadius = waterSourcePrefab.m_DefaultRadius;
                 float tempAmount = waterSourcePrefab.m_DefaultAmount;
                 TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref tempAmount, ref tempRadius);
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
-               
-
-                return;
             }
         }
 
