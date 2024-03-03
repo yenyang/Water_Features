@@ -149,6 +149,30 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Update="images\WaterSourceAutomaticFill.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceDetentionBasin.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceLake.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceRetentionBasin.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceRiver.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceSea.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\WaterSourceStream.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="images\water_features_icon.svg">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	  <None Update="l10n\l10n.csv">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
