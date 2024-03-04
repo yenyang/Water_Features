@@ -45,6 +45,9 @@ namespace Water_Features.Tools
         private ValueBinding<float> m_AmountStep;
         private ValueBinding<float> m_MinDepthStep;
         private ValueBinding<bool> m_ToolActive;
+        private ValueBinding<int> m_AmountScale;
+        private ValueBinding<int> m_MinDepthScale;
+        private ValueBinding<int> m_RadiusScale;
 
         /// <summary>
         /// Types of water sources.
@@ -125,9 +128,10 @@ namespace Water_Features.Tools
         /// <param name="elevation">The y coordinate from the raycast hit position.</param>
         public void SetElevation(float elevation)
         {
-            elevation = Mathf.Round(elevation * 10f) / 10f;
             elevation = Mathf.Clamp(elevation, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
+            elevation = Mathf.Round(elevation * 10f) * 0.1f;
             m_Amount.Update(elevation);
+            m_AmountScale.Update(1);
             m_AmountIsElevation = true;
             m_AmountLocaleKey.Update("YY_WATER_FEATURES.Elevation");
         }
@@ -227,6 +231,15 @@ namespace Water_Features.Tools
 
             // This binding communicates the value of the selected Min Depth step.
             AddBinding(m_MinDepthStep = new ValueBinding<float>("WaterTool", "MinDepthStep", 1f));
+
+            // This binding communicates the value of the selected Amount scale.
+            AddBinding(m_AmountScale = new ValueBinding<int>("WaterTool", "AmountScale", 0));
+
+            // This binding communicates the value of the selected Min Depth Scale.
+            AddBinding(m_MinDepthScale = new ValueBinding<int>("WaterTool", "MinDepthScale", 0));
+
+            // This binding communicates the value of the selected Radius scale.
+            AddBinding(m_RadiusScale = new ValueBinding<int>("WaterTool", "RadiusScale", 0));
 
             // This binding listens for whether the Increase Amount button was clicked.
             AddBinding(new TriggerBinding("WaterTool", "IncreaseAmount", IncreaseAmount));

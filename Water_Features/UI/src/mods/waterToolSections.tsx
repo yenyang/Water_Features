@@ -24,32 +24,44 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
         const toolActive = useValue(toolActive$);
 
         // This binding is for what value to show in Amount field.
-        const AmountValue$ = bindValue<Number> ('WaterTool', 'AmountValue');
+        const AmountValue$ = bindValue<number> ('WaterTool', 'AmountValue');
         const AmountValue = useValue(AmountValue$);
 
         // This binding is for what value to show in Radius field.
-        const RadiusValue$ = bindValue<Number> ('WaterTool', 'RadiusValue');
+        const RadiusValue$ = bindValue<number> ('WaterTool', 'RadiusValue');
         const RadiusValue = useValue(RadiusValue$);
 
         // This binding is for what value to show in Min Depth field.
-        const MinDepthValue$ = bindValue<Number> ('WaterTool', 'MinDepthValue');
+        const MinDepthValue$ = bindValue<number> ('WaterTool', 'MinDepthValue');
         const MinDepthValue = useValue(MinDepthValue$);
 
         // This binding is for what value to show in Min Depth field.
         const AmountLocaleKey$ = bindValue<string> ('WaterTool', 'AmountLocaleKey');
         const AmountLocaleKey = useValue(AmountLocaleKey$);
 
-        // This binding is for what value to show in Min Depth field.
-        const AmountStep$ = bindValue<string> ('WaterTool', 'AmountStep');
+        // This binding is for what selected value of the Amount step.
+        const AmountStep$ = bindValue<number> ('WaterTool', 'AmountStep');
         const AmountStep = useValue(AmountStep$);
 
-        // This binding is for what value to show in Min Depth field.
-        const RadiusStep$ = bindValue<string> ('WaterTool', 'RadiusStep');
+        // This binding is for what selected value of the Radius step.
+        const RadiusStep$ = bindValue<number> ('WaterTool', 'RadiusStep');
         const RadiusStep = useValue(RadiusStep$);
 
-        // This binding is for what value to show in Min Depth field.
-        const MinDepthStep$ = bindValue<string> ('WaterTool', 'MinDepthStep');
+         // This binding is for what selected value of the Min Depth step.
+        const MinDepthStep$ = bindValue<number> ('WaterTool', 'MinDepthStep');
         const MinDepthStep = useValue(MinDepthStep$);
+
+        // This binding is for what scale to round Amount.
+        const AmountScale$ = bindValue<number> ('WaterTool', 'AmountScale');
+        const AmountScale = useValue(AmountScale$);
+
+        // This binding is for what scale to round Radius.
+        const RadiusScale$ = bindValue<number> ('WaterTool', 'RadiusScale');
+        const RadiusScale = useValue(RadiusScale$);
+
+        // This binding is for what scale to round Min Depth.
+        const MinDepthScale$ = bindValue<number> ('WaterTool', 'MinDepthScale');
+        const MinDepthScale = useValue(MinDepthScale$);
 
         const increaseAmount = useCallback ((ev: MouseEvent<HTMLButtonElement>) => {
             // This triggers an event on C# side and C# designates the method to implement.
@@ -112,7 +124,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
                 <>
                     <Section title={engine.translate(AmountLocaleKey)}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-down-arrow")} onSelect={decreaseAmount} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                        <div className={mouseToolTheme.numberField}>{AmountValue.toString()}</div>
+                        <div className={mouseToolTheme.numberField}>{AmountValue.toFixed(AmountScale)}</div>
                         <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-up-arrow")} onSelect={increaseAmount} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
                         <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change")} onSelect={amountStepPressed} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={AmountStep}></StepToolButton>
                     </Section>
@@ -120,7 +132,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
 
                     <Section title={engine.translate("YY_WATER_FEATURES.MinDepth")}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow")} onSelect={decreaseMinDepth} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                        <div className={mouseToolTheme.numberField}>{MinDepthValue.toString() + " m"}</div>
+                        <div className={mouseToolTheme.numberField}>{MinDepthValue.toFixed(MinDepthScale) + " m"}</div>
                         <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-up-arrow")} onSelect={increaseMinDepth} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
                         <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-rate-of-change")} onSelect={minDepthStepPressed} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={MinDepthStep}></StepToolButton>
                     </Section> 
@@ -130,7 +142,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
 
                     <Section title={engine.translate("YY_WATER_FEATURES.Radius")}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-down-arrow")} onSelect={decreaseRadius} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                        <div className={mouseToolTheme.numberField}>{RadiusValue.toString() + " m"}</div>
+                        <div className={mouseToolTheme.numberField}>{RadiusValue.toFixed(RadiusScale) + " m"}</div>
                         <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-up-arrow")} onSelect={increaseRadius} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
                         <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-rate-of-change")} onSelect={radiusStepPressed} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={RadiusStep}></StepToolButton>
                     </Section>
