@@ -125,7 +125,9 @@ namespace Water_Features.Tools
         /// <param name="elevation">The y coordinate from the raycast hit position.</param>
         public void SetElevation(float elevation)
         {
-            m_Amount.Update(Mathf.Round(elevation * 10f) / 10f);
+            elevation = Mathf.Round(elevation * 10f) / 10f;
+            elevation = Mathf.Clamp(elevation, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
+            m_Amount.Update(elevation);
             m_AmountIsElevation = true;
             m_AmountLocaleKey.Update("YY_WATER_FEATURES.Elevation");
         }
@@ -226,9 +228,32 @@ namespace Water_Features.Tools
             // This binding communicates the value of the selected Min Depth step.
             AddBinding(m_MinDepthStep = new ValueBinding<float>("WaterTool", "MinDepthStep", 1f));
 
-            // This binding listens for whether the Anarchy tool icon has been toggled.
+            // This binding listens for whether the Increase Amount button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "IncreaseAmount", IncreaseAmount));
 
-            // AddBinding(new TriggerBinding("WaterTool", "AnarchyToggled", AnarchyToggled));
+            // This binding listens for whether the Decrease Amount button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "DecreaseAmount", DecreaseAmount));
+
+            // This binding listens for whether the IncreaseMinDepth button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "IncreaseMinDepth", IncreaseMinDepth));
+
+            // This binding listens for whether the DecreaseMinDepth button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "DecreaseMinDepth", DecreaseMinDepth));
+
+            // This binding listens for whether the IncreaseRadius button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "IncreaseRadius", IncreaseRadius));
+
+            // This binding listens for whether the DecreaseRadius button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "DecreaseRadius", DecreaseRadius));
+
+            // This binding listens for whether the AmountStepPressed button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "AmountStepPressed", AmountStepPressed));
+
+            // This binding listens for whether the MinDepthStepPressed button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "MinDepthStepPressed", MinDepthStepPressed));
+
+            // This binding listens for whether the RadiusStepPressed button was clicked.
+            AddBinding(new TriggerBinding("WaterTool", "RadiusStepPressed", RadiusStepPressed));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
@@ -427,6 +452,7 @@ namespace Water_Features.Tools
             }
 
             tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
+
             // This updates the binding with the new value after all changes have occured.
             m_MinDepth.Update(tempValue);
         }
@@ -546,7 +572,7 @@ namespace Water_Features.Tools
             m_RadiusStep.Update(tempValue);
         }
 
-        private void AmountRateOfChangePressed()
+        private void AmountStepPressed()
         {
             float tempValue = m_AmountStep.value;
             tempValue /= 2f;
@@ -558,7 +584,7 @@ namespace Water_Features.Tools
             m_AmountStep.Update(tempValue);
         }
 
-        private void MinDepthRateOfChangePressed()
+        private void MinDepthStepPressed()
         {
             float tempValue = m_MinDepth.value;
             tempValue /= 2f;
@@ -595,6 +621,7 @@ namespace Water_Features.Tools
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
+                m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
             }
         }
 
