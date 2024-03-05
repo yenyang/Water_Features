@@ -682,6 +682,12 @@ namespace Water_Features.Tools
                 {
                     m_ShowMinDepth.Update(flag);
                 }
+
+                if (flag)
+                {
+                    m_MinDepth.Update(tempAmount / 2f);
+                    m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount / 2f)) + 1));
+                }
             }
         }
 

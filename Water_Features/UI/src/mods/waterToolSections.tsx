@@ -119,9 +119,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
             (
                 /* 
                 Add a new section before other tool options sections with translated title based of this localization key. Localization key defined in C#.
-                Add a new Tool button into that section. Selected is based on Anarchy Enabled binding. 
-                Tooltip is translated based on localization key. OnSelect run callback fucntion here to trigger event. 
-                Anarchy specific image source changes bases on Anarchy Enabled binding. 
+                
                 */
                 <>
                     <Section title={engine.translate(AmountLocaleKey)}>
