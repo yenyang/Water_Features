@@ -307,26 +307,31 @@ namespace Water_Features.Tools
             {
                 tempRadius += 500f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
             else if (tempRadius >= 500f && tempRadius < 1000f)
             {
                 tempRadius += 100f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
             else if (tempRadius >= 100f && tempRadius < 500f)
             {
                 tempRadius += 50f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempRadius >= 10f && tempRadius < 100f)
             {
                 tempRadius += 10f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempRadius < 10000)
             {
                tempRadius += 1f * m_RadiusStep.value;
                tempRadius = Mathf.Round(tempRadius * signaficantFigures) / signaficantFigures;
+               m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
             }
 
             if (WaterFeaturesMod.Instance.Settings.TrySmallerRadii)
@@ -350,26 +355,31 @@ namespace Water_Features.Tools
             {
                 tempRadius -= 1f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * signaficantFigures) / signaficantFigures;
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
             }
             else if (tempRadius <= 100f && tempRadius > 10f)
             {
                 tempRadius -= 10f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempRadius <= 500f && tempRadius > 100f)
             {
                 tempRadius -= 50f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempRadius <= 1000f && tempRadius > 500f)
             {
                 tempRadius -= 100f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
             else if (tempRadius > 1000f)
             {
                 tempRadius -= 500f * m_RadiusStep.value;
                 tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
 
             if (WaterFeaturesMod.Instance.Settings.TrySmallerRadii)
@@ -393,32 +403,38 @@ namespace Water_Features.Tools
             {
                 tempValue += 100f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
             else if (tempValue >= 100f && tempValue < 500f)
             {
                 tempValue += 50f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempValue < 100f && tempValue >= 10f)
             {
                 tempValue += 10f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempValue < 10f && tempValue >= 1f)
             {
                 tempValue += 1f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
             }
             else if (tempValue < 1f)
             {
                 if (tempValue == 0.01f && m_MinDepthStep.value == 1f)
                 {
                     tempValue = 0.1f;
+                    m_MinDepthScale.Update(1);
                 }
                 else
                 {
                     tempValue += 0.1f * m_MinDepthStep.value;
                     tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) + 1));
                 }
             }
 
@@ -428,6 +444,7 @@ namespace Water_Features.Tools
             {
                 // This updates the binding with the new value so that max Depth is not smaller than min depth.
                 m_Amount.Update(tempValue);
+                m_AmountScale.Update(m_MinDepthScale.value);
             }
 
             // This updates the binding with the new value after all changes have occured.
@@ -442,26 +459,31 @@ namespace Water_Features.Tools
             {
                 tempValue -= 0.1f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) + 1));
             }
             else if (tempValue <= 10f && tempValue > 1f)
             {
                 tempValue -= 1f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
             }
             else if (tempValue <= 100f && tempValue > 10f)
             {
                 tempValue -= 10f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempValue <= 500f && tempValue > 100f)
             {
                 tempValue -= 50f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
             else if (tempValue > 500f)
             {
                 tempValue -= 100f * m_MinDepthStep.value;
                 tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
 
             tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
@@ -480,32 +502,38 @@ namespace Water_Features.Tools
                 {
                     tempValue += 100f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
                 }
                 else if (tempValue >= 100f && tempValue < 500f)
                 {
                     tempValue += 50f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
                 }
                 else if (tempValue < 100f && tempValue >= 10f)
                 {
                     tempValue += 10f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
                 }
                 else if (tempValue < 10f && tempValue >= 1f)
                 {
                     tempValue += 1f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
                 }
                 else if (tempValue < 1f)
                 {
                     if (tempValue == 0.01f && m_AmountStep.value == 1f)
                     {
                         tempValue = 0.1f;
+                        m_AmountScale.Update(1);
                     }
                     else
                     {
                         tempValue += 0.1f * m_AmountStep.value;
                         tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                        m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) + 1));
                     }
                 }
 
@@ -515,6 +543,7 @@ namespace Water_Features.Tools
             {
                 tempValue += 10f * m_AmountStep.value;
                 tempValue = Mathf.Round(tempValue * 10f) / 10f;
+                m_AmountScale.Update(1);
                 tempValue = Mathf.Clamp(tempValue, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
             }
 
@@ -532,26 +561,31 @@ namespace Water_Features.Tools
                 {
                     tempValue -= 0.1f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) + 1));
                 }
                 else if (tempValue <= 10f && tempValue > 1f)
                 {
                     tempValue -= 1f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
                 }
                 else if (tempValue <= 100f && tempValue > 10f)
                 {
                     tempValue -= 10f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
                 }
                 else if (tempValue <= 500f && tempValue > 100f)
                 {
                     tempValue -= 50f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
                 }
                 else if (tempValue > 500f)
                 {
                     tempValue -= 100f * m_AmountStep.value;
                     tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
                 }
 
                 tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
@@ -560,6 +594,7 @@ namespace Water_Features.Tools
             {
                 tempValue -= 10f * m_AmountStep.value;
                 tempValue = Mathf.Round(tempValue * 10f) / 10f;
+                m_AmountScale.Update(1);
                 tempValue = Mathf.Clamp(tempValue, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
             }
 
@@ -567,6 +602,7 @@ namespace Water_Features.Tools
             {
                 // This updates the binding with the new value so that max Depth is not smaller than min depth.
                 m_MinDepth.Update(tempValue);
+                m_MinDepthScale.Update(m_AmountScale.value);
             }
 
             // This updates the binding with the new value after all changes have occured.
