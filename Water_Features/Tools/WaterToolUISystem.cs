@@ -492,6 +492,11 @@ namespace Water_Features.Tools
 
             tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
 
+            if (tempValue == 0.01f)
+            {
+                m_MinDepthScale.Update(2);
+            }
+
             // This updates the binding with the new value after all changes have occured.
             m_MinDepth.Update(tempValue);
         }
@@ -593,6 +598,10 @@ namespace Water_Features.Tools
                 }
 
                 tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
+                if (tempValue == 0.01f)
+                {
+                    m_AmountScale.Update(2);
+                }
             }
             else
             {
@@ -674,8 +683,8 @@ namespace Water_Features.Tools
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
-                m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount)) + 1));
-                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempRadius)) + 1));
+                m_AmountScale.Update(Math.Max(0, CalculateScale(tempAmount)));
+                m_RadiusScale.Update(Math.Max(0, CalculateScale(tempRadius)));
                 m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
                 bool flag = waterSourcePrefab.m_SourceType == SourceType.RetentionBasin;
                 if (m_ShowMinDepth.value != flag)
@@ -686,9 +695,41 @@ namespace Water_Features.Tools
                 if (flag)
                 {
                     m_MinDepth.Update(tempAmount / 2f);
-                    m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount / 2f)) + 1));
+                    m_MinDepthScale.Update(Math.Max(0, CalculateScale(tempAmount / 2f)));
                 }
             }
+        }
+
+        private int CalculateScale(float value)
+        {
+            value = Mathf.Abs(value);
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} value = {value}");
+            int afterTheDecimal = Mathf.FloorToInt((value % Mathf.Floor(value)) * 10000);
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} afterTheDecimal = {afterTheDecimal}");
+            int significantFiguresBeforeTheDecimal = Mathf.CeilToInt(Mathf.Log10(value));
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresBeforeTheDecimal = {significantFiguresBeforeTheDecimal}");
+            int significantFiguresAfterTheDecimal = 0;
+            for (int i = 10; i <= 10000; i *= 10)
+            {
+                if (Mathf.FloorToInt(afterTheDecimal % i) > 1)
+                {
+                    significantFiguresAfterTheDecimal++;
+                }
+            }
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresAfterTheDecimal = {significantFiguresAfterTheDecimal}");
+
+            int maxSignificantFiguresAfterTheDecimal = 4 - significantFiguresBeforeTheDecimal;
+            if (value > 100f && value <= 500f)
+            {
+                maxSignificantFiguresAfterTheDecimal++;
+            }
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} maxSignificantFiguresAfterTheDecimal = {maxSignificantFiguresAfterTheDecimal}");
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} result = {Math.Min(significantFiguresAfterTheDecimal, maxSignificantFiguresAfterTheDecimal)}");
+
+            return Math.Min(significantFiguresAfterTheDecimal, maxSignificantFiguresAfterTheDecimal);
         }
 
         /// <summary>
