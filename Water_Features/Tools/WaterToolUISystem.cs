@@ -670,6 +670,8 @@ namespace Water_Features.Tools
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
+                m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount))));
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempRadius))));
                 m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
             }
         }
