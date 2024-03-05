@@ -639,14 +639,14 @@ namespace Water_Features.Tools
 
         private void MinDepthStepPressed()
         {
-            float tempValue = m_MinDepth.value;
+            float tempValue = m_MinDepthStep.value;
             tempValue /= 2f;
             if (tempValue < 0.125f)
             {
                 tempValue = 1.0f;
             }
 
-            m_MinDepth.Update(tempValue);
+            m_MinDepthStep.Update(tempValue);
         }
 
         private void OnToolChanged(ToolBaseSystem tool)
