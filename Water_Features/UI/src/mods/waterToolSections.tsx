@@ -63,6 +63,10 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
         const MinDepthScale$ = bindValue<number> ('WaterTool', 'MinDepthScale');
         const MinDepthScale = useValue(MinDepthScale$);
 
+        // This binding is for whether to show Min Depth.
+        const ShowMinDepth$ = bindValue<number> ('WaterTool', 'ShowMinDepth');
+        const ShowMinDepth = useValue(ShowMinDepth$);
+
         const increaseAmount = useCallback ((ev: MouseEvent<HTMLButtonElement>) => {
             // This triggers an event on C# side and C# designates the method to implement.
             trigger("WaterTool", "IncreaseAmount");
@@ -107,8 +111,6 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
             // This triggers an event on C# side and C# designates the method to implement.
             trigger("WaterTool", "RadiusStepPressed");
         }, []);
-        
-        const showMinDepth : boolean = false;
 
         var result = Component();
         if (toolActive) 
@@ -128,7 +130,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
                         <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-up-arrow")} onSelect={increaseAmount} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
                         <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change")} onSelect={amountStepPressed} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={AmountStep}></StepToolButton>
                     </Section>
-                    { showMinDepth? 
+                    { ShowMinDepth ? 
 
                     <Section title={engine.translate("YY_WATER_FEATURES.MinDepth")}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow")} onSelect={decreaseMinDepth} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>

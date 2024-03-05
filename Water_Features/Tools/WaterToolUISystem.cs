@@ -48,6 +48,7 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_AmountScale;
         private ValueBinding<int> m_MinDepthScale;
         private ValueBinding<int> m_RadiusScale;
+        private ValueBinding<bool> m_ShowMinDepth;
 
         /// <summary>
         /// Types of water sources.
@@ -240,6 +241,9 @@ namespace Water_Features.Tools
 
             // This binding communicates the value of the selected Radius scale.
             AddBinding(m_RadiusScale = new ValueBinding<int>("WaterTool", "RadiusScale", 0));
+
+            // This binding communicates whether Min Depth section should be shown.
+            AddBinding(m_ShowMinDepth = new ValueBinding<bool>("WaterTool", "ShowMinDepth", false));
 
             // This binding listens for whether the Increase Amount button was clicked.
             AddBinding(new TriggerBinding("WaterTool", "IncreaseAmount", IncreaseAmount));
@@ -670,9 +674,14 @@ namespace Water_Features.Tools
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
-                m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount))));
-                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempRadius))));
+                m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempAmount)) + 1));
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - Mathf.CeilToInt(Mathf.Log10(tempRadius)) + 1));
                 m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
+                bool flag = waterSourcePrefab.m_SourceType == SourceType.RetentionBasin;
+                if (m_ShowMinDepth.value != flag)
+                {
+                    m_ShowMinDepth.Update(flag);
+                }
             }
         }
 
