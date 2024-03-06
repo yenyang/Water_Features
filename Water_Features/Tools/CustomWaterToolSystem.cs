@@ -2,9 +2,9 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Tools
 {
-    using System.Runtime.CompilerServices;
     using Colossal.Entities;
     using Colossal.Logging;
     using Game.Common;
@@ -13,6 +13,7 @@ namespace Water_Features.Tools
     using Game.Rendering;
     using Game.Simulation;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -37,7 +38,6 @@ namespace Water_Features.Tools
         private ProxyAction m_ApplyAction;
         private ProxyAction m_SecondaryApplyAction;
         private ControlPoint m_RaycastPoint;
-        private TypeHandle __TypeHandle;
         private EntityQuery m_WaterSourcesQuery;
         private ToolOutputBarrier m_ToolOutputBarrier;
         private OverlayRenderSystem m_OverlayRenderSystem;
@@ -257,26 +257,20 @@ namespace Water_Features.Tools
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             inputDeps = Dependency;
-            __TypeHandle.__Game_Simulation_WaterSourceData_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Unity_Entities_Entity_TypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__DetentionBasin_Lookup.Update(ref CheckedStateRef);
-            __TypeHandle.__RententionBasin_Lookup.Update(ref CheckedStateRef);
-            __TypeHandle.__AutofillingLake_Lookup.Update(ref CheckedStateRef);
 
             TerrainHeightData terrainHeightData = m_TerrainSystem.GetHeightData();
 
             WaterSourceCirclesRenderJob waterSourceCirclesRenderJob = new ()
             {
                 m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outJobHandle),
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RO_ComponentTypeHandle,
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
                 m_WaterSurfaceData = m_WaterSystem.GetSurfaceData(out JobHandle waterSurfaceDataJob),
-                m_DetentionBasinLookup = __TypeHandle.__DetentionBasin_Lookup,
-                m_RetentionBasinLookup = __TypeHandle.__RententionBasin_Lookup,
-                m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
-                m_AutofillingLakeLookup = __TypeHandle.__AutofillingLake_Lookup,
+                m_DetentionBasinLookup = SystemAPI.GetComponentLookup<DetentionBasin>(),
+                m_RetentionBasinLookup = SystemAPI.GetComponentLookup<RetentionBasin>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                m_AutofillingLakeLookup = SystemAPI.GetComponentLookup<AutofillingLake>(),
             };
             inputDeps = JobChunkExtensions.Schedule(waterSourceCirclesRenderJob, m_WaterSourcesQuery, JobHandle.CombineDependencies(inputDeps, outJobHandle, waterSurfaceDataJob));
             m_OverlayRenderSystem.AddBufferWriter(inputDeps);
@@ -355,10 +349,10 @@ namespace Water_Features.Tools
                 {
                     RemoveWaterSourcesJob removeWaterSourcesJob = new ()
                     {
-                        m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RO_ComponentTypeHandle,
-                        m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
+                        m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                        m_EntityType = SystemAPI.GetEntityTypeHandle(),
                         m_Position = m_RaycastPoint.m_HitPosition,
-                        m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
+                        m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
                         buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
                         m_MapExtents = MapExtents,
                     };
@@ -464,9 +458,9 @@ namespace Water_Features.Tools
             m_HoveredWaterSources.Clear();
             HoverOverWaterSourceJob hoverOverWaterSourceJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RO_ComponentTypeHandle,
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
-                m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 m_Position = m_RaycastPoint.m_HitPosition,
                 m_Entities = m_HoveredWaterSources,
                 m_MapExtents = MapExtents,
@@ -481,13 +475,6 @@ namespace Water_Features.Tools
         {
             m_HoveredWaterSources.Dispose();
             base.OnDestroy();
-        }
-
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
         }
 
         /// <summary>
@@ -653,6 +640,9 @@ namespace Water_Features.Tools
             m_FindWaterSourcesSystem.Enabled = true;
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job removes any Entity.
         /// </summary>
@@ -668,6 +658,9 @@ namespace Water_Features.Tools
         }
 
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job removes a water source.
         /// </summary>
@@ -703,6 +696,9 @@ namespace Water_Features.Tools
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job adds a vanilla water source.
         /// </summary>
@@ -722,6 +718,9 @@ namespace Water_Features.Tools
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job adds an AutoFillingLake water source.
         /// </summary>
@@ -743,6 +742,9 @@ namespace Water_Features.Tools
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job adds a detention basin water source.
         /// </summary>
@@ -764,6 +766,9 @@ namespace Water_Features.Tools
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job adds a retention basin water source.
         /// </summary>
@@ -947,6 +952,12 @@ namespace Water_Features.Tools
             }
         }
 
+        /// <summary>
+        /// This job loops through all water sources and creates a list of water source entities which are currently being hovered over.
+        /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct HoverOverWaterSourceJob : IJobChunk
         {
             [ReadOnly]
@@ -982,33 +993,6 @@ namespace Water_Features.Tools
                         m_Entities.Add(in currentEntity);
                     }
                 }
-            }
-        }
-
-        private struct TypeHandle
-        {
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Unity_Entities_Entity_TypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Objects.Transform> __Game_Objects_Transform_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentLookup<RetentionBasin> __RententionBasin_Lookup;
-            [ReadOnly]
-            public ComponentLookup<DetentionBasin> __DetentionBasin_Lookup;
-            [ReadOnly]
-            public ComponentLookup<AutofillingLake> __AutofillingLake_Lookup;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Unity_Entities_Entity_TypeHandle = state.GetEntityTypeHandle();
-                __Game_Simulation_WaterSourceData_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __Game_Objects_Transform_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Objects.Transform>();
-                __DetentionBasin_Lookup = state.GetComponentLookup<DetentionBasin>();
-                __RententionBasin_Lookup = state.GetComponentLookup<RetentionBasin>();
-                __AutofillingLake_Lookup = state.GetComponentLookup<AutofillingLake>();
             }
         }
     }

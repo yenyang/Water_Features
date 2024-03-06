@@ -5,11 +5,8 @@
 namespace Water_Features.Systems
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
-    using Colossal.Entities;
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
@@ -35,7 +32,6 @@ namespace Water_Features.Systems
     {
         public static readonly int kUpdatesPerDay = 128;
 
-        private TypeHandle __TypeHandle;
         private ClimateSystem m_ClimateSystem;
         private string m_CurrentSeason;
         private EntityQuery m_ClimateQuery;
@@ -113,17 +109,13 @@ namespace Water_Features.Systems
                 m_CurrentSeasonMeanPrecipitation = GetMeanPrecipitation(m_ClimatePrefab, normalizedClimateDate);
             }
 
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Entity_RO_TypeHandle.Update(ref CheckedStateRef);
             ReviseWaterSourcesJob reviseWaterSourcesJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_SeasonalStreamDataType = __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_SeasonalStreamDataType = SystemAPI.GetComponentTypeHandle<SeasonalStreamsData>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
-                m_EntityType = __TypeHandle.__Entity_RO_TypeHandle,
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
             };
 
@@ -191,13 +183,6 @@ namespace Water_Features.Systems
             }
         }
 
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
-        }
-
         /// <summary>
         /// This calculates the mean seasonal precipiations to figure out seasonality of the climate for the map.
         /// </summary>
@@ -257,25 +242,6 @@ namespace Water_Features.Systems
             OverridableProperty<float> climateDate = (OverridableProperty<float>)climateDateVar;
             float normalizedClimateDate = float.Parse(climateDate.ToString(), CultureInfo.InvariantCulture.NumberFormat); // This is a dumb solution but climateDate.value is coming up as 0.
             return normalizedClimateDate;
-        }
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            public ComponentTypeHandle<SeasonalStreamsData> __Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Objects.Transform> __Game_Objects_Transform_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Entity_RO_TypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle = state.GetComponentTypeHandle<SeasonalStreamsData>();
-                __Game_Objects_Transform_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Objects.Transform>();
-                __Entity_RO_TypeHandle = state.GetEntityTypeHandle();
-            }
         }
 
         /// <summary>

@@ -5,7 +5,6 @@
 namespace Water_Features.Systems
 {
     using Colossal.Logging;
-    using Colossal.Serialization.Entities;
     using Game;
     using Game.Simulation;
     using Unity.Entities;

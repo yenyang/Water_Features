@@ -26,14 +26,12 @@ namespace Water_Features.Systems
     {
         public static readonly int kUpdatesPerDay = 128;
 
-        private TypeHandle __TypeHandle;
         private EndFrameBarrier m_EndFrameBarrier;
         private ClimateSystem m_ClimateSystem;
         private WaterSystem m_WaterSystem;
         private TerrainSystem m_TerrainSystem;
         private EntityQuery m_RetentionBasinQuery;
         private ILog m_Log;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RetentionBasinSystem"/> class.
@@ -82,18 +80,14 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            __TypeHandle.__RetentionBasin_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
             RetentionBasinJob retentionBasinJob = new ()
             {
-                m_RetentionBasinType = __TypeHandle.__RetentionBasin_RW_ComponentTypeHandle,
-                m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
+                m_RetentionBasinType = SystemAPI.GetComponentTypeHandle<RetentionBasin>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
                 m_WaterSurfaceData = m_WaterSystem.GetSurfaceData(out JobHandle waterSurfaceDataJob),
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
                 m_Precipiation = m_ClimateSystem.precipitation,
                 m_Snowing = m_ClimateSystem.isSnowing,
@@ -105,13 +99,6 @@ namespace Water_Features.Systems
         }
 
         /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
-        }
-
-        /// <inheritdoc/>
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
@@ -119,25 +106,6 @@ namespace Water_Features.Systems
             {
                 Enabled = false;
                 return;
-            }
-        }
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Unity_Entities_Entity_TypeHandle;
-            public ComponentTypeHandle<RetentionBasin> __RetentionBasin_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Objects.Transform> __Game_Objects_Transform_RO_ComponentTypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Unity_Entities_Entity_TypeHandle = state.GetEntityTypeHandle();
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __RetentionBasin_RW_ComponentTypeHandle = state.GetComponentTypeHandle<RetentionBasin>();
-                __Game_Objects_Transform_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Objects.Transform>();
             }
         }
 
