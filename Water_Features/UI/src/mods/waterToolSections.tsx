@@ -112,24 +112,27 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
             trigger("WaterTool", "RadiusStepPressed");
         }, []);
 
+        const amountIsFlow : boolean = AmountLocaleKey == "YY_WATER_FEATURES.Flow";
+
         var result = Component();
         if (toolActive) 
         {
             result.props.children?.unshift
             (
                 /* 
-                Add a new section before other tool options sections with translated title based of this localization key. Localization key defined in C#.
-                
+                Add a new section before other tool options sections with translated title based of localization key from binding. Localization key defined in C#.
+                Adds up and down buttons and field with step button. All buttons have translated tooltips. OnSelect triggers C# events. Src paths are from UIL.
+                values must be decending. SelectedValue is from binding. 
                 */
                 <>
                     <Section title={engine.translate(AmountLocaleKey)}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-down-arrow")} onSelect={decreaseAmount} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
-                        <div className={mouseToolTheme.numberField}>{AmountValue.toFixed(AmountScale)}</div>
+                        <div className={mouseToolTheme.numberField}>{amountIsFlow ? AmountValue.toFixed(AmountScale) : AmountValue.toFixed(AmountScale) + " m"}</div>
                         <ToolButton className={mouseToolTheme.endButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-up-arrow")} onSelect={increaseAmount} src="coui://uil/Standard/ArrowUpThickStroke.svg"></ToolButton>
                         <StepToolButton class name={mouseToolTheme.indicator} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change")} onSelect={amountStepPressed} values={[1.0, 0.5, 0.25, 0.125]} selectedValue={AmountStep}></StepToolButton>
                     </Section>
                     { ShowMinDepth ? 
-
+                    // This section is only shown if binding says so.
                     <Section title={engine.translate("YY_WATER_FEATURES.MinDepth")}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow")} onSelect={decreaseMinDepth} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
                         <div className={mouseToolTheme.numberField}>{MinDepthValue.toFixed(MinDepthScale) + " m"}</div>
@@ -139,7 +142,7 @@ export const WaterToolComponent = (moduleRegistry: ModuleRegistry) => (Component
                     
                     : <></>
                     }
-
+                    
                     <Section title={engine.translate("YY_WATER_FEATURES.Radius")}>
                         <ToolButton className={mouseToolTheme.startButton} tooltip={engine.translate("YY_WATER_FEATURES_DESCRIPTION.radius-down-arrow")} onSelect={decreaseRadius} src="coui://uil/Standard/ArrowDownThickStroke.svg"></ToolButton>
                         <div className={mouseToolTheme.numberField}>{RadiusValue.toFixed(RadiusScale) + " m"}</div>

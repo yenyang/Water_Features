@@ -704,9 +704,15 @@ namespace Water_Features.Tools
         {
             value = Mathf.Abs(value);
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} value = {value}");
-            int afterTheDecimal = Mathf.FloorToInt((value % Mathf.Floor(value)) * 10000);
+            int afterTheDecimal = Mathf.FloorToInt(value * 10000);
+            int significantFiguresBeforeTheDecimal = 0;
+            if (value > 1f)
+            {
+                afterTheDecimal = Mathf.FloorToInt((value % Mathf.Floor(value)) * 10000);
+                significantFiguresBeforeTheDecimal = Mathf.CeilToInt(Mathf.Log10(value));
+            }
+
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} afterTheDecimal = {afterTheDecimal}");
-            int significantFiguresBeforeTheDecimal = Mathf.CeilToInt(Mathf.Log10(value));
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresBeforeTheDecimal = {significantFiguresBeforeTheDecimal}");
             int significantFiguresAfterTheDecimal = 0;
             for (int i = 10; i <= 10000; i *= 10)
@@ -719,7 +725,7 @@ namespace Water_Features.Tools
 
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresAfterTheDecimal = {significantFiguresAfterTheDecimal}");
 
-            int maxSignificantFiguresAfterTheDecimal = 4 - significantFiguresBeforeTheDecimal;
+            int maxSignificantFiguresAfterTheDecimal = Math.Max(4 - significantFiguresBeforeTheDecimal, 1);
             if (value > 100f && value <= 500f)
             {
                 maxSignificantFiguresAfterTheDecimal++;
