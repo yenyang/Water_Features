@@ -263,10 +263,10 @@ namespace Water_Features.Tools
             AddBinding(new TriggerBinding(kModId, "amount-rate-of-change", AmountStepPressed));
 
             // This binding listens for whether the radius-rate-of-change button was clicked.
-            AddBinding(new TriggerBinding(kModId, "radius-rate-of-change", MinDepthStepPressed));
+            AddBinding(new TriggerBinding(kModId, "min-depth-rate-of-change", MinDepthStepPressed));
 
             // This binding listens for whether the min-depth-rate-of-change button was clicked.
-            AddBinding(new TriggerBinding(kModId, "min-depth-rate-of-change", RadiusStepPressed));
+            AddBinding(new TriggerBinding(kModId, "radius-rate-of-change", RadiusStepPressed));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
