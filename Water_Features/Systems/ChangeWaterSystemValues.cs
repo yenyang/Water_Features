@@ -55,7 +55,8 @@ namespace Water_Features.Systems
             m_Log = WaterFeaturesMod.Instance.Log;
             m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
             m_OriginalDamping = m_WaterSystem.m_Damping;
-            m_Log.Debug($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
+            m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
+            m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
             m_TimeSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TimeSystem>();
             m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)}");
         }
@@ -95,6 +96,12 @@ namespace Water_Features.Systems
                 {
                     m_WaterSystem.WaterSimSpeed = 1;
                 }
+            }
+
+            if (!Mathf.Approximately(m_WaterSystem.m_Fluidness, WaterFeaturesMod.Instance.Settings.Fluidness))
+            {
+                m_WaterSystem.m_Fluidness = WaterFeaturesMod.Instance.Settings.Fluidness;
+                m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed Fluidness to {m_WaterSystem.m_Fluidness}.");
             }
         }
     }

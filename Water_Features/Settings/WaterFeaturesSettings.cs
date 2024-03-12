@@ -21,22 +21,28 @@ namespace Water_Features.Settings
     [FileLocation("Mods_Yenyang_Water_Features")]
     [SettingsUITabOrder(SeasonalStreams, WaterToolGroup, WavesAndTides)]
     [SettingsUISection(SeasonalStreams, WaterToolGroup, WavesAndTides)]
+    [SettingsUIGroupOrder(WaterToolGroup, Experimental)]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
-        /// This is for settings that affect the UI for the mod.
+        /// This is for settings for seasonal streams.
         /// </summary>
         public const string SeasonalStreams = "Seasonal Streams";
 
         /// <summary>
-        /// This is for options related to unique buildings.
+        /// This is for options related to water tool.
         /// </summary>
         public const string WaterToolGroup = "Water Tool";
 
         /// <summary>
-        /// This is for options related to prop culling.
+        /// This is for options related to waves and tides.
         /// </summary>
         public const string WavesAndTides = "Waves and Tides";
+
+        /// <summary>
+        /// This is for experimental settings.
+        /// </summary>
+        public const string Experimental = "Experimental";
 
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
         private ILog m_Log;
@@ -258,6 +264,14 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
+        /// Gets or sets a value with a slider indicating the fluidness factor of the water system.
+        /// </summary>
+        [SettingsUIAdvanced]
+        [SettingsUISection(WaterToolGroup, Experimental)]
+        [SettingsUISlider(min = 0.01f, max = 1.0f, step = 0.01f, unit = Unit.kFloatTwoFractions)]
+        public float Fluidness { get; set; }
+
+        /// <summary>
         /// Resets only the water tool settings.
         /// </summary>
         public void ResetWaterToolSettings()
@@ -266,6 +280,7 @@ namespace Water_Features.Settings
             TrySmallerRadii = false;
             IncludeDetentionBasins = false;
             IncludeRetentionBasins = false;
+            Fluidness = 0.1f;
         }
 
         /// <summary>
@@ -326,6 +341,7 @@ namespace Water_Features.Settings
             Damping = 0.9999f;
             EnableSeasonalStreams = true;
             EnableWavesAndTides = false;
+            Fluidness = 0.1f;
         }
 
         /// <summary>

@@ -33,7 +33,7 @@ export const minDepthStepID =   "min-depth-rate-of-change";
 export const tooltipDescriptionPrefix ="YY_WATER_FEATURES_DESCRIPTION.";
 export const sectionTitlePrefix =      "YY_WATER_FEATURES."; 
 
-// Stores the default values for the step arrays.
+// Stores the default values for the step arrays. Must be descending order.
 export const defaultValues : number[] =[1.0, 0.5, 0.25, 0.125];
 
 // This functions trigger an event on C# side and C# designates the method to implement.
@@ -146,7 +146,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                             focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
                         ></VanillaComponentResolver.instance.ToolButton>
                         <VanillaComponentResolver.instance.StepToolButton tooltip={radiusStepTooltip} onSelect={() => handleClick(radiusStepID)} values={defaultValues} selectedValue={RadiusStep}></VanillaComponentResolver.instance.StepToolButton>
-                    </VanillaComponentResolver.instance.Section>
+                    </VanillaComponentResolver.instance.Section>                    
                 </>
             );
         }
