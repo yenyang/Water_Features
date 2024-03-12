@@ -44,7 +44,6 @@ namespace Water_Features.Tools
         private ValueBinding<float> m_RadiusStep;
         private ValueBinding<float> m_AmountStep;
         private ValueBinding<float> m_MinDepthStep;
-        private ValueBinding<bool> m_ToolActive;
         private ValueBinding<int> m_AmountScale;
         private ValueBinding<int> m_MinDepthScale;
         private ValueBinding<int> m_RadiusScale;
@@ -202,15 +201,10 @@ namespace Water_Features.Tools
             m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
-            ToolSystem toolSystem = m_ToolSystem; // I don't know why vanilla game did this.
-            m_ToolSystem.EventToolChanged = (Action<ToolBaseSystem>)Delegate.Combine(toolSystem.EventToolChanged, new Action<ToolBaseSystem>(OnToolChanged));
             ToolSystem toolSystem2 = m_ToolSystem; // I don't know why vanilla game did this.
             m_ToolSystem.EventPrefabChanged = (Action<PrefabBase>)Delegate.Combine(toolSystem2.EventPrefabChanged, new Action<PrefabBase>(OnPrefabChanged));
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
-
-            // This binding communicates whether Water Tool is active.
-            AddBinding(m_ToolActive = new ValueBinding<bool>("WaterTool", "ToolActive", false));
 
             // This binding communicates the value for Amount.
             AddBinding(m_Amount = new ValueBinding<float>("WaterTool", "AmountValue", 1f));
@@ -656,17 +650,6 @@ namespace Water_Features.Tools
             }
 
             m_MinDepthStep.Update(tempValue);
-        }
-
-        private void OnToolChanged(ToolBaseSystem tool)
-        {
-            bool flag = tool == m_CustomWaterToolSystem;
-            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnToolChanged)}");
-            if (m_ToolActive.value != flag)
-            {
-                m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnToolChanged)} tool active.");
-                m_ToolActive.Update(flag);
-            }
         }
 
         private void OnPrefabChanged(PrefabBase prefabBase)

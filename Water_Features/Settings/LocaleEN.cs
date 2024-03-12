@@ -102,7 +102,7 @@ namespace Water_Features.Settings
                 { "YY_WATER_FEATURES.radius-down-arrow", "Reduce Radius" },
                 { "YY_WATER_FEATURES_DESCRIPTION.radius-down-arrow", "Reduces the radius." },
                 { "YY_WATER_FEATURES.radius-up-arrow", "Increase Radius" },
-                { "YY_WATER_FEATURES_DESCRIPTION.radius-up-arrow", "Increases the radius.." },
+                { "YY_WATER_FEATURES_DESCRIPTION.radius-up-arrow", "Increases the radius." },
                 { "YY_WATER_FEATURES.min-depth-down-arrow", "Reduce Min Depth" },
                 { "YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow", "Reduces the minimum depth." },
                 { "YY_WATER_FEATURES.min-depth-up-arrow", "Increase Min Depth" },
