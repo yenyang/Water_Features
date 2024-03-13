@@ -21,7 +21,8 @@ namespace Water_Features.Settings
     [FileLocation("Mods_Yenyang_Water_Features")]
     [SettingsUITabOrder(SeasonalStreams, WaterToolGroup, WavesAndTides)]
     [SettingsUISection(SeasonalStreams, WaterToolGroup, WavesAndTides)]
-    [SettingsUIGroupOrder(WaterToolGroup, Experimental)]
+    [SettingsUIShowGroupName(Experimental)]
+    [SettingsUIGroupOrder(WaterToolGroup, Experimental, Reset)]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
@@ -43,6 +44,11 @@ namespace Water_Features.Settings
         /// This is for experimental settings.
         /// </summary>
         public const string Experimental = "Experimental";
+
+        /// <summary>
+        /// This is for rest settings button group.
+        /// </summary>
+        public const string Reset = "Reset";
 
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
         private ILog m_Log;
@@ -120,7 +126,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIButton]
         [SettingsUIConfirmation]
-        [SettingsUISection(WaterToolGroup, WaterToolGroup)]
+        [SettingsUISection(WaterToolGroup, Reset)]
         public bool ResetWaterToolGroupButton
         {
             set
@@ -266,7 +272,6 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value with a slider indicating the fluidness factor of the water system.
         /// </summary>
-        [SettingsUIAdvanced]
         [SettingsUISection(WaterToolGroup, Experimental)]
         [SettingsUISlider(min = 0.01f, max = 1.0f, step = 0.01f, unit = Unit.kFloatTwoFractions)]
         public float Fluidness { get; set; }
