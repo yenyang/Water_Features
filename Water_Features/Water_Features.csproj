@@ -148,7 +148,6 @@
 	  <Folder Include="Components\" />
 	  <Folder Include="Prefabs\" />
 	  <Folder Include="Systems\" />
-	  <Folder Include="Tools\" />
 	  <Folder Include="Utils\" />
 	  <Folder Include="UI\" />
 	</ItemGroup>

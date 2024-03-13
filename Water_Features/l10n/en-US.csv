@@ -107,3 +107,4 @@ Options.OPTION_DESCRIPTION:Fluidness,"Experimental option to alter the Fluidness
 Options.OPTION:ResetExperimentalSettingsButton,"Reset Experimental Settings"
 Options.OPTION_DESCRIPTION:ResetExperimentalSettingsButton,"On confirmation, resets Experimental Settings."
 Options.WARNING:ResetExperimentalSettingsButton,"Reset Experimental Settings?"
+Editor.TOOL[Yenyang's Water Tool],"Yenyang's Water Tool"

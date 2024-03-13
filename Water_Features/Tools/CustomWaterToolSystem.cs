@@ -13,6 +13,7 @@ namespace Water_Features.Tools
     using Game.Rendering;
     using Game.Simulation;
     using Game.Tools;
+    using System.IO;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
@@ -257,6 +258,18 @@ namespace Water_Features.Tools
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             inputDeps = Dependency;
+
+            if (m_ActivePrefab == null)
+            {
+                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), "Water Source Stream"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
+                {
+                    m_ActivePrefab = prefabBase as WaterSourcePrefab;
+                }
+                else
+                {
+                    return inputDeps;
+                }
+            }
 
             TerrainHeightData terrainHeightData = m_TerrainSystem.GetHeightData();
 

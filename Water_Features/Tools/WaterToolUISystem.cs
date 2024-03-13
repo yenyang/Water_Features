@@ -6,7 +6,9 @@ namespace Water_Features.Tools
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.IO;
+    using System.Linq;
     using System.Xml.Serialization;
     using Colossal.Logging;
     using Colossal.PSI.Environment;
@@ -17,18 +19,20 @@ namespace Water_Features.Tools
     using Game.Simulation;
     using Game.Tools;
     using Game.UI;
+    using Game.UI.Editor;
     using Unity.Entities;
     using UnityEngine;
     using Water_Features;
     using Water_Features.Prefabs;
     using Water_Features.Settings;
+    using Water_Features.Utils;
 
     /// <summary>
     /// UI system for Custom Water Tool.
     /// </summary>
     public partial class WaterToolUISystem : UISystemBase
     {
-        private const string kModId = "Water_Features";
+        private const string ModId = "Water_Features";
 
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
@@ -50,6 +54,7 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_MinDepthScale;
         private ValueBinding<int> m_RadiusScale;
         private ValueBinding<bool> m_ShowMinDepth;
+        private EditorToolUISystem m_EditorToolUISystem;
 
         /// <summary>
         /// Types of water sources.
@@ -208,65 +213,77 @@ namespace Water_Features.Tools
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
 
+            m_EditorToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EditorToolUISystem>();
+            IEditorTool[] existingTools = m_EditorToolUISystem.tools;
+            IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
+            int i = 0;
+            foreach (IEditorTool currentTool in existingTools)
+            {
+                newTools[i++] = currentTool;
+            }
+
+            newTools[i] = new CustomEditorWaterTool(World.DefaultGameObjectInjectionWorld);
+            m_EditorToolUISystem.tools = newTools;
+
             // This binding communicates the value for Amount.
-            AddBinding(m_Amount = new ValueBinding<float>(kModId, "AmountValue", 1f));
+            AddBinding(m_Amount = new ValueBinding<float>(ModId, "AmountValue", 1f));
 
             // This binding communicates the value for Radius.
-            AddBinding(m_Radius = new ValueBinding<float>(kModId, "RadiusValue", 5f));
+            AddBinding(m_Radius = new ValueBinding<float>(ModId, "RadiusValue", 5f));
 
             // This binding communicates the value for Min Depth.
-            AddBinding(m_MinDepth = new ValueBinding<float>(kModId, "MinDepthValue", 10f));
+            AddBinding(m_MinDepth = new ValueBinding<float>(ModId, "MinDepthValue", 10f));
 
             // This binding communicates the Locale Key for the Amount section.
-            AddBinding(m_AmountLocaleKey = new ValueBinding<string>(kModId, "AmountLocaleKey", "YY_WATER_FEATURES.Depth"));
+            AddBinding(m_AmountLocaleKey = new ValueBinding<string>(ModId, "AmountLocaleKey", "YY_WATER_FEATURES.Depth"));
 
             // This binding communicates the value of the selected Radius Step.
-            AddBinding(m_RadiusStep = new ValueBinding<float>(kModId, "RadiusStep", 1f));
+            AddBinding(m_RadiusStep = new ValueBinding<float>(ModId, "RadiusStep", 1f));
 
             // This binding communicates the value of the selected Amount Step.
-            AddBinding(m_AmountStep = new ValueBinding<float>(kModId, "AmountStep", 1f));
+            AddBinding(m_AmountStep = new ValueBinding<float>(ModId, "AmountStep", 1f));
 
             // This binding communicates the value of the selected Min Depth step.
-            AddBinding(m_MinDepthStep = new ValueBinding<float>(kModId, "MinDepthStep", 1f));
+            AddBinding(m_MinDepthStep = new ValueBinding<float>(ModId, "MinDepthStep", 1f));
 
             // This binding communicates the value of the selected Amount scale.
-            AddBinding(m_AmountScale = new ValueBinding<int>(kModId, "AmountScale", 0));
+            AddBinding(m_AmountScale = new ValueBinding<int>(ModId, "AmountScale", 0));
 
             // This binding communicates the value of the selected Min Depth Scale.
-            AddBinding(m_MinDepthScale = new ValueBinding<int>(kModId, "MinDepthScale", 0));
+            AddBinding(m_MinDepthScale = new ValueBinding<int>(ModId, "MinDepthScale", 0));
 
             // This binding communicates the value of the selected Radius scale.
-            AddBinding(m_RadiusScale = new ValueBinding<int>(kModId, "RadiusScale", 0));
+            AddBinding(m_RadiusScale = new ValueBinding<int>(ModId, "RadiusScale", 0));
 
             // This binding communicates whether Min Depth section should be shown.
-            AddBinding(m_ShowMinDepth = new ValueBinding<bool>(kModId, "ShowMinDepth", false));
+            AddBinding(m_ShowMinDepth = new ValueBinding<bool>(ModId, "ShowMinDepth", false));
 
             // This binding listens for whether the amount-up-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "amount-up-arrow", IncreaseAmount));
+            AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
 
             // This binding listens for whether the amount-down-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "amount-down-arrow", DecreaseAmount));
+            AddBinding(new TriggerBinding(ModId, "amount-down-arrow", DecreaseAmount));
 
             // This binding listens for whether the min-depth-up-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "min-depth-up-arrow", IncreaseMinDepth));
+            AddBinding(new TriggerBinding(ModId, "min-depth-up-arrow", IncreaseMinDepth));
 
             // This binding listens for whether the min-depth-down-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "min-depth-down-arrow", DecreaseMinDepth));
+            AddBinding(new TriggerBinding(ModId, "min-depth-down-arrow", DecreaseMinDepth));
 
             // This binding listens for whether the radius-up-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "radius-up-arrow", IncreaseRadius));
+            AddBinding(new TriggerBinding(ModId, "radius-up-arrow", IncreaseRadius));
 
             // This binding listens for whether the radius-down-arrow button was clicked.
-            AddBinding(new TriggerBinding(kModId, "radius-down-arrow", DecreaseRadius));
+            AddBinding(new TriggerBinding(ModId, "radius-down-arrow", DecreaseRadius));
 
             // This binding listens for whether the amount-rate-of-change button was clicked.
-            AddBinding(new TriggerBinding(kModId, "amount-rate-of-change", AmountStepPressed));
+            AddBinding(new TriggerBinding(ModId, "amount-rate-of-change", AmountStepPressed));
 
             // This binding listens for whether the radius-rate-of-change button was clicked.
-            AddBinding(new TriggerBinding(kModId, "min-depth-rate-of-change", MinDepthStepPressed));
+            AddBinding(new TriggerBinding(ModId, "min-depth-rate-of-change", MinDepthStepPressed));
 
             // This binding listens for whether the min-depth-rate-of-change button was clicked.
-            AddBinding(new TriggerBinding(kModId, "radius-rate-of-change", RadiusStepPressed));
+            AddBinding(new TriggerBinding(ModId, "radius-rate-of-change", RadiusStepPressed));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
