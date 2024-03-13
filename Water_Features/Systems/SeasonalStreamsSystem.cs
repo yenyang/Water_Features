@@ -45,6 +45,8 @@ namespace Water_Features.Systems
         private ILog m_Log;
         private bool ClimateInteractionInitialized = false;
         private EndFrameBarrier m_EndFrameBarrier;
+        private ToolSystem m_ToolSystem;
+        private bool m_EditorSimulationReset = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeasonalStreamsSystem"/> class.
@@ -64,6 +66,7 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
+            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_ClimateSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ClimateSystem>();
             m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
             m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
@@ -96,6 +99,23 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            // This section handles optting in to having seasonal streams affect editor simulation.
+            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            {
+                if (m_EditorSimulationReset == false)
+                {
+                    DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
+                    disableSeasonalStreamSystem.Enabled = true;
+                    m_EditorSimulationReset = true;
+                }
+
+                return;
+            }
+            else if (m_ToolSystem.actionMode.IsEditor())
+            {
+                m_EditorSimulationReset = false;
+            }
+
             if (ClimateInteractionInitialized == false)
             {
                 InitializeClimateInteraction();

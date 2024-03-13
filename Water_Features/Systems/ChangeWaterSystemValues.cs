@@ -7,6 +7,7 @@ namespace Water_Features.Systems
     using Colossal.Logging;
     using Game;
     using Game.Simulation;
+    using Game.Tools;
     using Unity.Entities;
     using UnityEngine;
 
@@ -25,6 +26,7 @@ namespace Water_Features.Systems
         private ILog m_Log;
         private float m_OriginalDamping = 0.995f;
         private bool m_TemporarilyUseOriginalDamping = false;
+        private ToolSystem m_ToolSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeWaterSystemValues"/> class.
@@ -54,6 +56,7 @@ namespace Water_Features.Systems
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
+            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
@@ -64,45 +67,52 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            // This is for the water cleanup cycle.
-            if (ApplyNewEvaporationRate)
+            if ((m_ToolSystem.actionMode.IsEditor() && WaterFeaturesMod.Instance.Settings.WaterToolSettingsAffectEditorSimulation) || m_ToolSystem.actionMode.IsGame())
             {
-                m_WaterSystem.m_Evaporation = m_TemporaryEvaporation;
-                m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate to {m_TemporaryEvaporation}");
-                m_TimeLastChanged = m_TimeSystem.normalizedTime;
-                m_DateLastChange = m_TimeSystem.normalizedDate;
-                ApplyNewEvaporationRate = false;
-            }
-
-            // This is for changin the evaporation rate with the settings.
-            if (!Mathf.Approximately(WaterFeaturesMod.Instance.Settings.EvaporationRate, m_WaterSystem.m_Evaporation))
-            {
-                if (m_TimeSystem.normalizedTime > m_TimeLastChanged + m_ResetTimeLimit || m_DateLastChange > m_DateLastChange + m_ResetTimeLimit)
+                // This is for the water cleanup cycle.
+                if (ApplyNewEvaporationRate)
                 {
-                    m_WaterSystem.m_Evaporation = WaterFeaturesMod.Instance.Settings.EvaporationRate;
-                    m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate back to {WaterFeaturesMod.Instance.Settings.EvaporationRate}");
+                    m_WaterSystem.m_Evaporation = m_TemporaryEvaporation;
+                    m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate to {m_TemporaryEvaporation}");
+                    m_TimeLastChanged = m_TimeSystem.normalizedTime;
+                    m_DateLastChange = m_TimeSystem.normalizedDate;
+                    ApplyNewEvaporationRate = false;
+                }
+
+                // This is for changin the evaporation rate with the settings.
+                if (!Mathf.Approximately(WaterFeaturesMod.Instance.Settings.EvaporationRate, m_WaterSystem.m_Evaporation))
+                {
+                    if (m_TimeSystem.normalizedTime > m_TimeLastChanged + m_ResetTimeLimit || m_DateLastChange > m_DateLastChange + m_ResetTimeLimit)
+                    {
+                        m_WaterSystem.m_Evaporation = WaterFeaturesMod.Instance.Settings.EvaporationRate;
+                        m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed evaporation rate back to {WaterFeaturesMod.Instance.Settings.EvaporationRate}");
+                    }
+                }
+
+                if (!Mathf.Approximately(m_WaterSystem.m_Fluidness, WaterFeaturesMod.Instance.Settings.Fluidness))
+                {
+                    m_WaterSystem.m_Fluidness = WaterFeaturesMod.Instance.Settings.Fluidness;
+                    m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed Fluidness to {m_WaterSystem.m_Fluidness}.");
                 }
             }
 
-            // This is for changing the damping constant with the settings.
-            if (!Mathf.Approximately(m_WaterSystem.m_Damping, WaterFeaturesMod.Instance.Settings.Damping) && WaterFeaturesMod.Instance.Settings.EnableWavesAndTides && !m_TemporarilyUseOriginalDamping)
+            if ((m_ToolSystem.actionMode.IsEditor() && WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation) || m_ToolSystem.actionMode.IsGame())
             {
-                m_WaterSystem.m_Damping = WaterFeaturesMod.Instance.Settings.Damping;
-            }
-            else if ((!Mathf.Approximately(m_WaterSystem.m_Damping, m_OriginalDamping) && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides) || m_TemporarilyUseOriginalDamping)
-            {
-                m_WaterSystem.m_Damping = m_OriginalDamping;
-                if (m_WaterSystem.WaterSimSpeed == 0 && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
+                // This is for changing the damping constant with the settings.
+                if (!Mathf.Approximately(m_WaterSystem.m_Damping, WaterFeaturesMod.Instance.Settings.Damping) && WaterFeaturesMod.Instance.Settings.EnableWavesAndTides && !m_TemporarilyUseOriginalDamping)
                 {
-                    m_WaterSystem.WaterSimSpeed = 1;
+                    m_WaterSystem.m_Damping = WaterFeaturesMod.Instance.Settings.Damping;
+                }
+                else if ((!Mathf.Approximately(m_WaterSystem.m_Damping, m_OriginalDamping) && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides) || m_TemporarilyUseOriginalDamping)
+                {
+                    m_WaterSystem.m_Damping = m_OriginalDamping;
+                    if (m_WaterSystem.WaterSimSpeed == 0 && !WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
+                    {
+                        m_WaterSystem.WaterSimSpeed = 1;
+                    }
                 }
             }
 
-            if (!Mathf.Approximately(m_WaterSystem.m_Fluidness, WaterFeaturesMod.Instance.Settings.Fluidness))
-            {
-                m_WaterSystem.m_Fluidness = WaterFeaturesMod.Instance.Settings.Fluidness;
-                m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)} changed Fluidness to {m_WaterSystem.m_Fluidness}.");
-            }
         }
     }
 }

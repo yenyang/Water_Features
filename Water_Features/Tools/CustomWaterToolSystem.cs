@@ -261,12 +261,13 @@ namespace Water_Features.Tools
 
             if (m_ActivePrefab == null)
             {
-                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), "Water Source Stream"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
+                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), "WaterSource Stream"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
                 {
                     m_ActivePrefab = prefabBase as WaterSourcePrefab;
                 }
                 else
                 {
+                    m_Log.Warn($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Couldn't set active prefab to WaterSource Stream! Tool will not work.");
                     return inputDeps;
                 }
             }

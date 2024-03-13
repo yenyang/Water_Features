@@ -10,6 +10,7 @@ namespace Water_Features.Settings
     using Game.Modding;
     using Game.Settings;
     using Game.Simulation;
+    using Game.Tools;
     using Game.UI;
     using Unity.Entities;
     using UnityEngine;
@@ -22,7 +23,7 @@ namespace Water_Features.Settings
     [SettingsUITabOrder(SeasonalStreams, WaterToolGroup, WavesAndTides)]
     [SettingsUISection(SeasonalStreams, WaterToolGroup, WavesAndTides)]
     [SettingsUIShowGroupName(Experimental)]
-    [SettingsUIGroupOrder(WaterToolGroup, Experimental, Reset)]
+    [SettingsUIGroupOrder(SeasonalStreams, WaterToolGroup, WavesAndTides, Experimental, Reset)]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
@@ -171,7 +172,6 @@ namespace Water_Features.Settings
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float StreamSeasonality { get; set; }
 
-
         /// <summary>
         /// Gets or sets a value with a slider indicating the multiplier for water emitted from a stream due to rain.
         /// </summary>
@@ -201,7 +201,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIButton]
         [SettingsUIConfirmation]
-        [SettingsUISection(SeasonalStreams, SeasonalStreams)]
+        [SettingsUISection(SeasonalStreams, Reset)]
         public bool ResetSeasonalStreamsSettingsButton
         {
             set
@@ -260,7 +260,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIButton]
         [SettingsUIConfirmation]
-        [SettingsUISection(WavesAndTides, WavesAndTides)]
+        [SettingsUISection(WavesAndTides, Reset)]
         public bool ResetWavesAndTidesSettingsButton
         {
             set
@@ -277,6 +277,24 @@ namespace Water_Features.Settings
         public float Fluidness { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether Evaporation and Fluidness can be altered in Editor.
+        /// </summary>
+        [SettingsUISection(WaterToolGroup, Experimental)]
+        public bool WaterToolSettingsAffectEditorSimulation { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether seasonal streams affects the editor simulation.
+        /// </summary>
+        [SettingsUISection(SeasonalStreams, Experimental)]
+        public bool SeasonalStreamsAffectEditorSimulation { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether waves and tides affects the editor simulation.
+        /// </summary>
+        [SettingsUISection(WavesAndTides, Experimental)]
+        public bool WavesAndTidesAffectEditorSimulation { get; set; }
+
+        /// <summary>
         /// Resets only the water tool settings.
         /// </summary>
         public void ResetWaterToolSettings()
@@ -286,6 +304,7 @@ namespace Water_Features.Settings
             IncludeDetentionBasins = false;
             IncludeRetentionBasins = false;
             Fluidness = 0.1f;
+            WaterToolSettingsAffectEditorSimulation = false;
         }
 
         /// <summary>
@@ -299,6 +318,7 @@ namespace Water_Features.Settings
             MinimumMultiplier = 0f;
             MaximumMultiplier = 1.0f;
             SimulateSnowMelt = true;
+            SeasonalStreamsAffectEditorSimulation = false;
         }
 
         /// <summary>
@@ -311,6 +331,7 @@ namespace Water_Features.Settings
             WaveFrequency = 200f;
             TideClassification = TideClassificationYYTAW.Semidiurnal;
             Damping = 0.9999f;
+            WavesAndTidesAffectEditorSimulation = false;
         }
 
         /// <summary>
@@ -347,6 +368,9 @@ namespace Water_Features.Settings
             EnableSeasonalStreams = true;
             EnableWavesAndTides = false;
             Fluidness = 0.1f;
+            WaterToolSettingsAffectEditorSimulation = false;
+            SeasonalStreamsAffectEditorSimulation = false;
+            WavesAndTidesAffectEditorSimulation = false;
         }
 
         /// <summary>

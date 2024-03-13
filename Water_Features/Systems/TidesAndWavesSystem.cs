@@ -36,6 +36,7 @@ namespace Water_Features.Systems
         private int m_TerrainToolCooloff;
         private TerrainSystem m_TerrainSystem;
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
+        private bool m_EditorSimulationReset;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TidesAndWavesSystem"/> class.
@@ -98,6 +99,23 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            // This section handles optting in to having seasonal streams affect editor simulation.
+            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            {
+                if (m_EditorSimulationReset == false)
+                {
+                    DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                    disableWavesAndTidesSystem.Enabled = true;
+                    m_EditorSimulationReset = true;
+                }
+
+                return;
+            }
+            else if (m_ToolSystem.actionMode.IsEditor())
+            {
+                m_EditorSimulationReset = false;
+            }
+
             if (m_ToolSystem.activeTool == m_TerrainToolSystem)
             {
                 if (!m_ChangeWaterSystemValues.TemporarilyUseOriginalDamping)
