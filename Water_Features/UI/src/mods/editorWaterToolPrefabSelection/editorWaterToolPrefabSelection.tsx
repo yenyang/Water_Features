@@ -51,7 +51,7 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
                             </div>
                         )}>
                         <div className={styles.panelSection}>
-                            <Button className={ActivePrefabName === streamPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={FOCUS_DISABLED}>
+                            <Button className={ActivePrefabName === streamPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={FOCUS_DISABLED}>
                                 <img src={StreamSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
                             </Button>
                             <Button className={ActivePrefabName === lakePrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={FOCUS_DISABLED}>
