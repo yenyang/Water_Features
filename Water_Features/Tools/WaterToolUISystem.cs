@@ -54,7 +54,9 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_MinDepthScale;
         private ValueBinding<int> m_RadiusScale;
         private ValueBinding<bool> m_ShowMinDepth;
+        private ValueBinding<string> m_ActivePrefabName;
         private EditorToolUISystem m_EditorToolUISystem;
+        private PrefabSystem m_PrefabSystem;
 
         /// <summary>
         /// Types of water sources.
@@ -212,7 +214,7 @@ namespace Water_Features.Tools
             m_ToolSystem.EventPrefabChanged = (Action<PrefabBase>)Delegate.Combine(toolSystem2.EventPrefabChanged, new Action<PrefabBase>(OnPrefabChanged));
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
-
+            m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
             m_EditorToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EditorToolUISystem>();
             IEditorTool[] existingTools = m_EditorToolUISystem.tools;
             IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
@@ -258,6 +260,9 @@ namespace Water_Features.Tools
             // This binding communicates whether Min Depth section should be shown.
             AddBinding(m_ShowMinDepth = new ValueBinding<bool>(ModId, "ShowMinDepth", false));
 
+            // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
+            AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ActivePrefabName", "WaterSource Stream"));
+
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
 
@@ -284,6 +289,9 @@ namespace Water_Features.Tools
 
             // This binding listens for whether the min-depth-rate-of-change button was clicked.
             AddBinding(new TriggerBinding(ModId, "radius-rate-of-change", RadiusStepPressed));
+
+            // This binding listens for whether the min-depth-rate-of-change button was clicked.
+            AddBinding(new TriggerBinding<string>(ModId, "PrefabChange", ChangePrefab));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
@@ -669,6 +677,17 @@ namespace Water_Features.Tools
             }
 
             m_MinDepthStep.Update(tempValue);
+        }
+
+        private void ChangePrefab(string prefabName)
+        {
+            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), prefabName), out PrefabBase prefabBase)) 
+            {
+                if (m_ToolSystem.ActivatePrefabTool(prefabBase))
+                {
+                    m_ActivePrefabName.Update(prefabName);
+                }
+            }
         }
 
         private void OnPrefabChanged(PrefabBase prefabBase)
