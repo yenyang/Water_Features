@@ -13,7 +13,6 @@ namespace Water_Features.Tools
     using Game.Rendering;
     using Game.Simulation;
     using Game.Tools;
-    using System.IO;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
@@ -51,6 +50,9 @@ namespace Water_Features.Tools
         private ILog m_Log;
         private NativeList<Entity> m_HoveredWaterSources;
         private WaterSourcePrefab m_ActivePrefab;
+        private Entity m_SelectedWaterSource;
+        private float3 m_PressedHitPosition;
+        private int m_PressedWaterSimSpeed;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -321,7 +323,7 @@ namespace Water_Features.Tools
                 return inputDeps;
             }
 
-            if (m_ApplyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty)
+            if (m_ApplyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 // Checks for valid placement of Seas, and water sources placed within the playable area.
                 if ((m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.River && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Sea && IsPositionWithinBorder(m_RaycastPoint.m_HitPosition)) || (IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, false) && m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea))
@@ -398,7 +400,7 @@ namespace Water_Features.Tools
             }
 
             // This section is for setting the target elevation with sources other than Streams.
-            else if (m_SecondaryApplyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream)
+            else if (m_SecondaryApplyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 m_WaterToolUISystem.SetElevation(m_RaycastPoint.m_HitPosition.y);
             }
@@ -406,7 +408,7 @@ namespace Water_Features.Tools
             m_WaterTooltipSystem.HitPosition = m_RaycastPoint.m_HitPosition;
 
             // This section will render the circle(s) for new water source if not hovering over a water source, and valid placement.
-            if (m_HoveredWaterSources.IsEmpty)
+            if (m_HoveredWaterSources.IsEmpty && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 if ((m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.River && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, true))
                  || (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, false))
@@ -488,6 +490,38 @@ namespace Water_Features.Tools
                     m_OverlayRenderSystem.AddBufferWriter(jobHandle);
                     inputDeps = JobHandle.CombineDependencies(jobHandle, inputDeps);
                 }
+            }
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.WasPressedThisFrame())
+            {
+                m_SelectedWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
+                m_PressedHitPosition = m_RaycastPoint.m_HitPosition;
+                m_PressedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
+                m_WaterSystem.WaterSimSpeed = 0;
+            }
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.IsPressed() && m_WaterSystem.WaterSimSpeed != 0 && m_SelectedWaterSource != Entity.Null)
+            {
+                if (!EntityManager.TryGetComponent<Game.Objects.Transform>(m_SelectedWaterSource, out Game.Objects.Transform transform))
+                {
+                    m_SelectedWaterSource = Entity.Null;
+                    m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                }
+                else
+                {
+                    m_WaterSystem.WaterSimSpeed = 0;
+                    MoveWaterSourceJob moveWaterSourceJob = new MoveWaterSourceJob()
+                    {
+                        buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
+                        m_Entity = m_SelectedWaterSource,
+                        m_Position = m_RaycastPoint.m_HitPosition,
+                        m_Transform = transform,
+                    };
+                    inputDeps = moveWaterSourceJob.Schedule(inputDeps);
+                }
+            }
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.WasReleasedThisFrame())
+            {
+                m_SelectedWaterSource = Entity.Null;
+                m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
             }
 
             m_HoveredWaterSources.Clear();
@@ -853,7 +887,6 @@ namespace Water_Features.Tools
                 NativeArray<Entity> entityNativeArray = chunk.GetNativeArray(m_EntityType);
                 for (int i = 0; i < chunk.Count; i++)
                 {
-
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
                     if (currentWaterSourceData.m_Radius == 0f)
                     {
@@ -1028,6 +1061,23 @@ namespace Water_Features.Tools
                         m_Entities.Add(in currentEntity);
                     }
                 }
+            }
+        }
+
+#if BURST
+        [BurstCompile]
+#endif
+        private struct MoveWaterSourceJob : IJob
+        {
+            public EntityCommandBuffer buffer;
+            public Entity m_Entity;
+            public Game.Objects.Transform m_Transform;
+            public float3 m_Position;
+
+            public void Execute()
+            {
+                m_Transform.m_Position = m_Position;
+                buffer.SetComponent(m_Entity, m_Transform);
             }
         }
     }
