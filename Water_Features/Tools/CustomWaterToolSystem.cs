@@ -53,6 +53,27 @@ namespace Water_Features.Tools
         private WaterSourcePrefab m_ActivePrefab;
 
         /// <summary>
+        /// Enum for the types of tool modes.
+        /// </summary>
+        public enum ToolModes
+        {
+            /// <summary>
+            /// Water Tool will place water sources with left click.
+            /// </summary>
+            PlaceWaterSource,
+
+            /// <summary>
+            /// Water Tool will change elevations or rate of existing water sources by left clicking an existing water source and dragging up or down.
+            /// </summary>
+            ElevationChange,
+
+            /// <summary>
+            /// Water Tool will move existing water sources. Target elevations of existing water sources will not change.
+            /// </summary>
+            MoveWaterSource,
+        }
+
+        /// <summary>
         /// Gets a value indicating the toolid.
         /// </summary>
         public override string toolID => "Yenyang's Water Tool";

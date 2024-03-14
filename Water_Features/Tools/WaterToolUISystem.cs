@@ -56,6 +56,7 @@ namespace Water_Features.Tools
         private ValueBinding<bool> m_ShowMinDepth;
         private ValueBinding<string> m_ActivePrefabName;
         private EditorToolUISystem m_EditorToolUISystem;
+        private ValueBinding<int> m_ToolMode;
         private PrefabSystem m_PrefabSystem;
 
         /// <summary>
@@ -102,34 +103,27 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets the radius.
         /// </summary>
-        public float Radius
-        {
-            get { return m_Radius.value; }
-        }
+        public float Radius { get => m_Radius.value;  }
 
         /// <summary>
         /// Gets the amount.
         /// </summary>
-        public float Amount
-        {
-            get { return m_Amount.value; }
-        }
+        public float Amount { get => m_Amount.value; }
 
         /// <summary>
         /// Gets the min depth.
         /// </summary>
-        public float MinDepth
-        {
-            get { return m_MinDepth.value; }
-        }
+        public float MinDepth { get => m_MinDepth.value; }
+
+        /// <summary>
+        /// Gets the tool mode for customw ater tool.
+        /// </summary>
+        public CustomWaterToolSystem.ToolModes ToolMode { get => (CustomWaterToolSystem.ToolModes)m_ToolMode.value; }
 
         /// <summary>
         /// Gets a value indicating whether the amount is an elevation.
         /// </summary>
-        public bool AmountIsAnElevation
-        {
-            get { return m_AmountIsElevation; }
-        }
+        public bool AmountIsAnElevation { get => m_AmountIsElevation; }
 
         /// <summary>
         /// Sets the amount value equal to elevation parameter. And sets the label for that row to Elevation.
@@ -263,6 +257,9 @@ namespace Water_Features.Tools
             // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
             AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ActivePrefabName", "WaterSource Stream"));
 
+            // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
+            AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ToolMode", CustomWaterToolSystem.ToolModes.PlaceWaterSource.ToString()));
+
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
 
@@ -290,8 +287,11 @@ namespace Water_Features.Tools
             // This binding listens for whether the min-depth-rate-of-change button was clicked.
             AddBinding(new TriggerBinding(ModId, "radius-rate-of-change", RadiusStepPressed));
 
-            // This binding listens for whether the min-depth-rate-of-change button was clicked.
+            // This binding handles changing prefabs for editor version of custom water tool.
             AddBinding(new TriggerBinding<string>(ModId, "PrefabChange", ChangePrefab));
+
+            // This binding hanldes changing tool mode for water tool.
+            AddBinding(new TriggerBinding<int>(ModId, "ChangeToolMode", ChangeToolMode));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
@@ -681,7 +681,7 @@ namespace Water_Features.Tools
 
         private void ChangePrefab(string prefabName)
         {
-            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), prefabName), out PrefabBase prefabBase)) 
+            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), prefabName), out PrefabBase prefabBase))
             {
                 if (m_ToolSystem.ActivatePrefabTool(prefabBase))
                 {
@@ -689,6 +689,8 @@ namespace Water_Features.Tools
                 }
             }
         }
+
+        private void ChangeToolMode(int toolMode) => m_ToolMode.Update(toolMode);
 
         private void OnPrefabChanged(PrefabBase prefabBase)
         {
