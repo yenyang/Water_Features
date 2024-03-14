@@ -5,6 +5,9 @@ import mod from "../../../mod.json";
 import { VanillaComponentResolver } from "../VanillaComponentResolver/VanillaComponentResolver";
 import arrowDownSrc from "./ArrowDownThickStrokeWT.svg";
 import arrowUpSrc from "./ArrowUpThickStrokeWT.svg";
+import elevationChangeSrc from "./ArrowUpWT.svg";
+import placeWaterSourceSrc from "./DotWT.svg";
+import moveWaterSourceSrc from "./BoxArrowBoxAdjustEndPropWT.svg";
 import { useLocalization } from "cs2/l10n";
 
 // These establishes the binding with C# side. Without C# side game ui will crash.
@@ -19,19 +22,23 @@ export const AmountScale$ =        bindValue<number> (mod.id, 'AmountScale');
 export const RadiusScale$ =        bindValue<number> (mod.id, 'RadiusScale');
 export const MinDepthScale$ =      bindValue<number> (mod.id, 'MinDepthScale');
 export const ShowMinDepth$ =       bindValue<number> (mod.id, 'ShowMinDepth');
+export const ToolMode$ =           bindValue<string> (mod.id, "ToolMode");
 
 // These are strings that will be used for translations keys and event triggers.
-export const amountDownID =     "amount-down-arrow";
-export const amountUpID =       "amount-up-arrow";
-export const radiusDownID =     "radius-down-arrow";
-export const radiusUpID =       "radius-up-arrow";
-export const minDepthDownID =   "min-depth-down-arrow";
-export const minDepthUpID =     "min-depth-up-arrow";
-export const amountStepID =     "amount-rate-of-change";
-export const radiusStepID =     "radius-rate-of-change";
-export const minDepthStepID =   "min-depth-rate-of-change";
-export const tooltipDescriptionPrefix ="YY_WATER_FEATURES_DESCRIPTION.";
-export const sectionTitlePrefix =      "YY_WATER_FEATURES."; 
+export const amountDownID =             "amount-down-arrow";
+export const amountUpID =               "amount-up-arrow";
+export const radiusDownID =             "radius-down-arrow";
+export const radiusUpID =               "radius-up-arrow";
+export const minDepthDownID =           "min-depth-down-arrow";
+export const minDepthUpID =             "min-depth-up-arrow";
+export const amountStepID =             "amount-rate-of-change";
+export const radiusStepID =             "radius-rate-of-change";
+export const minDepthStepID =           "min-depth-rate-of-change";
+export const tooltipDescriptionPrefix = "YY_WATER_FEATURES_DESCRIPTION.";
+export const sectionTitlePrefix =       "YY_WATER_FEATURES.";
+export const elevationChangeID =        "elevation-change";
+export const placeWaterSourceID =       "place-water-source";
+export const moveWaterSourceID =        "move-water-source";
 
 // Stores the default values for the step arrays. Must be descending order.
 export const defaultValues : number[] =[1.0, 0.5, 0.25, 0.125];
@@ -59,25 +66,30 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const RadiusScale = useValue(RadiusScale$);
         const MinDepthScale = useValue(MinDepthScale$);
         const ShowMinDepth = useValue(ShowMinDepth$);
+        let ToolMode = useValue(ToolMode$);
 
         // Gets a boolean for whether the amount is a flow.
         const amountIsFlow : boolean = AmountLocaleKey == "YY_WATER_FEATURES.Flow";
 
         // translation handling. Translates using locale keys that are defined in C# or fallback string here.
         const { translate } = useLocalization();
-        const amountDownTooltip =   translate(tooltipDescriptionPrefix + amountDownID,      "Reduces the flow for Streams. Decreases the depth or elevation for rivers, seas, and lakes. Reduces the max depth for retention and detention basins.");
-        const amountUpTooltip =     translate(tooltipDescriptionPrefix + amountUpID,        "Increases the flow for Streams. Increases the depth or elevation for rivers, seas, and lakes. Increases the max depth for retention and detention basins.");
-        const radiusDownTooltip =   translate(tooltipDescriptionPrefix + radiusDownID,      "Reduces the radius.");
-        const radiusUpTooltip =     translate(tooltipDescriptionPrefix + radiusUpID,        "Increases the radius.");
-        const minDepthDownTooltip = translate(tooltipDescriptionPrefix + minDepthDownID,    "Reduces the minimum depth.");
-        const minDepthUpTooltip =   translate(tooltipDescriptionPrefix + minDepthUpID,      "Increases the minimum depth.");
-        const amountStepTooltip =   translate(tooltipDescriptionPrefix + amountStepID,      "Changes the rate in which the increase and decrease buttons work for Flow, Depth and Elevation.");
-        const radiusStepTooltip =   translate(tooltipDescriptionPrefix + radiusStepID,      "Changes the rate in which the increase and decrease buttons work for Radius.");
-        const minDepthStepTooltip = translate(tooltipDescriptionPrefix + minDepthStepID,    "Changes the rate in which the increase and decrease buttons work for minimum depth.");
-        const minDepthSection =     translate(sectionTitlePrefix + "MinDepth",              "Min Depth");
-        const radiusSection =       translate(sectionTitlePrefix + "Radius",                "Radius");
-        const amountSection =       translate(AmountLocaleKey,                              "Depth");
-        
+        const amountDownTooltip =       translate(tooltipDescriptionPrefix + amountDownID,      "Reduces the flow for Streams. Decreases the depth or elevation for rivers, seas, and lakes. Reduces the max depth for retention and detention basins.");
+        const amountUpTooltip =         translate(tooltipDescriptionPrefix + amountUpID,        "Increases the flow for Streams. Increases the depth or elevation for rivers, seas, and lakes. Increases the max depth for retention and detention basins.");
+        const radiusDownTooltip =       translate(tooltipDescriptionPrefix + radiusDownID,      "Reduces the radius.");
+        const radiusUpTooltip =         translate(tooltipDescriptionPrefix + radiusUpID,        "Increases the radius.");
+        const minDepthDownTooltip =     translate(tooltipDescriptionPrefix + minDepthDownID,    "Reduces the minimum depth.");
+        const minDepthUpTooltip =       translate(tooltipDescriptionPrefix + minDepthUpID,      "Increases the minimum depth.");
+        const amountStepTooltip =       translate(tooltipDescriptionPrefix + amountStepID,      "Changes the rate in which the increase and decrease buttons work for Flow, Depth and Elevation.");
+        const radiusStepTooltip =       translate(tooltipDescriptionPrefix + radiusStepID,      "Changes the rate in which the increase and decrease buttons work for Radius.");
+        const minDepthStepTooltip =     translate(tooltipDescriptionPrefix + minDepthStepID,    "Changes the rate in which the increase and decrease buttons work for minimum depth.");
+        const minDepthSection =         translate(sectionTitlePrefix + "MinDepth",              "Min Depth");
+        const radiusSection =           translate(sectionTitlePrefix + "Radius",                "Radius");
+        const amountSection =           translate(AmountLocaleKey,                              "Depth");
+        const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change elevations or rate of existing water sources by left clicking an existing water source and dragging up or down.");
+        const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click.");
+        const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change.");
+        const toolModeTitle =               translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
+
         var result = Component();
         if (toolActive) 
         {
@@ -146,6 +158,11 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                             focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
                         ></VanillaComponentResolver.instance.ToolButton>
                         <VanillaComponentResolver.instance.StepToolButton tooltip={radiusStepTooltip} onSelect={() => handleClick(radiusStepID)} values={defaultValues} selectedValue={RadiusStep}></VanillaComponentResolver.instance.StepToolButton>
+                    </VanillaComponentResolver.instance.Section>
+                    <VanillaComponentResolver.instance.Section title={toolModeTitle}>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == placeWaterSourceID}    tooltip={placeWaterSourceTooltip}  onSelect={() => handleClick(placeWaterSourceID)}   src={placeWaterSourceSrc} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == elevationChangeID}     tooltip={elevationChangeTooltip}   onSelect={() => handleClick(elevationChangeID)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == moveWaterSourceID}     tooltip={moveWaterSourceTooltip}   onSelect={() => handleClick(moveWaterSourceID)}    src={moveWaterSourceSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                     </VanillaComponentResolver.instance.Section>                    
                 </>
             );
