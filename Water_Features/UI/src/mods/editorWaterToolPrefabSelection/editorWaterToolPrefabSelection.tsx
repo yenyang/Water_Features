@@ -29,7 +29,7 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
     
     // These get the value of the bindings.
     const toolActive = useValue(tool.activeTool$).id == "Yenyang's Water Tool";
-    let ActivePrefabName = useValue(ActivePrefabName$);
+    const ActivePrefabName = useValue(ActivePrefabName$);
 
     // translation handling. Translates using locale keys that are defined in C# or fallback string here.
     const { translate } = useLocalization();
@@ -51,16 +51,16 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
                             </div>
                         )}>
                         <div className={styles.panelSection}>
-                            <Button className={ActivePrefabName === streamPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={FOCUS_DISABLED}>
+                            <Button className={ActivePrefabName === streamPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
                                 <img src={StreamSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
                             </Button>
-                            <Button className={ActivePrefabName === lakePrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={FOCUS_DISABLED}>
+                            <Button className={ActivePrefabName === lakePrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
                                 <img src={RiverSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
                             </Button>
-                            <Button className={ActivePrefabName === riverPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(riverPrefab)} focusKey={FOCUS_DISABLED}>
+                            <Button className={ActivePrefabName === riverPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(riverPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
                                 <img src={LakeSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
                             </Button>
-                            <Button className={ActivePrefabName === seaPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(seaPrefab)} focusKey={FOCUS_DISABLED}>
+                            <Button className={ActivePrefabName === seaPrefab ? SelectedButtonTheme : UnSelectedButtonTheme} variant="icon" onSelect={() => changePrefab(seaPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
                                 <img src={SeaSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
                             </Button>
                         </div>

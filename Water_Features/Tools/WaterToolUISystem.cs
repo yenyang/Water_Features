@@ -258,7 +258,7 @@ namespace Water_Features.Tools
             AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ActivePrefabName", "WaterSource Stream"));
 
             // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
-            AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ToolMode", CustomWaterToolSystem.ToolModes.PlaceWaterSource.ToString()));
+            AddBinding(m_ToolMode = new ValueBinding<int>(ModId, "ToolMode", (int)CustomWaterToolSystem.ToolModes.PlaceWaterSource));
 
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
@@ -683,7 +683,7 @@ namespace Water_Features.Tools
         {
             if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), prefabName), out PrefabBase prefabBase))
             {
-                if (m_ToolSystem.ActivatePrefabTool(prefabBase))
+                if (m_ToolSystem.ActivatePrefabTool(prefabBase) || (m_ToolSystem.activeTool == m_CustomWaterToolSystem && prefabBase is WaterSourcePrefab))
                 {
                     m_ActivePrefabName.Update(prefabName);
                 }

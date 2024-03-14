@@ -22,7 +22,7 @@ export const AmountScale$ =        bindValue<number> (mod.id, 'AmountScale');
 export const RadiusScale$ =        bindValue<number> (mod.id, 'RadiusScale');
 export const MinDepthScale$ =      bindValue<number> (mod.id, 'MinDepthScale');
 export const ShowMinDepth$ =       bindValue<number> (mod.id, 'ShowMinDepth');
-export const ToolMode$ =           bindValue<string> (mod.id, "ToolMode");
+export const ToolMode$ =           bindValue<number> (mod.id, "ToolMode");
 
 // These are strings that will be used for translations keys and event triggers.
 export const amountDownID =             "amount-down-arrow";
@@ -36,7 +36,7 @@ export const radiusStepID =             "radius-rate-of-change";
 export const minDepthStepID =           "min-depth-rate-of-change";
 export const tooltipDescriptionPrefix = "YY_WATER_FEATURES_DESCRIPTION.";
 export const sectionTitlePrefix =       "YY_WATER_FEATURES.";
-export const elevationChangeID =        "PlaceWaterSource";
+export const elevationChangeID =        "ElevationChange";
 export const placeWaterSourceID =       "PlaceWaterSource";
 export const moveWaterSourceID =        "MoveWaterSource";
 
@@ -49,18 +49,16 @@ export function handleClick(eventName: string) {
 }
 
 // This function triggers an event to change the water tool mode to specified tool mode.
-export function changeToolMode(toolMode: string) {
-    if (toolModes.has(toolMode)) 
-    {
-        trigger(mod.id, "ChangeToolMode", toolModes.get(toolMode));
-    }
+export function changeToolMode(toolMode: WaterToolModes) {
+    trigger(mod.id, "ChangeToolMode", toolMode);
 }
 
-export const toolModes = new Map([
-    [placeWaterSourceID, 0],
-    [elevationChangeID, 1],
-    [moveWaterSourceID, 2],
-]);
+export enum WaterToolModes 
+{
+    PlaceWaterSource,
+    ElevationChange,
+    MoveWaterSource,
+}
 
 export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
     // I believe you should not put anything here.
@@ -174,9 +172,9 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                         <VanillaComponentResolver.instance.StepToolButton tooltip={radiusStepTooltip} onSelect={() => handleClick(radiusStepID)} values={defaultValues} selectedValue={RadiusStep}></VanillaComponentResolver.instance.StepToolButton>
                     </VanillaComponentResolver.instance.Section>
                     <VanillaComponentResolver.instance.Section title={toolModeTitle}>
-                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == placeWaterSourceID}    tooltip={placeWaterSourceTooltip}  onSelect={() => changeToolMode(placeWaterSourceID)}   src={placeWaterSourceSrc} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
-                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == elevationChangeID}     tooltip={elevationChangeTooltip}   onSelect={() => changeToolMode(elevationChangeID)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
-                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == moveWaterSourceID}     tooltip={moveWaterSourceTooltip}   onSelect={() => changeToolMode(moveWaterSourceID)}    src={moveWaterSourceSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.PlaceWaterSource}    tooltip={placeWaterSourceTooltip}  onSelect={() => changeToolMode(WaterToolModes.PlaceWaterSource)}   src={placeWaterSourceSrc} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.ElevationChange}     tooltip={elevationChangeTooltip}   onSelect={() => changeToolMode(WaterToolModes.ElevationChange)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.MoveWaterSource}     tooltip={moveWaterSourceTooltip}   onSelect={() => changeToolMode(WaterToolModes.MoveWaterSource)}    src={moveWaterSourceSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                     </VanillaComponentResolver.instance.Section>                    
                 </>
             );
