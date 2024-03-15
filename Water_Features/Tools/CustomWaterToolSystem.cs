@@ -57,6 +57,7 @@ namespace Water_Features.Tools
         private WaterSourcePrefab m_ActivePrefab;
         private Entity m_SelectedWaterSource;
         private float3 m_PressedHitPosition;
+        private AutofillingLakesSystem m_AutofillingLakesSystem;
         private int m_PressedWaterSimSpeed;
 
         /// <summary>
@@ -115,20 +116,6 @@ namespace Water_Features.Tools
         public bool IsPositionWithinBorder(float3 pos)
         {
             if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < MapExtents)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// If there is an interactable portion of a water source under the cursor and the mode is PlaceWaterSource then it returns true.
-        /// </summary>
-        /// <returns>True if a water source can be deleted. False if not.</returns>
-        public bool CanDeleteWaterSource()
-        {
-            if (m_HoveredWaterSources.Length > 0 && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 return true;
             }
@@ -251,6 +238,7 @@ namespace Water_Features.Tools
             m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
             m_WaterTooltipSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterTooltipSystem>();
             m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
+            m_AutofillingLakesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<AutofillingLakesSystem>();
             m_TidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
             m_WaterToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterToolUISystem>();
             m_FindWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
@@ -487,8 +475,8 @@ namespace Water_Features.Tools
                     m_SelectedWaterSource = Entity.Null;
                     m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
                 }
-                else if ((waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, true))
-                 || (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, false))
+                else if ((waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, waterSourceData.m_Radius, true))
+                 || (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, waterSourceData.m_Radius, false))
                  || (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.River && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Sea && IsPositionWithinBorder(m_RaycastPoint.m_HitPosition)))
                 {
                     m_WaterSystem.WaterSimSpeed = 0;
@@ -539,18 +527,44 @@ namespace Water_Features.Tools
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        AmountChangeJob amountChangeJob = new AmountChangeJob()
+                        {
+                            buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
+                            m_Entity = m_SelectedWaterSource,
+                            m_WaterSourceData = waterSourceData,
+                            m_Amount = terrainHeight,
+                        };
+                        JobHandle jobHandle3 = amountChangeJob.Schedule(inputDeps);
+                        m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle3);
+                        inputDeps = JobHandle.CombineDependencies(jobHandle3, inputDeps);
                     }
-
-                    AmountChangeJob amountChangeJob = new AmountChangeJob()
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
                     {
-                        buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
-                        m_Entity = m_SelectedWaterSource,
-                        m_WaterSourceData = waterSourceData,
-                        m_Amount = terrainHeight,
-                    };
-                    JobHandle jobHandle3 = amountChangeJob.Schedule(inputDeps);
-                    m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle3);
-                    inputDeps = JobHandle.CombineDependencies(jobHandle3, inputDeps);
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        retentionBasin.m_MaximumWaterHeight = terrainHeight;
+                        EntityManager.SetComponentData(m_SelectedWaterSource, retentionBasin);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        detentionBasin.m_MaximumWaterHeight = terrainHeight;
+                        EntityManager.SetComponentData(m_SelectedWaterSource, detentionBasin);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
+                    {
+                        m_AutofillingLakesSystem.Enabled = false;
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        ChangeAutofillingLakeHeight changeAutofillingLakeHeight = new ChangeAutofillingLakeHeight()
+                        {
+                            buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
+                            m_Entity = m_SelectedWaterSource,
+                            m_AutofillingLake = autofillingLake,
+                            m_MaximumHeight = terrainHeight,
+                        };
+                        JobHandle jobHandle4 = changeAutofillingLakeHeight.Schedule(inputDeps);
+                        m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle4);
+                        inputDeps = JobHandle.CombineDependencies(jobHandle4, inputDeps);
+                    }
                 }
             }
 
@@ -559,10 +573,11 @@ namespace Water_Features.Tools
             {
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                m_AutofillingLakesSystem.Enabled = true;
             }
 
             // This section renders target water elevation over hovered water source.
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange)
+            else
             {
                 Entity hoveredWaterSoruce = GetHoveredEntity(m_RaycastPoint.m_Position);
                 if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
@@ -1208,6 +1223,40 @@ namespace Water_Features.Tools
             {
                 m_WaterSourceData.m_Amount = m_Amount;
                 buffer.SetComponent(m_Entity, m_WaterSourceData);
+            }
+        }
+
+#if BURST
+        [BurstCompile]
+#endif
+        private struct ChangeDetentionBasinHeight : IJob
+        {
+            public EntityCommandBuffer buffer;
+            public Entity m_Entity;
+            public DetentionBasin m_DetentionBasin;
+            public float m_MaximumHeight;
+
+            public void Execute()
+            {
+                m_DetentionBasin.m_MaximumWaterHeight = m_MaximumHeight;
+                buffer.SetComponent(m_Entity, m_DetentionBasin);
+            }
+        }
+
+#if BURST
+        [BurstCompile]
+#endif
+        private struct ChangeAutofillingLakeHeight : IJob
+        {
+            public EntityCommandBuffer buffer;
+            public Entity m_Entity;
+            public AutofillingLake m_AutofillingLake;
+            public float m_MaximumHeight;
+
+            public void Execute()
+            {
+                m_AutofillingLake.m_MaximumWaterHeight = m_MaximumHeight;
+                buffer.SetComponent(m_Entity, m_AutofillingLake);
             }
         }
     }

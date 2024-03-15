@@ -97,7 +97,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const minDepthSection =         translate(sectionTitlePrefix + "MinDepth",              "Min Depth");
         const radiusSection =           translate(sectionTitlePrefix + "Radius",                "Radius");
         const amountSection =           translate(AmountLocaleKey,                              "Depth");
-        const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change elevations or rate of existing water sources by left clicking an existing water source and dragging up or down.");
+        const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability.");
         const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click, and remove water sources with right click.");
         const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change.");
         const toolModeTitle =               translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
@@ -113,64 +113,68 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                 values must be decending. SelectedValue is from binding. 
                 */
                 <>
-                    <VanillaComponentResolver.instance.Section title={amountSection}>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
-                            tooltip={amountDownTooltip} 
-                            onSelect={() => handleClick(amountDownID)} 
-                            src={arrowDownSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{amountIsFlow ? AmountValue.toFixed(AmountScale) : AmountValue.toFixed(AmountScale) + " m"}</div>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
-                            tooltip={amountUpTooltip} 
-                            onSelect={() => handleClick(amountUpID)} 
-                            src={arrowUpSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <VanillaComponentResolver.instance.StepToolButton tooltip={amountStepTooltip} onSelect={() => handleClick(amountStepID)} values={defaultValues} selectedValue={AmountStep}></VanillaComponentResolver.instance.StepToolButton>
-                    </VanillaComponentResolver.instance.Section>
-                    { ShowMinDepth ? 
-                    // This section is only shown if binding says so.
-                    <VanillaComponentResolver.instance.Section title={minDepthSection}>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
-                            tooltip={minDepthDownTooltip} 
-                            onSelect={() => handleClick(minDepthDownID)} 
-                            src={arrowDownSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{MinDepthValue.toFixed(MinDepthScale) + " m"}</div>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
-                            tooltip={minDepthUpTooltip} 
-                            onSelect={() => handleClick(minDepthUpID)} 
-                            src={arrowUpSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <VanillaComponentResolver.instance.StepToolButton tooltip={minDepthStepTooltip} onSelect={() => handleClick(minDepthStepID)} values={defaultValues} selectedValue={MinDepthStep}></VanillaComponentResolver.instance.StepToolButton>
-                    </VanillaComponentResolver.instance.Section>
-                    : <></>
-                    }
-                    <VanillaComponentResolver.instance.Section title={radiusSection}>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
-                            tooltip={radiusDownTooltip} 
-                            onSelect={() => handleClick(radiusDownID)} 
-                            src={arrowDownSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{RadiusValue.toFixed(RadiusScale) + " m"}</div>
-                        <VanillaComponentResolver.instance.ToolButton 
-                            className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
-                            tooltip={radiusUpTooltip} 
-                            onSelect={() => handleClick(radiusUpID)} 
-                            src={arrowUpSrc}
-                            focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
-                        ></VanillaComponentResolver.instance.ToolButton>
-                        <VanillaComponentResolver.instance.StepToolButton tooltip={radiusStepTooltip} onSelect={() => handleClick(radiusStepID)} values={defaultValues} selectedValue={RadiusStep}></VanillaComponentResolver.instance.StepToolButton>
-                    </VanillaComponentResolver.instance.Section>
+                    { ToolMode == WaterToolModes.PlaceWaterSource && ( 
+                        <VanillaComponentResolver.instance.Section title={amountSection}>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
+                                tooltip={amountDownTooltip} 
+                                onSelect={() => handleClick(amountDownID)} 
+                                src={arrowDownSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{amountIsFlow ? AmountValue.toFixed(AmountScale) : AmountValue.toFixed(AmountScale) + " m"}</div>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
+                                tooltip={amountUpTooltip} 
+                                onSelect={() => handleClick(amountUpID)} 
+                                src={arrowUpSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.StepToolButton tooltip={amountStepTooltip} onSelect={() => handleClick(amountStepID)} values={defaultValues} selectedValue={AmountStep}></VanillaComponentResolver.instance.StepToolButton>
+                        </VanillaComponentResolver.instance.Section>
+                    )}
+                    { ShowMinDepth && ToolMode == WaterToolModes.PlaceWaterSource && ( 
+                        // This section is only shown if binding says so.
+                        <VanillaComponentResolver.instance.Section title={minDepthSection}>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
+                                tooltip={minDepthDownTooltip} 
+                                onSelect={() => handleClick(minDepthDownID)} 
+                                src={arrowDownSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{MinDepthValue.toFixed(MinDepthScale) + " m"}</div>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
+                                tooltip={minDepthUpTooltip} 
+                                onSelect={() => handleClick(minDepthUpID)} 
+                                src={arrowUpSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.StepToolButton tooltip={minDepthStepTooltip} onSelect={() => handleClick(minDepthStepID)} values={defaultValues} selectedValue={MinDepthStep}></VanillaComponentResolver.instance.StepToolButton>
+                        </VanillaComponentResolver.instance.Section>
+                            
+                    )}
+                    { ToolMode == WaterToolModes.PlaceWaterSource && (
+                        <VanillaComponentResolver.instance.Section title={radiusSection}>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
+                                tooltip={radiusDownTooltip} 
+                                onSelect={() => handleClick(radiusDownID)} 
+                                src={arrowDownSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <div className={VanillaComponentResolver.instance.mouseToolOptionsTheme.numberField}>{RadiusValue.toFixed(RadiusScale) + " m"}</div>
+                            <VanillaComponentResolver.instance.ToolButton 
+                                className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
+                                tooltip={radiusUpTooltip} 
+                                onSelect={() => handleClick(radiusUpID)} 
+                                src={arrowUpSrc}
+                                focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}
+                            ></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.StepToolButton tooltip={radiusStepTooltip} onSelect={() => handleClick(radiusStepID)} values={defaultValues} selectedValue={RadiusStep}></VanillaComponentResolver.instance.StepToolButton>
+                        </VanillaComponentResolver.instance.Section>
+                    )}
                     <VanillaComponentResolver.instance.Section title={toolModeTitle}>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.PlaceWaterSource}    tooltip={placeWaterSourceTooltip}  onSelect={() => changeToolMode(WaterToolModes.PlaceWaterSource)}   src={placeWaterSourceSrc} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.ElevationChange}     tooltip={elevationChangeTooltip}   onSelect={() => changeToolMode(WaterToolModes.ElevationChange)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
