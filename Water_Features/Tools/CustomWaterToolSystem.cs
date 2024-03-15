@@ -2,17 +2,15 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-// #define BURST
+#define BURST
 namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
-    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
     using Game.Rendering;
-    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -120,12 +118,12 @@ namespace Water_Features.Tools
         }
 
         /// <summary>
-        /// If there is an interactable portion of a water source under the cursor then it returns true.
+        /// If there is an interactable portion of a water source under the cursor and the mode is PlaceWaterSource then it returns true.
         /// </summary>
         /// <returns>True if a water source can be deleted. False if not.</returns>
         public bool CanDeleteWaterSource()
         {
-            if (m_HoveredWaterSources.Length > 0)
+            if (m_HoveredWaterSources.Length > 0 && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 return true;
             }
@@ -170,6 +168,20 @@ namespace Water_Features.Tools
         public void RequestDisable()
         {
             m_ToolSystem.activeTool = m_DefaultToolSystem;
+        }
+
+        /// <summary>
+        /// Gets the prefab for the selected water source.
+        /// </summary>
+        /// <returns>Water Source prefab or null.</returns>
+        public PrefabBase GetSelectedPrefab()
+        {
+            if (m_SelectedWaterSource != Entity.Null && m_PrefabSystem.TryGetPrefab(m_SelectedWaterSource, out PrefabBase prefab) && prefab is WaterSourcePrefab)
+            {
+                return prefab;
+            }
+
+            return null;
         }
 
         /// <inheritdoc/>
@@ -369,7 +381,7 @@ namespace Water_Features.Tools
             }
 
             // This section is for removing water sources. The player must have hovered over one in the previous frame.
-            else if (m_SecondaryApplyAction.WasReleasedThisFrame() && m_HoveredWaterSources.Length > 0)
+            else if (m_SecondaryApplyAction.WasReleasedThisFrame() && m_HoveredWaterSources.Length > 0 && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 Entity closestWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
                 if (closestWaterSource != Entity.Null)

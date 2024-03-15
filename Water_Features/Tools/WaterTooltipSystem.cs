@@ -73,6 +73,11 @@ namespace Water_Features.Tools
             }
 
             var prefab = m_CustomWaterTool.GetPrefab();
+            if (m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.PlaceWaterSource)
+            {
+                prefab = m_CustomWaterTool.GetSelectedPrefab();
+            }
+
             if (prefab == null || prefab is not WaterSourcePrefab)
             {
                 return;

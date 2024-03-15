@@ -98,7 +98,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const radiusSection =           translate(sectionTitlePrefix + "Radius",                "Radius");
         const amountSection =           translate(AmountLocaleKey,                              "Depth");
         const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change elevations or rate of existing water sources by left clicking an existing water source and dragging up or down.");
-        const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click.");
+        const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click, and remove water sources with right click.");
         const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change.");
         const toolModeTitle =               translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
 
