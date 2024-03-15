@@ -565,7 +565,7 @@ namespace Water_Features.Tools
             else if (m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange)
             {
                 Entity hoveredWaterSoruce = GetHoveredEntity(m_RaycastPoint.m_Position);
-                if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                 {
                     inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
                 }
