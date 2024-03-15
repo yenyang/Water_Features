@@ -7,10 +7,13 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game;
+    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
     using Game.Rendering;
+    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -20,6 +23,8 @@ namespace Water_Features.Tools
     using Unity.Jobs;
     using Unity.Mathematics;
     using UnityEngine;
+    using UnityEngine.InputSystem;
+    using UnityEngine.InputSystem.Controls;
     using Water_Features;
     using Water_Features.Components;
     using Water_Features.Prefabs;
@@ -52,6 +57,7 @@ namespace Water_Features.Tools
         private WaterSourcePrefab m_ActivePrefab;
         private Entity m_SelectedWaterSource;
         private float3 m_PressedHitPosition;
+        private Vector2Control m_PressedMousePosition;
         private int m_PressedWaterSimSpeed;
 
         /// <summary>
@@ -464,13 +470,24 @@ namespace Water_Features.Tools
                     inputDeps = JobHandle.CombineDependencies(jobHandle, inputDeps);
                 }
             }
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.WasPressedThisFrame())
+
+            // This section is for selecting water source to Move or Change Elevation.
+            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasPressedThisFrame())
             {
                 m_SelectedWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
-                m_PressedHitPosition = m_RaycastPoint.m_HitPosition;
                 m_PressedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
                 m_WaterSystem.WaterSimSpeed = 0;
+                if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
+                {
+                    m_PressedHitPosition = m_RaycastPoint.m_HitPosition;
+                }
+                else
+                {
+                    m_PressedMousePosition = Mouse.current.position;
+                }
             }
+
+            // This section handles moving water sources.
             else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
                 if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
@@ -510,7 +527,48 @@ namespace Water_Features.Tools
                     inputDeps = JobHandle.CombineDependencies(jobHandle2, inputDeps);
                 }
             }
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.WasReleasedThisFrame())
+
+            // This section handles elevation change for existing water source.
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
+            {
+                if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
+                {
+                    m_SelectedWaterSource = Entity.Null;
+                    m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                }
+                else
+                {
+                    m_WaterSystem.WaterSimSpeed = 0;
+                    float radius = waterSourceData.m_Radius;
+                    float terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, transform.m_Position);
+                    float3 position = new float3(transform.m_Position.x, terrainHeight, transform.m_Position.z);
+
+                    Vector2Control newMousePosition = Mouse.current.position;
+                    float verticalDifference = newMousePosition.value.y - m_PressedMousePosition.value.y;
+                    float mouseToChangeFactor = 0.01f;
+                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} vericalDifference = {verticalDifference}");
+
+                    // This section handles projected water surface elevation.
+                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, terrainHeight, position, radius, waterSourceData.m_Amount);
+                    }
+
+                    AmountChangeJob amountChangeJob = new AmountChangeJob()
+                    {
+                        buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
+                        m_Entity = m_SelectedWaterSource,
+                        m_WaterSourceData = waterSourceData,
+                        m_Amount = waterSourceData.m_Amount + (verticalDifference * mouseToChangeFactor),
+                    };
+                    JobHandle jobHandle3 = amountChangeJob.Schedule(inputDeps);
+                    m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle3);
+                    inputDeps = JobHandle.CombineDependencies(jobHandle3, inputDeps);
+                }
+            }
+
+            // This section resets things after finishing moving or changing elevation of a water source.
+            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasReleasedThisFrame())
             {
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
@@ -1136,6 +1194,23 @@ namespace Water_Features.Tools
             {
                 m_Transform.m_Position = m_Position;
                 buffer.SetComponent(m_Entity, m_Transform);
+            }
+        }
+
+#if BURST
+        [BurstCompile]
+#endif
+        private struct AmountChangeJob : IJob
+        {
+            public EntityCommandBuffer buffer;
+            public Entity m_Entity;
+            public Game.Simulation.WaterSourceData m_WaterSourceData;
+            public float m_Amount;
+
+            public void Execute()
+            {
+                m_WaterSourceData.m_Amount = m_Amount;
+                buffer.SetComponent(m_Entity, m_WaterSourceData);
             }
         }
     }

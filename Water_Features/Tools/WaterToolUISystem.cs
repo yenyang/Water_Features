@@ -720,6 +720,8 @@ namespace Water_Features.Tools
                     m_MinDepth.Update(tempAmount / 2f);
                     m_MinDepthScale.Update(Math.Max(0, CalculateScale(tempAmount / 2f)));
                 }
+
+                m_ToolMode.Update((int)CustomWaterToolSystem.ToolModes.PlaceWaterSource);
             }
         }
 
