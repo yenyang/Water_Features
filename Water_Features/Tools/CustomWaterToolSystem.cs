@@ -2,15 +2,17 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-#define BURST
+// #define BURST
 namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
     using Game.Rendering;
+    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -421,62 +423,13 @@ namespace Water_Features.Tools
                     // This section makes the overlay for Rivers snap to the boundary.
                     if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
                     {
-                        float3 borderPosition = m_RaycastPoint.m_HitPosition;
-                        if (Mathf.Abs(m_RaycastPoint.m_HitPosition.x) >= Mathf.Abs(m_RaycastPoint.m_HitPosition.z))
-                        {
-                            if (m_RaycastPoint.m_HitPosition.x > 0f)
-                            {
-                                borderPosition.x = MapExtents;
-                            }
-                            else
-                            {
-                                borderPosition.x = MapExtents * -1f;
-                            }
-                        }
-                        else
-                        {
-                            if (m_RaycastPoint.m_HitPosition.z > 0f)
-                            {
-                                borderPosition.z = MapExtents;
-                            }
-                            else
-                            {
-                                borderPosition.z = MapExtents * -1f;
-                            }
-                        }
-
-                        terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, borderPosition);
-                        position = new float3(borderPosition.x, terrainHeight, borderPosition.z);
+                        position = GetBorderPosition(ref terrainHeight, ref terrainHeightData);
                     }
 
                     // This section handles projected water surface elevation.
                     if (m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream)
                     {
-                        float amount = m_WaterToolUISystem.Amount;
-                        float elevation = terrainHeight + amount;
-                        if (m_WaterToolUISystem.AmountIsAnElevation)
-                        {
-                            elevation = amount;
-                        }
-
-                        // Based on experiments the predicted water surface elevation is always higher than the result.
-                        float approximateError = 2.5f;
-
-                        float3 projectedWaterSurfacePosition = new float3(m_RaycastPoint.m_HitPosition.x, elevation - approximateError, m_RaycastPoint.m_HitPosition.z);
-                        if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
-                        {
-                            projectedWaterSurfacePosition = new float3(position.x, elevation - approximateError, position.z);
-                        }
-
-                        WaterLevelProjectionJob waterLevelProjectionJob = new ()
-                        {
-                            m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outputJobHandle),
-                            m_Position = projectedWaterSurfacePosition,
-                            m_Radius = radius,
-                        };
-                        JobHandle jobHandle1 = IJobExtensions.Schedule(waterLevelProjectionJob, outputJobHandle);
-                        m_OverlayRenderSystem.AddBufferWriter(jobHandle1);
-                        inputDeps = JobHandle.CombineDependencies(jobHandle1, inputDeps);
+                        inputDeps = RenderTargetWaterElevation(inputDeps, terrainHeight, position, radius);
                     }
 
                     WaterToolRadiusJob waterToolRadiusJob = new ()
@@ -498,14 +451,16 @@ namespace Water_Features.Tools
                 m_PressedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
                 m_WaterSystem.WaterSimSpeed = 0;
             }
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.IsPressed() && m_WaterSystem.WaterSimSpeed != 0 && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
-                if (!EntityManager.TryGetComponent<Game.Objects.Transform>(m_SelectedWaterSource, out Game.Objects.Transform transform))
+                if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
                 {
                     m_SelectedWaterSource = Entity.Null;
                     m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
                 }
-                else
+                else if ((waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, true))
+                 || (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea && IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, false))
+                 || (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.River && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Sea && IsPositionWithinBorder(m_RaycastPoint.m_HitPosition)))
                 {
                     m_WaterSystem.WaterSimSpeed = 0;
                     MoveWaterSourceJob moveWaterSourceJob = new MoveWaterSourceJob()
@@ -515,7 +470,9 @@ namespace Water_Features.Tools
                         m_Position = m_RaycastPoint.m_HitPosition,
                         m_Transform = transform,
                     };
-                    inputDeps = moveWaterSourceJob.Schedule(inputDeps);
+                    JobHandle jobHandle2 = moveWaterSourceJob.Schedule(inputDeps);
+                    m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle2);
+                    inputDeps = JobHandle.CombineDependencies(jobHandle2, inputDeps);
                 }
             }
             else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.WasReleasedThisFrame())
@@ -544,6 +501,79 @@ namespace Water_Features.Tools
         {
             m_HoveredWaterSources.Dispose();
             base.OnDestroy();
+        }
+
+        /// <summary>
+        /// Used to snap river water sources to the border
+        /// </summary>
+        /// <param name="terrainHeight">The height of the terrain at hit position.</param>
+        /// <param name="terrainHeightData">data for terrain heights.</param>
+        /// <returns>border position.</returns>
+        private float3 GetBorderPosition(ref float terrainHeight, ref TerrainHeightData terrainHeightData)
+        {
+            float3 borderPosition = m_RaycastPoint.m_HitPosition;
+            if (Mathf.Abs(m_RaycastPoint.m_HitPosition.x) >= Mathf.Abs(m_RaycastPoint.m_HitPosition.z))
+            {
+                if (m_RaycastPoint.m_HitPosition.x > 0f)
+                {
+                    borderPosition.x = MapExtents;
+                }
+                else
+                {
+                    borderPosition.x = MapExtents * -1f;
+                }
+            }
+            else
+            {
+                if (m_RaycastPoint.m_HitPosition.z > 0f)
+                {
+                    borderPosition.z = MapExtents;
+                }
+                else
+                {
+                    borderPosition.z = MapExtents * -1f;
+                }
+            }
+
+            terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, borderPosition);
+            return new float3(borderPosition.x, terrainHeight, borderPosition.z);
+        }
+
+        /// <summary>
+        /// Renders the project water elevation for the water source.
+        /// </summary>
+        /// <param name="jobHandle">Input Deps.</param>
+        /// <param name="terrainHeight">height of terrain at water source</param>
+        /// <param name="position">water source position.</param>
+        /// <param name="radius">water source radius.</param>
+        /// <returns>JobHandle with combined dependencies.</returns>
+        private JobHandle RenderTargetWaterElevation(JobHandle jobHandle, float terrainHeight, float3 position, float radius)
+        {
+            float amount = m_WaterToolUISystem.Amount;
+            float elevation = terrainHeight + amount;
+            if (m_WaterToolUISystem.AmountIsAnElevation)
+            {
+                elevation = amount;
+            }
+
+            // Based on experiments the predicted water surface elevation is always higher than the result.
+            float approximateError = 2.5f;
+
+            float3 projectedWaterSurfacePosition = new float3(m_RaycastPoint.m_HitPosition.x, elevation - approximateError, m_RaycastPoint.m_HitPosition.z);
+            if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
+            {
+                projectedWaterSurfacePosition = new float3(position.x, elevation - approximateError, position.z);
+            }
+
+            WaterLevelProjectionJob waterLevelProjectionJob = new()
+            {
+                m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outputJobHandle),
+                m_Position = projectedWaterSurfacePosition,
+                m_Radius = radius,
+            };
+            JobHandle jobHandle1 = IJobExtensions.Schedule(waterLevelProjectionJob, outputJobHandle);
+            m_OverlayRenderSystem.AddBufferWriter(jobHandle1);
+            return JobHandle.CombineDependencies(jobHandle1, jobHandle);
         }
 
         /// <summary>
