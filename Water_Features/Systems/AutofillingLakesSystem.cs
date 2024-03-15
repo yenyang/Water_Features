@@ -68,6 +68,11 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            if (m_WaterSystem.WaterSimSpeed == 0)
+            {
+                return;
+            }
+
             AutofillingLakesJob autofillingLakesJob = new()
             {
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),

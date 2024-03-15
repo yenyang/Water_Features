@@ -80,6 +80,11 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            if (m_WaterSystem.WaterSimSpeed == 0)
+            {
+                return;
+            }
+
             RetentionBasinJob retentionBasinJob = new ()
             {
                 m_RetentionBasinType = SystemAPI.GetComponentTypeHandle<RetentionBasin>(),

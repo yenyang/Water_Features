@@ -215,6 +215,10 @@ namespace Water_Features.Tools
         {
             base.InitializeRaycast();
             m_ToolRaycastSystem.typeMask = TypeMask.Terrain | TypeMask.Water;
+            if (m_SelectedWaterSource != Entity.Null && m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange)
+            {
+                m_ToolRaycastSystem.typeMask = TypeMask.Terrain;
+            }
             m_ToolRaycastSystem.raycastFlags = RaycastFlags.Outside;
         }
 
@@ -492,7 +496,19 @@ namespace Water_Features.Tools
                     // This section handles projected water surface elevation.
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, waterSourceData.m_Amount);
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, detentionBasin.m_MaximumWaterHeight);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, retentionBasin.m_MaximumWaterHeight);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, autofillingLake.m_MaximumWaterHeight);
                     }
 
                     MoveWaterSourceJob moveWaterSourceJob = new MoveWaterSourceJob()
@@ -520,46 +536,66 @@ namespace Water_Features.Tools
                 {
                     m_WaterSystem.WaterSimSpeed = 0;
                     float radius = waterSourceData.m_Radius;
-                    float terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
-                    float3 position = new float3(transform.m_Position.x, terrainHeight, transform.m_Position.z);
+                    float3 position = new float3(transform.m_Position.x, m_RaycastPoint.m_HitPosition.y, transform.m_Position.z);
 
                     // This section handles projected water surface elevation.
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_WaterSourceData.m_CustomDepth = {waterSourceData.m_ConstantDepth}.");
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         AmountChangeJob amountChangeJob = new AmountChangeJob()
                         {
                             buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
                             m_Entity = m_SelectedWaterSource,
                             m_WaterSourceData = waterSourceData,
-                            m_Amount = terrainHeight,
+                            m_Amount = m_RaycastPoint.m_HitPosition.y,
                         };
                         JobHandle jobHandle3 = amountChangeJob.Schedule(inputDeps);
                         m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle3);
                         inputDeps = JobHandle.CombineDependencies(jobHandle3, inputDeps);
+                        /*
+                        if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake && terrainHeight > waterSourceData.m_Amount)
+                        {
+                            AutofillingLake autofillingLake;
+                            if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out autofillingLake))
+                            {
+                                EntityManager.AddComponent<AutofillingLake>(m_SelectedWaterSource);
+                                autofillingLake = new AutofillingLake()
+                                {
+                                    m_MaximumWaterHeight = terrainHeight,
+                                };
+                            }
+
+                            EntityManager.SetComponentData(m_SelectedWaterSource, autofillingLake);
+                        }*/
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
-                        retentionBasin.m_MaximumWaterHeight = terrainHeight;
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
+                        if (retentionBasin.m_MinimumWaterHeight < m_RaycastPoint.m_HitPosition.y)
+                        {
+                            retentionBasin.m_MinimumWaterHeight = m_RaycastPoint.m_HitPosition.y;
+                        }
+
+                        retentionBasin.m_MaximumWaterHeight = m_RaycastPoint.m_HitPosition.y;
                         EntityManager.SetComponentData(m_SelectedWaterSource, retentionBasin);
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
-                        detentionBasin.m_MaximumWaterHeight = terrainHeight;
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
+                        detentionBasin.m_MaximumWaterHeight = m_RaycastPoint.m_HitPosition.y;
                         EntityManager.SetComponentData(m_SelectedWaterSource, detentionBasin);
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
                     {
-                        m_AutofillingLakesSystem.Enabled = false;
-                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, terrainHeight);
+                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Automatic filling lake. = {waterSourceData.m_ConstantDepth}.");
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         ChangeAutofillingLakeHeight changeAutofillingLakeHeight = new ChangeAutofillingLakeHeight()
                         {
                             buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
                             m_Entity = m_SelectedWaterSource,
                             m_AutofillingLake = autofillingLake,
-                            m_MaximumHeight = terrainHeight,
+                            m_MaximumHeight = m_RaycastPoint.m_HitPosition.y,
                         };
                         JobHandle jobHandle4 = changeAutofillingLakeHeight.Schedule(inputDeps);
                         m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle4);
@@ -573,16 +609,30 @@ namespace Water_Features.Tools
             {
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
-                m_AutofillingLakesSystem.Enabled = true;
             }
 
             // This section renders target water elevation over hovered water source.
             else
             {
                 Entity hoveredWaterSoruce = GetHoveredEntity(m_RaycastPoint.m_Position);
-                if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Simulation.WaterSourceData waterSourceData))
                 {
-                    inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
+                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out DetentionBasin detentionBasin))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, detentionBasin.m_MaximumWaterHeight);
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out RetentionBasin retentionBasin))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, retentionBasin.m_MaximumWaterHeight);
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out AutofillingLake autofillingLake))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, autofillingLake.m_MaximumWaterHeight);
+                    }
                 }
             }
 
