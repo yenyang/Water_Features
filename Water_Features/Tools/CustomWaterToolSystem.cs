@@ -429,7 +429,15 @@ namespace Water_Features.Tools
                     // This section handles projected water surface elevation.
                     if (m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream)
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, terrainHeight, position, radius);
+                        float amount = m_WaterToolUISystem.Amount;
+                        float elevation = terrainHeight + amount;
+
+                        if (m_WaterToolUISystem.AmountIsAnElevation)
+                        {
+                            elevation = amount;
+                        }
+
+                        inputDeps = RenderTargetWaterElevation(inputDeps, terrainHeight, position, radius, elevation);
                     }
 
                     WaterToolRadiusJob waterToolRadiusJob = new ()
@@ -463,11 +471,26 @@ namespace Water_Features.Tools
                  || (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.River && waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Sea && IsPositionWithinBorder(m_RaycastPoint.m_HitPosition)))
                 {
                     m_WaterSystem.WaterSimSpeed = 0;
+                    float radius = waterSourceData.m_Radius;
+                    float terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
+                    float3 position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
+
+                    if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River)
+                    {
+                        position = GetBorderPosition(ref terrainHeight, ref terrainHeightData);
+                    }
+
+                    // This section handles projected water surface elevation.
+                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, terrainHeight, position, radius, waterSourceData.m_Amount);
+                    }
+
                     MoveWaterSourceJob moveWaterSourceJob = new MoveWaterSourceJob()
                     {
                         buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
                         m_Entity = m_SelectedWaterSource,
-                        m_Position = m_RaycastPoint.m_HitPosition,
+                        m_Position = position,
                         m_Transform = transform,
                     };
                     JobHandle jobHandle2 = moveWaterSourceJob.Schedule(inputDeps);
@@ -547,15 +570,8 @@ namespace Water_Features.Tools
         /// <param name="position">water source position.</param>
         /// <param name="radius">water source radius.</param>
         /// <returns>JobHandle with combined dependencies.</returns>
-        private JobHandle RenderTargetWaterElevation(JobHandle jobHandle, float terrainHeight, float3 position, float radius)
+        private JobHandle RenderTargetWaterElevation(JobHandle jobHandle, float terrainHeight, float3 position, float radius, float elevation)
         {
-            float amount = m_WaterToolUISystem.Amount;
-            float elevation = terrainHeight + amount;
-            if (m_WaterToolUISystem.AmountIsAnElevation)
-            {
-                elevation = amount;
-            }
-
             // Based on experiments the predicted water surface elevation is always higher than the result.
             float approximateError = 2.5f;
 
@@ -565,7 +581,7 @@ namespace Water_Features.Tools
                 projectedWaterSurfacePosition = new float3(position.x, elevation - approximateError, position.z);
             }
 
-            WaterLevelProjectionJob waterLevelProjectionJob = new()
+            WaterLevelProjectionJob waterLevelProjectionJob = new ()
             {
                 m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outputJobHandle),
                 m_Position = projectedWaterSurfacePosition,
