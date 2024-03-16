@@ -7,11 +7,13 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Objects;
     using Game.Prefabs;
     using Game.Rendering;
+    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -583,11 +585,6 @@ namespace Water_Features.Tools
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
-                        if (retentionBasin.m_MinimumWaterHeight < m_RaycastPoint.m_HitPosition.y)
-                        {
-                            retentionBasin.m_MinimumWaterHeight = m_RaycastPoint.m_HitPosition.y;
-                        }
-
                         retentionBasin.m_MaximumWaterHeight = m_RaycastPoint.m_HitPosition.y;
                         EntityManager.SetComponentData(m_SelectedWaterSource, retentionBasin);
                     }
@@ -617,7 +614,11 @@ namespace Water_Features.Tools
             // This section resets things after finishing moving or changing elevation of a water source.
             else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasReleasedThisFrame())
             {
-                if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake)
+                // This adds automatic filling lake to vanilla lakes that have moved.
+                if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake
+                    && !EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource)
+                    && !EntityManager.HasComponent<RetentionBasin>(m_SelectedWaterSource)
+                    && !EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource))
                 {
                     float targetElevation = m_RaycastPoint.m_HitPosition.y;
                     if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
@@ -630,6 +631,23 @@ namespace Water_Features.Tools
                     EntityManager.SetComponentData(m_SelectedWaterSource, autoFillingLakeData);
                 }
 
+                // This fixes the miniwater height for retention basins that have had elevation change.
+                if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin) && EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform))
+                {
+                    float terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, transform.m_Position);
+                    if (retentionBasin.m_MinimumWaterHeight > retentionBasin.m_MaximumWaterHeight && terrainHeight > retentionBasin.m_MaximumWaterHeight)
+                    {
+                        retentionBasin.m_MinimumWaterHeight = retentionBasin.m_MaximumWaterHeight;
+                    }
+                    else
+                    {
+                        retentionBasin.m_MinimumWaterHeight = ((retentionBasin.m_MaximumWaterHeight - terrainHeight) / 3f) + terrainHeight;
+                    }
+
+                    EntityManager.SetComponentData(m_SelectedWaterSource, retentionBasin);
+                }
+
+                // This resets everything after action.
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
             }
