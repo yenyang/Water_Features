@@ -9,6 +9,7 @@ namespace Water_Features.Tools
     using Colossal.Logging;
     using Game.Common;
     using Game.Input;
+    using Game.Objects;
     using Game.Prefabs;
     using Game.Rendering;
     using Game.Simulation;
@@ -54,6 +55,7 @@ namespace Water_Features.Tools
         private float3 m_PressedHitPosition;
         private AutofillingLakesSystem m_AutofillingLakesSystem;
         private int m_PressedWaterSimSpeed;
+        private AddPrefabsSystem m_AddPrefabSystem;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -163,9 +165,38 @@ namespace Water_Features.Tools
         /// <returns>Water Source prefab or null.</returns>
         public PrefabBase GetSelectedPrefab()
         {
-            if (m_SelectedWaterSource != Entity.Null && m_PrefabSystem.TryGetPrefab(m_SelectedWaterSource, out PrefabBase prefab) && prefab is WaterSourcePrefab)
+            // this is kind of obnoxious because they don't have prefab ref component. 
+            if (m_SelectedWaterSource != Entity.Null && EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSource))
             {
-                return prefab;
+                if (waterSource.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream
+                    && m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{(WaterToolUISystem.SourceType)waterSource.m_ConstantDepth}"), out PrefabBase prefabBase)
+                    && prefabBase is WaterSourcePrefab)
+                {
+                    return prefabBase;
+                }
+                else if (EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.DetentionBasin}"), out PrefabBase prefabBase1)
+                    && prefabBase1 is WaterSourcePrefab)
+                {
+                    return prefabBase1;
+                }
+                else if (EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.DetentionBasin}"), out PrefabBase prefabBase2)
+                    && prefabBase2 is WaterSourcePrefab)
+                {
+                    return prefabBase2;
+                }
+                else if (EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.DetentionBasin}"), out PrefabBase prefabBase3)
+                    && prefabBase3 is WaterSourcePrefab)
+                {
+                    return prefabBase3;
+                }
+                else if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.Stream}"), out PrefabBase prefabBase4)
+                    && prefabBase4 is WaterSourcePrefab)
+                {
+                    return prefabBase4;
+                }
             }
 
             return null;
@@ -246,6 +277,7 @@ namespace Water_Features.Tools
             m_DetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<DetentionBasin>());
             m_RetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<RetentionBasin>());
             m_OverlayRenderSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<OverlayRenderSystem>();
+            m_AddPrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<AddPrefabsSystem>();
             m_HoveredWaterSources = new NativeList<Entity>(0, Allocator.Persistent);
             m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[]
             {
@@ -290,7 +322,7 @@ namespace Water_Features.Tools
 
             if (m_ActivePrefab == null)
             {
-                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), "WaterSource Stream"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
+                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.Stream}"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
                 {
                     m_ActivePrefab = prefabBase as WaterSourcePrefab;
                 }
@@ -567,7 +599,6 @@ namespace Water_Features.Tools
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
                     {
-                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Automatic filling lake. = {waterSourceData.m_ConstantDepth}.");
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         ChangeAutofillingLakeHeight changeAutofillingLakeHeight = new ChangeAutofillingLakeHeight()
                         {
@@ -594,7 +625,6 @@ namespace Water_Features.Tools
                         targetElevation = waterSourceData.m_Amount;
                     }
 
-                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Adding AutoFillingLake to vanilla lake.");
                     EntityManager.AddComponent<AutofillingLake>(m_SelectedWaterSource);
                     AutofillingLake autoFillingLakeData = new AutofillingLake { m_MaximumWaterHeight = targetElevation };
                     EntityManager.SetComponentData(m_SelectedWaterSource, autoFillingLakeData);

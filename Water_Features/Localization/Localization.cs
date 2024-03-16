@@ -208,7 +208,7 @@ namespace Better_Bulldozer.Localization
                     }
                     else
                     {
-                        log.Warn($"Did not find localization file {resourceName}");
+                        log.Info($"Did not find localization file {resourceName}");
                     }
                 }
             }

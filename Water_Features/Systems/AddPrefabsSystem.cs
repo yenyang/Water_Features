@@ -37,6 +37,11 @@ namespace Water_Features.Systems
         private ILog m_Log;
 
         /// <summary>
+        /// Gets the prefix for prefabs.
+        /// </summary>
+        public string Prefix { get => PrefabPrefix; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AddPrefabsSystem"/> class.
         /// </summary>
         public AddPrefabsSystem()

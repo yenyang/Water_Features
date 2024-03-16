@@ -78,7 +78,7 @@ namespace Water_Features.Tools
 
             Entity hoveredWaterSourceEntity = m_CustomWaterTool.GetHoveredEntity(m_HitPosition);
 
-            if (prefab != null || prefab is WaterSourcePrefab)
+            if (prefab != null && prefab is WaterSourcePrefab)
             {
                 WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
 
@@ -140,6 +140,7 @@ namespace Water_Features.Tools
 
                 if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.ElevationChange)
                 {
+                    m_Log.Debug($"{nameof(WaterToolSystem)}.{nameof(OnUpdate)} new elevation tooltip.");
                     FloatTooltip newElevationTooltip = new FloatTooltip
                     {
                         value = m_HitPosition.y,
