@@ -140,12 +140,12 @@ namespace Water_Features.Tools
 
                 if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.ElevationChange)
                 {
-                    m_Log.Debug($"{nameof(WaterTooltipSystem)}.{nameof(OnUpdate)} new elevation tooltip.");
+                    m_StartedHoveringTime = 0;
                     FloatTooltip newElevationTooltip = new FloatTooltip
                     {
                         value = m_HitPosition.y,
                         unit = "floatSingleFraction",
-                        path = "YY_WATER_FEATURES.Elevation",
+                        path = "YY_WATER_FEATURES.ElevationChange",
                         label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Elevation", "Elevation"),
                     };
                     AddMouseTooltip(newElevationTooltip);
