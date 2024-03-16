@@ -100,9 +100,9 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const minDepthSection =         translate(sectionTitlePrefix + "MinDepth",              "Min Depth");
         const radiusSection =           translate(sectionTitlePrefix + "Radius",                "Radius");
         const amountSection =           translate(AmountLocaleKey,                              "Depth");
-        const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability.");
+        const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability. Right click to cancel.");
         const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click, and remove water sources with right click.");
-        const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change.");
+        const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel.");
         const toolModeTitle =               translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
 
         var result = Component();
@@ -156,7 +156,6 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                             ></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.StepToolButton tooltip={minDepthStepTooltip} onSelect={() => handleClick(minDepthStepID)} values={defaultValues} selectedValue={MinDepthStep}></VanillaComponentResolver.instance.StepToolButton>
                         </VanillaComponentResolver.instance.Section>
-                            
                     )}
                     { ToolMode == WaterToolModes.PlaceWaterSource && (
                         <VanillaComponentResolver.instance.Section title={radiusSection}>

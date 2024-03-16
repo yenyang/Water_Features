@@ -82,12 +82,18 @@ namespace Water_Features.Tools
             {
                 WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
 
-                if (hoveredWaterSourceEntity == Entity.Null || m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.PlaceWaterSource)
+                if ((hoveredWaterSourceEntity == Entity.Null && m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.ElevationChange) || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
                 {
+                    float radius = m_WaterToolUISystem.Radius;
+                    if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
+                    {
+
+                    }
+
                     // Checks position of river and displays tooltip if needed.
                     if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
                     {
-                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, m_WaterToolUISystem.Radius, true))
+                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, radius, true))
                         {
                             StringTooltip mustBePlacedNearMapBorderTooltip = new ()
                             {
@@ -101,7 +107,7 @@ namespace Water_Features.Tools
                     // Checks position of sea and displays tooltip if needed.
                     else if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea)
                     {
-                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, m_WaterToolUISystem.Radius, false))
+                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, radius, false))
                         {
                             StringTooltip mustTouchBorderTooltip = new ()
                             {

@@ -54,10 +54,12 @@ namespace Water_Features.Tools
         private NativeList<Entity> m_HoveredWaterSources;
         private WaterSourcePrefab m_ActivePrefab;
         private Entity m_SelectedWaterSource;
-        private float3 m_PressedHitPosition;
         private AutofillingLakesSystem m_AutofillingLakesSystem;
         private int m_PressedWaterSimSpeed;
         private AddPrefabsSystem m_AddPrefabSystem;
+        private Game.Simulation.WaterSourceData m_PressedWaterSource;
+        private Game.Objects.Transform m_PressedTransform;
+        private float m_PressedMaxHeight;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -495,10 +497,53 @@ namespace Water_Features.Tools
             else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasPressedThisFrame())
             {
                 m_SelectedWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
-                m_PressedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
-                m_WaterSystem.WaterSimSpeed = 0;
-                m_PressedHitPosition = m_RaycastPoint.m_HitPosition;
+                if (m_SelectedWaterSource != Entity.Null)
+                {
+                    m_PressedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
+                    m_WaterSystem.WaterSimSpeed = 0;
+
+                    EntityManager.TryGetComponent(m_SelectedWaterSource, out m_PressedTransform);
+                    EntityManager.TryGetComponent(m_SelectedWaterSource, out m_PressedWaterSource);
+                    if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
+                    {
+                        m_PressedMaxHeight = detentionBasin.m_MaximumWaterHeight;
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
+                    {
+                        m_PressedMaxHeight = retentionBasin.m_MaximumWaterHeight;
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
+                    {
+                        m_PressedMaxHeight = autofillingLake.m_MaximumWaterHeight;
+                    }
+                }
             }
+
+            // This handles canceling move and elevation changes.
+            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_SecondaryApplyAction.WasPressedThisFrame())
+            {
+                EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedWaterSource);
+                EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedTransform);
+                if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
+                {
+                    detentionBasin.m_MaximumWaterHeight = m_PressedMaxHeight;
+                    EntityManager.SetComponentData(m_SelectedWaterSource, detentionBasin);
+                }
+                else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
+                {
+                    retentionBasin.m_MaximumWaterHeight = m_PressedMaxHeight;
+                    EntityManager.SetComponentData(m_SelectedWaterSource, retentionBasin);
+                }
+                else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutofillingLake autofillingLake))
+                {
+                    autofillingLake.m_MaximumWaterHeight = m_PressedMaxHeight;
+                    EntityManager.SetComponentData(m_SelectedWaterSource, autofillingLake);
+                }
+
+                m_SelectedWaterSource = Entity.Null;
+                m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+            }
+
 
             // This section handles moving water sources.
             else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
@@ -651,6 +696,7 @@ namespace Water_Features.Tools
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
             }
+
 
             // This section renders target water elevation over hovered water source.
             else
