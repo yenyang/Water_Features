@@ -6,9 +6,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
-    using Game.Simulation;
     using Game.Tools;
-    using Game.UI;
     using Game.UI.Localization;
     using Game.UI.Tooltip;
     using Unity.Entities;
@@ -132,13 +130,24 @@ namespace Water_Features.Tools
                 // Informs the player if they can set the elevation by right clicking.
                 if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && !m_WaterToolUISystem.AmountIsAnElevation && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.PlaceWaterSource)
                 {
-                    m_StartedHoveringTime = 0;
                     StringTooltip lockElevationTooltip = new ()
                     {
                         path = "Tooltip.LABEL[YY.WT.LockElevation]",
                         value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.LockElevation]", "Right click to designate the water surface elevation."),
                     };
                     AddMouseTooltip(lockElevationTooltip);
+                }
+
+                if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.ElevationChange)
+                {
+                    FloatTooltip newElevationTooltip = new FloatTooltip
+                    {
+                        value = m_HitPosition.y,
+                        unit = "floatSingleFraction",
+                        path = "YY_WATER_FEATURES.Elevation",
+                        label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Elevation", "Elevation"),
+                    };
+                    AddMouseTooltip(newElevationTooltip);
                 }
             }
 
@@ -169,7 +178,7 @@ namespace Water_Features.Tools
 
                 if (UnityEngine.Time.time > m_StartedHoveringTime + 1f)
                 {
-                    if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out WaterSourceData waterSourceData))
+                    if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Simulation.WaterSourceData waterSourceData))
                     {
                         string amountLocaleKey = "YY_WATER_FEATURES.Elevation";
                         string fallback = "Elevation";

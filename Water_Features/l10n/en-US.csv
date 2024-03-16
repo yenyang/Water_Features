@@ -102,6 +102,7 @@ Tooltip.LABEL[YY.WT.PlaceInsideBorder],This water source must be placed inside t
 Tooltip.LABEL[YY.WT.MustTouchBorder],Sea water sources must touch the map border.
 Tooltip.LABEL[YY.WT.LockElevation],Right click to designate the water surface elevation.
 Options.GROUP:Experimental,"Experimental"
+Options.GROUP:Stable,"Stable"
 Options.OPTION:Fluidness,"Fluidness"
 Options.OPTION_DESCRIPTION:Fluidness,"Alter the Fluidness factor of the water system. Let's see what this does."
 Options.OPTION:ResetExperimentalSettingsButton,"Reset Experimental Settings"
