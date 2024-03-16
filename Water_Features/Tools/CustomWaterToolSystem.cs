@@ -165,7 +165,7 @@ namespace Water_Features.Tools
         /// <returns>Water Source prefab or null.</returns>
         public PrefabBase GetSelectedPrefab()
         {
-            // this is kind of obnoxious because they don't have prefab ref component. 
+            // this is kind of obnoxious because they don't have prefab ref component.
             if (m_SelectedWaterSource != Entity.Null && EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSource))
             {
                 if (waterSource.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream
@@ -180,14 +180,14 @@ namespace Water_Features.Tools
                 {
                     return prefabBase1;
                 }
-                else if (EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource) &&
-                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.DetentionBasin}"), out PrefabBase prefabBase2)
+                else if (EntityManager.HasComponent<RetentionBasin>(m_SelectedWaterSource) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.RetentionBasin}"), out PrefabBase prefabBase2)
                     && prefabBase2 is WaterSourcePrefab)
                 {
                     return prefabBase2;
                 }
-                else if (EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource) &&
-                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.DetentionBasin}"), out PrefabBase prefabBase3)
+                else if (EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.Lake}"), out PrefabBase prefabBase3)
                     && prefabBase3 is WaterSourcePrefab)
                 {
                     return prefabBase3;
