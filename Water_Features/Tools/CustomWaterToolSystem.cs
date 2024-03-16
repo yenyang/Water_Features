@@ -7,13 +7,10 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
-    using Game;
-    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
     using Game.Rendering;
-    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -23,8 +20,6 @@ namespace Water_Features.Tools
     using Unity.Jobs;
     using Unity.Mathematics;
     using UnityEngine;
-    using UnityEngine.InputSystem;
-    using UnityEngine.InputSystem.Controls;
     using Water_Features;
     using Water_Features.Components;
     using Water_Features.Prefabs;
@@ -541,7 +536,6 @@ namespace Water_Features.Tools
                     // This section handles projected water surface elevation.
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
-                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_WaterSourceData.m_CustomDepth = {waterSourceData.m_ConstantDepth}.");
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         AmountChangeJob amountChangeJob = new AmountChangeJob()
                         {
@@ -553,21 +547,6 @@ namespace Water_Features.Tools
                         JobHandle jobHandle3 = amountChangeJob.Schedule(inputDeps);
                         m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle3);
                         inputDeps = JobHandle.CombineDependencies(jobHandle3, inputDeps);
-                        /*
-                        if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake && terrainHeight > waterSourceData.m_Amount)
-                        {
-                            AutofillingLake autofillingLake;
-                            if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out autofillingLake))
-                            {
-                                EntityManager.AddComponent<AutofillingLake>(m_SelectedWaterSource);
-                                autofillingLake = new AutofillingLake()
-                                {
-                                    m_MaximumWaterHeight = terrainHeight,
-                                };
-                            }
-
-                            EntityManager.SetComponentData(m_SelectedWaterSource, autofillingLake);
-                        }*/
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
                     {
@@ -607,6 +586,20 @@ namespace Water_Features.Tools
             // This section resets things after finishing moving or changing elevation of a water source.
             else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasReleasedThisFrame())
             {
+                if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake)
+                {
+                    float targetElevation = m_RaycastPoint.m_HitPosition.y;
+                    if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
+                    {
+                        targetElevation = waterSourceData.m_Amount;
+                    }
+
+                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Adding AutoFillingLake to vanilla lake.");
+                    EntityManager.AddComponent<AutofillingLake>(m_SelectedWaterSource);
+                    AutofillingLake autoFillingLakeData = new AutofillingLake { m_MaximumWaterHeight = targetElevation };
+                    EntityManager.SetComponentData(m_SelectedWaterSource, autoFillingLakeData);
+                }
+
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
             }
