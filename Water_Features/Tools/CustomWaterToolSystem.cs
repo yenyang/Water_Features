@@ -7,6 +7,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
@@ -661,7 +662,7 @@ namespace Water_Features.Tools
             // This section handles changing radius for existing water source.
             else if (m_WaterToolUISystem.ToolMode == ToolModes.RadiusChange && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
-                if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
+                if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform))
                 {
                     m_SelectedWaterSource = Entity.Null;
                     m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
@@ -671,7 +672,13 @@ namespace Water_Features.Tools
                     m_WaterSystem.WaterSimSpeed = 0;
                     float3 hitPositionXZ = new (m_RaycastPoint.m_HitPosition.x, 0, m_RaycastPoint.m_HitPosition.z);
                     float3 waterSourcePositionXZ = new (m_PressedTransform.m_Position.x, 0, m_PressedTransform.m_Position.z);
-                    waterSourceData.m_Radius = Mathf.Clamp(Vector3.Distance(hitPositionXZ, waterSourcePositionXZ), 5f, 10000f);
+                    float minimumRadius = 5f;
+                    if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea || waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River)
+                    {
+                        minimumRadius = Mathf.Min(5f, Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.x)), Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.z)));
+                    }
+
+                    waterSourceData.m_Radius = Mathf.Clamp(Vector3.Distance(hitPositionXZ, waterSourcePositionXZ), minimumRadius, 10000f);
                     EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);
                 }
             }
