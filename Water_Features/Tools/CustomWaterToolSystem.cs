@@ -672,12 +672,12 @@ namespace Water_Features.Tools
                     float3 hitPositionXZ = new (m_RaycastPoint.m_HitPosition.x, 0, m_RaycastPoint.m_HitPosition.z);
                     float3 waterSourcePositionXZ = new (m_PressedTransform.m_Position.x, 0, m_PressedTransform.m_Position.z);
                     waterSourceData.m_Radius = Vector3.Distance(hitPositionXZ, waterSourcePositionXZ);
-                    EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);
+                    EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);  
                 }
             }
 
             // This section resets things after finishing moving or changing elevation of a water source.
-            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasReleasedThisFrame())
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasReleasedThisFrame())
             {
                 // This adds automatic filling lake to vanilla lakes that have moved.
                 if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake
