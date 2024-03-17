@@ -702,7 +702,7 @@ namespace Water_Features.Tools
             }
 
             // This section resets things after finishing moving or changing elevation of a water source.
-            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasReleasedThisFrame())
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasReleasedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 // This adds automatic filling lake to vanilla lakes that have moved.
                 if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake

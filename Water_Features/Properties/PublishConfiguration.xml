@@ -28,10 +28,16 @@ Detention Basin: Custom modded water source that rises with precipitation and sn
 Retention Basin: Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
 
 The tool is accessed in the landscaping menu with a tab with a water drop and icons for the different water sources.
-Small radius water sources will have some extra clickable space for removing them.
-Large radius water sources will have a small filled circle for removing them.
+Small radius water sources will have some extra clickable space for interacting with them.
+Large radius water sources will have a small filled circle for interacting with them.
 If you are placing a source with an assigned depth you should place them at the intended bottom of the water feature.
 For now you cannot remove water sources from utility structures.
+
+The tool has 4 tool modes:
+Place Water Source will place water sources with left click, and remove water sources with right click.
+Elevation Change will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability. Right click to cancel.
+Move Water Source will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel.
+Radius Change will change radius of water sources. Right click to cancel.
 
 ## Seasonal Streams - Optional Opt-out
 Seasonal Streams takes Streams (Modified Constant Rate Water Source): and ties them to the climate and weather for the map. 
@@ -53,9 +59,15 @@ Before saving, the mod always resets all water sources including the custom ones
 ## Additional Features in the Settings
 Adjust the global evaporation rate which can be helpful with Detention and Retention basins.
 Water Clean Up Cycle is an emergency solution for removing water in developed areas by increasing the global evaporation rate for a short time. Better option: Lakes with an elevation below the ground surface drain water faster than evaporation.
+Experimental: Adjust fluidness.
+
+## In the Editor
+All features of this mod within the editor are considered experimental.
+Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
+Keep in mind that while filling up Constant Level water sources placed with the custom water tool are differnet than vanilla. They revert to vanilla when they have reached the target elevation.
+Seasonal Streams, evaporation, water cleanup cycle, fluidness, and waves and tides settings will not affect the editor simulation unless you opt-in with the settings.
 
 ## Planned Features
-Adjust position and depth/elevation of water sources after placement.
 Option to add polluted water sources...?
 Rainfall 2 including storm drains might be included as opt-in option eventually.
 Tying snow melt simulation to snow system graphics.

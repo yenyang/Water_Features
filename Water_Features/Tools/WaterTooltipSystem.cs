@@ -82,7 +82,7 @@ namespace Water_Features.Tools
             {
                 WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
                 float radius = m_WaterToolUISystem.Radius;
-                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange)
                 {
                     radius = m_CustomWaterTool.GetSelectedRadius();
                 }
