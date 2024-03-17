@@ -675,7 +675,7 @@ namespace Water_Features.Tools
                     float minimumRadius = 5f;
                     if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea || waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River)
                     {
-                        minimumRadius = Mathf.Min(5f, Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.x)), Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.z)));
+                        minimumRadius = Mathf.Max(5, Mathf.Min(Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.x)), Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.z))));
                     }
 
                     waterSourceData.m_Radius = Mathf.Clamp(Vector3.Distance(hitPositionXZ, waterSourcePositionXZ), minimumRadius, 10000f);
