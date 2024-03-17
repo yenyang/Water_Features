@@ -213,18 +213,40 @@ namespace Water_Features.Tools
         /// Gets the radius of the selected water source.
         /// </summary>
         /// <returns>float of radius of selected water source.</returns>
-        public float GetSelectedRadius()
+        public bool TryGetSelectedRadius(out float radius)
         {
+            radius = -1;
             if (m_SelectedWaterSource == Entity.Null)
             {
-                return -1f;
+                return false;
             }
             else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
             {
-                return waterSourceData.m_Radius;
+                radius = waterSourceData.m_Radius;
+                return true;
             }
 
-            return -1f;
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the radius of the selected water source.
+        /// </summary>
+        /// <returns>float of radius of selected water source.</returns>
+        public bool TryGetSelectedPosition(out float3 position)
+        {
+            position = default;
+            if (m_SelectedWaterSource == Entity.Null)
+            {
+                return false;
+            }
+            else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform))
+            {
+                position = transform.m_Position;
+                return true;
+            }
+
+            return false;
         }
 
         /// <inheritdoc/>

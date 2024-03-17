@@ -10,6 +10,7 @@ namespace Water_Features.Tools
     using Game.UI.Localization;
     using Game.UI.Tooltip;
     using Unity.Entities;
+    using Unity.Mathematics;
     using UnityEngine;
     using Water_Features.Components;
     using Water_Features.Prefabs;
@@ -82,9 +83,15 @@ namespace Water_Features.Tools
             {
                 WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
                 float radius = m_WaterToolUISystem.Radius;
-                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange)
+                if ((m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange) && m_CustomWaterTool.TryGetSelectedRadius(out float waterSourceRadius))
                 {
-                    radius = m_CustomWaterTool.GetSelectedRadius();
+                    radius = waterSourceRadius;
+                }
+
+                Vector3 position = m_HitPosition;
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange && m_CustomWaterTool.TryGetSelectedPosition(out float3 waterSourcePosition))
+                {
+                    position = waterSourcePosition;
                 }
 
                 if ((hoveredWaterSourceEntity == Entity.Null && m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.ElevationChange) || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
@@ -92,7 +99,7 @@ namespace Water_Features.Tools
                     // Checks position of river and displays tooltip if needed.
                     if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
                     {
-                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, radius, true))
+                        if (!m_CustomWaterTool.IsPositionNearBorder(position, radius, true))
                         {
                             StringTooltip mustBePlacedNearMapBorderTooltip = new ()
                             {
@@ -106,7 +113,7 @@ namespace Water_Features.Tools
                     // Checks position of sea and displays tooltip if needed.
                     else if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea)
                     {
-                        if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, radius, false))
+                        if (!m_CustomWaterTool.IsPositionNearBorder(position, radius, false))
                         {
                             StringTooltip mustTouchBorderTooltip = new ()
                             {
@@ -120,7 +127,7 @@ namespace Water_Features.Tools
                     // Checks position of water sources placed in playable area and displays tooltip if needed.
                     else
                     {
-                        if (!m_CustomWaterTool.IsPositionWithinBorder(m_HitPosition))
+                        if (!m_CustomWaterTool.IsPositionWithinBorder(position))
                         {
                             StringTooltip mustBePlacedInsideBorderTooltip = new ()
                             {
