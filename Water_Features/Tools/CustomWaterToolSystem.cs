@@ -671,8 +671,8 @@ namespace Water_Features.Tools
                     m_WaterSystem.WaterSimSpeed = 0;
                     float3 hitPositionXZ = new (m_RaycastPoint.m_HitPosition.x, 0, m_RaycastPoint.m_HitPosition.z);
                     float3 waterSourcePositionXZ = new (m_PressedTransform.m_Position.x, 0, m_PressedTransform.m_Position.z);
-                    waterSourceData.m_Radius = Vector3.Distance(hitPositionXZ, waterSourcePositionXZ);
-                    EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);  
+                    waterSourceData.m_Radius = Mathf.Clamp(Vector3.Distance(hitPositionXZ, waterSourcePositionXZ), 5f, 10000f);
+                    EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);
                 }
             }
 
