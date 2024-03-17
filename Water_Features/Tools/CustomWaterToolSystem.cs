@@ -209,6 +209,24 @@ namespace Water_Features.Tools
             return null;
         }
 
+        /// <summary>
+        /// Gets the radius of the selected water source.
+        /// </summary>
+        /// <returns>float of radius of selected water source.</returns>
+        public float GetSelectedRadius()
+        {
+            if (m_SelectedWaterSource == Entity.Null)
+            {
+                return -1f;
+            }
+            else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
+            {
+                return waterSourceData.m_Radius;
+            }
+
+            return -1f;
+        }
+
         /// <inheritdoc/>
         public override PrefabBase GetPrefab()
         {

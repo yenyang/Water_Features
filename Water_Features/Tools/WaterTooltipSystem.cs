@@ -81,15 +81,14 @@ namespace Water_Features.Tools
             if (prefab != null && prefab is WaterSourcePrefab)
             {
                 WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
+                float radius = m_WaterToolUISystem.Radius;
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
+                {
+                    radius = m_CustomWaterTool.GetSelectedRadius();
+                }
 
                 if ((hoveredWaterSourceEntity == Entity.Null && m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.ElevationChange) || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
                 {
-                    float radius = m_WaterToolUISystem.Radius;
-                    if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
-                    {
-
-                    }
-
                     // Checks position of river and displays tooltip if needed.
                     if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
                     {
@@ -156,6 +155,19 @@ namespace Water_Features.Tools
                     };
                     AddMouseTooltip(newElevationTooltip);
                 }
+
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange)
+                {
+                    m_StartedHoveringTime = 0;
+                    FloatTooltip radiusTooltip = new FloatTooltip
+                    {
+                        value = radius,
+                        unit = "floatSingleFraction",
+                        path = "YY_WATER_FEATURES.RadiusChange",
+                        label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Radius", "Radius"),
+                    };
+                    AddMouseTooltip(radiusTooltip);
+                }
             }
 
             // If Radius is too small displays a tooltip.
@@ -176,7 +188,7 @@ namespace Water_Features.Tools
             }
 
             // Displays a tooltip while hovering over a water source.
-            if (hoveredWaterSourceEntity != Entity.Null)
+            if (hoveredWaterSourceEntity != Entity.Null && m_CustomWaterTool.GetSelectedPrefab() == null)
             {
                 if (m_StartedHoveringTime == 0)
                 {
