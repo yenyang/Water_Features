@@ -12,6 +12,7 @@ export const arrowUpSrc =           couiStandard +  "ArrowUpThickStroke.svg";
 export const elevationChangeSrc =   couiStandard +  "ArrowUp.svg";
 export const placeWaterSourceSrc =  couiStandard +  "Dot.svg";
 export const moveWaterSourceSrc =   couiStandard +  "BoxArrowBoxAdjustEndProp.svg";
+export const radiusChangeSrc    =   couiStandard +  "Circle.svg"
 
 // These establishes the binding with C# side. Without C# side game ui will crash.
 export const AmountValue$ =        bindValue<number> (mod.id, 'AmountValue');
@@ -42,6 +43,7 @@ export const sectionTitlePrefix =       "YY_WATER_FEATURES.";
 export const elevationChangeID =        "ElevationChange";
 export const placeWaterSourceID =       "PlaceWaterSource";
 export const moveWaterSourceID =        "MoveWaterSource";
+export const radiusChangeID =           "RadiusChange";
 
 // Stores the default values for the step arrays. Must be descending order.
 export const defaultValues : number[] =[1.0, 0.5, 0.25, 0.125];
@@ -61,6 +63,7 @@ export enum WaterToolModes
     PlaceWaterSource,
     ElevationChange,
     MoveWaterSource,
+    RadiusChange,
 }
 
 export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
@@ -103,7 +106,8 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const elevationChangeTooltip =  translate(tooltipDescriptionPrefix + elevationChangeID, "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability. Right click to cancel.");
         const placeWaterSourceTooltip = translate(tooltipDescriptionPrefix + placeWaterSourceID,"Water Tool will place water sources with left click, and remove water sources with right click.");
         const moveWaterSourceTooltip =  translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel.");
-        const toolModeTitle =               translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
+        const radiusChangeTooltip =     translate(tooltipDescriptionPrefix + moveWaterSourceID, "Water Tool will change radius of water sources. Right click to cancel.");
+        const toolModeTitle =           translate("Toolbar.TOOL_MODE_TITLE", "Tool Mode");
 
         var result = Component();
         if (toolActive) 
@@ -181,6 +185,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.PlaceWaterSource}    tooltip={placeWaterSourceTooltip}  onSelect={() => changeToolMode(WaterToolModes.PlaceWaterSource)}   src={placeWaterSourceSrc} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.ElevationChange}     tooltip={elevationChangeTooltip}   onSelect={() => changeToolMode(WaterToolModes.ElevationChange)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.MoveWaterSource}     tooltip={moveWaterSourceTooltip}   onSelect={() => changeToolMode(WaterToolModes.MoveWaterSource)}    src={moveWaterSourceSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
+                            <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.RadiusChange}        tooltip={radiusChangeTooltip}      onSelect={() => changeToolMode(WaterToolModes.RadiusChange)}       src={radiusChangeSrc}     focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                     </VanillaComponentResolver.instance.Section>                    
                 </>
             );

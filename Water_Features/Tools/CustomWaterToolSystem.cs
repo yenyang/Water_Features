@@ -7,13 +7,10 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
-    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
-    using Game.Objects;
     using Game.Prefabs;
     using Game.Rendering;
-    using Game.Routes;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
@@ -80,6 +77,11 @@ namespace Water_Features.Tools
             /// Water Tool will move existing water sources. Target elevations of existing water sources will not change.
             /// </summary>
             MoveWaterSource,
+
+            /// <summary>
+            /// Water Tool will change radius for existing water sources.
+            /// </summary>
+            RadiusChange,
         }
 
         /// <summary>
@@ -493,8 +495,8 @@ namespace Water_Features.Tools
                 }
             }
 
-            // This section is for selecting water source to Move or Change Elevation.
-            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasPressedThisFrame())
+            // This section is for selecting water source to Move, Change Elevation, or change radius.
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasPressedThisFrame())
             {
                 m_SelectedWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
                 if (m_SelectedWaterSource != Entity.Null)
@@ -519,8 +521,8 @@ namespace Water_Features.Tools
                 }
             }
 
-            // This handles canceling move and elevation changes.
-            else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_SecondaryApplyAction.WasPressedThisFrame())
+            // This handles canceling move, elevation change, and radius changes.
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_SecondaryApplyAction.WasPressedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedWaterSource);
                 EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedTransform);
@@ -656,6 +658,24 @@ namespace Water_Features.Tools
                 }
             }
 
+            // This section handles changing radius for existing water source.
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.RadiusChange && m_ApplyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
+            {
+                if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
+                {
+                    m_SelectedWaterSource = Entity.Null;
+                    m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                }
+                else
+                {
+                    m_WaterSystem.WaterSimSpeed = 0;
+                    float3 hitPositionXZ = new (m_RaycastPoint.m_HitPosition.x, 0, m_RaycastPoint.m_HitPosition.z);
+                    float3 waterSourcePositionXZ = new (m_PressedTransform.m_Position.x, 0, m_PressedTransform.m_Position.z);
+                    waterSourceData.m_Radius = Vector3.Distance(hitPositionXZ, waterSourcePositionXZ);
+                    EntityManager.SetComponentData(m_SelectedWaterSource, waterSourceData);
+                }
+            }
+
             // This section resets things after finishing moving or changing elevation of a water source.
             else if ((m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange) && m_ApplyAction.WasReleasedThisFrame())
             {
@@ -701,22 +721,22 @@ namespace Water_Features.Tools
             // This section renders target water elevation over hovered water source.
             else
             {
-                Entity hoveredWaterSoruce = GetHoveredEntity(m_RaycastPoint.m_Position);
-                if (EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSoruce, out Game.Simulation.WaterSourceData waterSourceData))
+                Entity hoveredWaterSource = GetHoveredEntity(m_RaycastPoint.m_Position);
+                if (EntityManager.TryGetComponent(hoveredWaterSource, out Game.Objects.Transform transform) && EntityManager.TryGetComponent(hoveredWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
                 {
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
                     }
-                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out DetentionBasin detentionBasin))
+                    else if (EntityManager.TryGetComponent(hoveredWaterSource, out DetentionBasin detentionBasin))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, detentionBasin.m_MaximumWaterHeight);
                     }
-                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out RetentionBasin retentionBasin))
+                    else if (EntityManager.TryGetComponent(hoveredWaterSource, out RetentionBasin retentionBasin))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, retentionBasin.m_MaximumWaterHeight);
                     }
-                    else if (EntityManager.TryGetComponent(hoveredWaterSoruce, out AutofillingLake autofillingLake))
+                    else if (EntityManager.TryGetComponent(hoveredWaterSource, out AutofillingLake autofillingLake))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, autofillingLake.m_MaximumWaterHeight);
                     }
