@@ -1,11 +1,21 @@
-import { ModRegistrar } from "modding/types";
-import { AnarchyRowComponent } from "mods/anarchyRow";
-import { ChirperModComponent } from "mods/chirperMod";
+import { ModRegistrar } from "cs2/modding";
+import { WaterToolComponent } from "mods/waterToolSections/waterToolSections";
+import { VanillaComponentResolver } from "mods/VanillaComponentResolver/VanillaComponentResolver";
+import { EditorWaterToolPrefabSelectionComponent } from "mods/editorWaterToolPrefabSelection/editorWaterToolPrefabSelection";
+import mod from "../mod.json";
 
 const register: ModRegistrar = (moduleRegistry) => {
+      // The vanilla component resolver is a singleton that helps extrant and maintain components from game that were not specifically exposed.
+      VanillaComponentResolver.setRegistry(moduleRegistry);
+      
      // console.log('mr', moduleRegistry);
-     moduleRegistry.extend("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", 'MouseToolOptions', AnarchyRowComponent(moduleRegistry));
-     moduleRegistry.extend("game-ui/game/components/right-menu/right-menu.tsx", "RightMenu", ChirperModComponent(moduleRegistry))
+     moduleRegistry.extend("game-ui/game/components/tool-options/mouse-tool-options/mouse-tool-options.tsx", 'MouseToolOptions', WaterToolComponent);
+
+     // This appends the right bottom floating menu with a chirper image that is just floating above the vanilla chirper image. Hopefully noone moves it.
+     moduleRegistry.append('Editor', EditorWaterToolPrefabSelectionComponent);
+
+     // This is just to verify using UI console that all the component registriations was completed.
+     console.log(mod.id + " UI module registrations completed.");
 }
 
 export default register;

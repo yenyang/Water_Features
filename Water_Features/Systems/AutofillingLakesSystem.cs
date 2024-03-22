@@ -4,7 +4,6 @@
 
 namespace Water_Features.Systems
 {
-    using System.Runtime.CompilerServices;
     using Colossal.Logging;
     using Game;
     using Game.Common;
@@ -31,7 +30,6 @@ namespace Water_Features.Systems
         {
         }
 
-        private TypeHandle __TypeHandle;
         private EndFrameBarrier m_EndFrameBarrier;
         private WaterSystem m_WaterSystem;
         private TerrainSystem m_TerrainSystem;
@@ -70,19 +68,20 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            __TypeHandle.__AutofillingLake_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            AutofillingLakesJob autofillingLakesJob = new ()
+            if (m_WaterSystem.WaterSimSpeed == 0)
+            {
+                return;
+            }
+
+            AutofillingLakesJob autofillingLakesJob = new()
             {
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-                m_AutofillingLakeType = __TypeHandle.__AutofillingLake_RW_ComponentTypeHandle,
-                m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
+                m_AutofillingLakeType = SystemAPI.GetComponentTypeHandle<AutofillingLake>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                m_SourceType = SystemAPI.GetComponentTypeHandle<WaterSourceData>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
                 m_WaterSurfaceData = m_WaterSystem.GetSurfaceData(out JobHandle waterSurfaceDataJob),
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
             };
 
             JobHandle jobHandle = JobChunkExtensions.Schedule(autofillingLakesJob, m_AutofillingLakesQuery, JobHandle.CombineDependencies(Dependency, waterSurfaceDataJob));
@@ -90,13 +89,6 @@ namespace Water_Features.Systems
             m_TerrainSystem.AddCPUHeightReader(jobHandle);
             m_WaterSystem.AddSurfaceReader(jobHandle);
             Dependency = jobHandle;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
         }
 
         /// <summary>
@@ -176,25 +168,6 @@ namespace Water_Features.Systems
                     }
 
                 }
-            }
-        }
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Unity_Entities_Entity_TypeHandle;
-            public ComponentTypeHandle<AutofillingLake> __AutofillingLake_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Objects.Transform> __Game_Objects_Transform_RO_ComponentTypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Unity_Entities_Entity_TypeHandle = state.GetEntityTypeHandle();
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __AutofillingLake_RW_ComponentTypeHandle = state.GetComponentTypeHandle<AutofillingLake>();
-                __Game_Objects_Transform_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Objects.Transform>();
             }
         }
     }

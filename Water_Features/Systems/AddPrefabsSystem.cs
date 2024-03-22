@@ -17,7 +17,7 @@ namespace Water_Features.Systems
     /// <summary>
     /// System for adding new prefabs for custom water sources.
     /// </summary>
-    public class AddPrefabsSystem : GameSystemBase
+    public partial class AddPrefabsSystem : GameSystemBase
     {
         private const string PrefabPrefix = "WaterSource ";
         private const string TabName = "WaterTool";
@@ -27,14 +27,19 @@ namespace Water_Features.Systems
         /// </summary>
         private List<WaterSourcePrefabData> m_SourcePrefabDataList = new List<WaterSourcePrefabData>()
         {
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = "coui://yy-water-tool/WaterSourceStream.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultAmount = 1f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = "coui://yy-water-tool/WaterSourceRiver.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultAmount = 20f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = "coui://yy-water-tool/WaterSourceSea.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultAmount = 25f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = "coui://yy-water-tool/WaterSourceLake.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = "coui://ui-mods/images/WaterSourceStream.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultAmount = 1f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = "coui://ui-mods/images/WaterSourceRiver.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultAmount = 20f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = "coui://ui-mods/images/WaterSourceSea.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultAmount = 25f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = "coui://ui-mods/images/WaterSourceLake.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
         };
 
         private PrefabSystem m_PrefabSystem;
         private ILog m_Log;
+
+        /// <summary>
+        /// Gets the prefix for prefabs.
+        /// </summary>
+        public string Prefix { get => PrefabPrefix; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddPrefabsSystem"/> class.
@@ -48,13 +53,13 @@ namespace Water_Features.Systems
         {
             m_Log = WaterFeaturesMod.Instance.Log;
             m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
-            if (WaterFeaturesMod.Settings.IncludeDetentionBasins)
+            if (WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins)
             {
-                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = "coui://yy-water-tool/WaterSourceDetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultAmount = 15f, });
+                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = "coui://ui-mods/images/WaterSourceDetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultAmount = 15f, });
             }
 
-            if (WaterFeaturesMod.Settings.IncludeRetentionBasins) {
-                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = "coui://yy-water-tool/WaterSourceRetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultAmount = 20f, });
+            if (WaterFeaturesMod.Instance.Settings.IncludeRetentionBasins) {
+                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = "coui://ui-mods/images/WaterSourceRetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultAmount = 20f, });
             }
 
             base.OnCreate();
@@ -74,7 +79,7 @@ namespace Water_Features.Systems
                 sourcePrefabBase.m_DefaultAmount = source.m_DefaultAmount;
                 sourcePrefabBase.name = $"{PrefabPrefix}{source.m_SourceType}";
                 UIObject uiObject = ScriptableObject.CreateInstance<UIObject>();
-                uiObject.m_Group = GetOrCreateNewToolCategory(TabName, "Landscaping", "coui://yy-water-tool/water_features_icon.svg") ?? uiObject.m_Group;
+                uiObject.m_Group = GetOrCreateNewToolCategory(TabName, "Landscaping", "coui://ui-mods/images/water_features_icon.svg") ?? uiObject.m_Group;
                 uiObject.m_Priority = source.m_Priority;
                 uiObject.m_Icon = source.m_Icon;
                 uiObject.active = true;

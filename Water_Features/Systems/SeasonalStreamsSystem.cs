@@ -5,11 +5,8 @@
 namespace Water_Features.Systems
 {
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Reflection;
-    using System.Runtime.CompilerServices;
-    using Colossal.Entities;
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
@@ -35,7 +32,6 @@ namespace Water_Features.Systems
     {
         public static readonly int kUpdatesPerDay = 128;
 
-        private TypeHandle __TypeHandle;
         private ClimateSystem m_ClimateSystem;
         private string m_CurrentSeason;
         private EntityQuery m_ClimateQuery;
@@ -49,6 +45,8 @@ namespace Water_Features.Systems
         private ILog m_Log;
         private bool ClimateInteractionInitialized = false;
         private EndFrameBarrier m_EndFrameBarrier;
+        private ToolSystem m_ToolSystem;
+        private bool m_EditorSimulationReset = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeasonalStreamsSystem"/> class.
@@ -68,6 +66,7 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
+            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_ClimateSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ClimateSystem>();
             m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
             m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
@@ -100,6 +99,23 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            // This section handles optting in to having seasonal streams affect editor simulation.
+            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            {
+                if (m_EditorSimulationReset == false)
+                {
+                    DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
+                    disableSeasonalStreamSystem.Enabled = true;
+                    m_EditorSimulationReset = true;
+                }
+
+                return;
+            }
+            else if (m_ToolSystem.actionMode.IsEditor())
+            {
+                m_EditorSimulationReset = false;
+            }
+
             if (ClimateInteractionInitialized == false)
             {
                 InitializeClimateInteraction();
@@ -113,17 +129,13 @@ namespace Water_Features.Systems
                 m_CurrentSeasonMeanPrecipitation = GetMeanPrecipitation(m_ClimatePrefab, normalizedClimateDate);
             }
 
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Entity_RO_TypeHandle.Update(ref CheckedStateRef);
             ReviseWaterSourcesJob reviseWaterSourcesJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_SeasonalStreamDataType = __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_SeasonalStreamDataType = SystemAPI.GetComponentTypeHandle<SeasonalStreamsData>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
-                m_TransformType = __TypeHandle.__Game_Objects_Transform_RO_ComponentTypeHandle,
-                m_EntityType = __TypeHandle.__Entity_RO_TypeHandle,
+                m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
             };
 
@@ -131,20 +143,20 @@ namespace Water_Features.Systems
             float seasonalFlows = 0f;
             if (m_MaxSeasonMeanPrecipitation > 0)
             {
-                seasonalFlows = m_CurrentSeasonMeanPrecipitation / m_MaxSeasonMeanPrecipitation * WaterFeaturesMod.Settings.StreamSeasonality;
+                seasonalFlows = m_CurrentSeasonMeanPrecipitation / m_MaxSeasonMeanPrecipitation * WaterFeaturesMod.Instance.Settings.StreamSeasonality;
             }
 
             // If it's not snowing, according to the climate system calculate runoff for job.
             if (m_ClimateSystem.isSnowing == false)
             {
                 // Calculate water source multiplier based on precipiattion, spring water, and seasonality.
-                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + (m_ClimateSystem.precipitation * WaterFeaturesMod.Settings.StreamStormwaterEffects) + WaterFeaturesMod.Settings.ConstantFlowRate, WaterFeaturesMod.Settings.MinimumMultiplier, WaterFeaturesMod.Settings.MaximumMultiplier);
+                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + (m_ClimateSystem.precipitation * WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects) + WaterFeaturesMod.Instance.Settings.ConstantFlowRate, WaterFeaturesMod.Instance.Settings.MinimumMultiplier, WaterFeaturesMod.Instance.Settings.MaximumMultiplier);
                 reviseWaterSourcesJob.m_SnowAccumulationMultiplier = 0f;
 
                 // If the temperature is high enough to melt snow record the temperature and the leftover multiplier that can be used for snow melt.
-                if (WaterFeaturesMod.Settings.SimulateSnowMelt == true && m_ClimateSystem.temperature.value > m_ClimateSystem.freezingTemperature && reviseWaterSourcesJob.m_WaterSourceMultiplier < WaterFeaturesMod.Settings.MaximumMultiplier)
+                if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt == true && m_ClimateSystem.temperature.value > m_ClimateSystem.freezingTemperature && reviseWaterSourcesJob.m_WaterSourceMultiplier < WaterFeaturesMod.Instance.Settings.MaximumMultiplier)
                 {
-                    reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = WaterFeaturesMod.Settings.MaximumMultiplier - reviseWaterSourcesJob.m_WaterSourceMultiplier;
+                    reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = WaterFeaturesMod.Instance.Settings.MaximumMultiplier - reviseWaterSourcesJob.m_WaterSourceMultiplier;
                     reviseWaterSourcesJob.m_TemperatureDifferential = m_ClimateSystem.temperature.value - m_ClimateSystem.freezingTemperature;
                 }
                 else
@@ -155,11 +167,11 @@ namespace Water_Features.Systems
             }
 
             // If snowing and if simulating snowmelt then calculate the snow accumulation multiplier from precipiation.
-            else if (WaterFeaturesMod.Settings.SimulateSnowMelt == true)
+            else if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt == true)
             {
                 // Seasonal water flow and spring water still continue during snow.
-                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + WaterFeaturesMod.Settings.ConstantFlowRate, WaterFeaturesMod.Settings.MinimumMultiplier, WaterFeaturesMod.Settings.MaximumMultiplier);
-                reviseWaterSourcesJob.m_SnowAccumulationMultiplier = m_ClimateSystem.precipitation * WaterFeaturesMod.Settings.StreamStormwaterEffects;
+                reviseWaterSourcesJob.m_WaterSourceMultiplier = Mathf.Clamp(seasonalFlows + WaterFeaturesMod.Instance.Settings.ConstantFlowRate, WaterFeaturesMod.Instance.Settings.MinimumMultiplier, WaterFeaturesMod.Instance.Settings.MaximumMultiplier);
+                reviseWaterSourcesJob.m_SnowAccumulationMultiplier = m_ClimateSystem.precipitation * WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects;
                 reviseWaterSourcesJob.m_PotentialSnowMeltMultiplier = 0f;
                 reviseWaterSourcesJob.m_TemperatureDifferential = 0f;
             }
@@ -182,20 +194,13 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-            if (!WaterFeaturesMod.Settings.EnableSeasonalStreams)
+            if (!WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams)
             {
                 m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnCreate)} Seasonal Streams disabled.");
                 Enabled = false;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
                 disableSeasonalStreamSystem.Enabled = true;
             }
-        }
-
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
         }
 
         /// <summary>
@@ -257,25 +262,6 @@ namespace Water_Features.Systems
             OverridableProperty<float> climateDate = (OverridableProperty<float>)climateDateVar;
             float normalizedClimateDate = float.Parse(climateDate.ToString(), CultureInfo.InvariantCulture.NumberFormat); // This is a dumb solution but climateDate.value is coming up as 0.
             return normalizedClimateDate;
-        }
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            public ComponentTypeHandle<SeasonalStreamsData> __Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<Game.Objects.Transform> __Game_Objects_Transform_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Entity_RO_TypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __Seasonal_Streams_OriginalAmountComponent_RW_ComponentTypeHandle = state.GetComponentTypeHandle<SeasonalStreamsData>();
-                __Game_Objects_Transform_RO_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Objects.Transform>();
-                __Entity_RO_TypeHandle = state.GetEntityTypeHandle();
-            }
         }
 
         /// <summary>

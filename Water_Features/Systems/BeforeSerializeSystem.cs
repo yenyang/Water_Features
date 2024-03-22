@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
     using System.Runtime.CompilerServices;
@@ -9,6 +10,7 @@ namespace Water_Features.Systems
     using Game;
     using Game.Common;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -19,7 +21,6 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class BeforeSerializeSystem : GameSystemBase
     {
-        private TypeHandle __TypeHandle;
         private EntityQuery m_SeasonalStreamsDataQuery;
         private EntityQuery m_TidesAndWavesDataQuery;
         private EntityQuery m_AutofillingLakeQuery;
@@ -128,82 +129,45 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__TidesAndWavesData_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__AutofillingLake_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__DetentionBasin_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Retention_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
             m_TidesAndWavesSystem.ResetDummySeaWaterSource();
             BeforeSerializeSeasonalStreamsJob beforeSerializeSeasonalStreamsJob = new ()
             {
-                m_OriginalAmountType = __TypeHandle.__Seasonal_Streams_OriginalAmountComponent_RO_ComponentTypeHandle,
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
+                m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<SeasonalStreamsData>(),
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
             };
             Dependency = JobChunkExtensions.Schedule(beforeSerializeSeasonalStreamsJob, m_SeasonalStreamsDataQuery, Dependency);
             BeforeSerializeTidesAndWavesJob beforeSerializeTidesAndWavesJob = new ()
             {
-                m_OriginalAmountType = __TypeHandle.__TidesAndWavesData_RO_ComponentTypeHandle,
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
+                m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<TidesAndWavesData>(),
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
             };
             Dependency = JobChunkExtensions.Schedule(beforeSerializeTidesAndWavesJob, m_TidesAndWavesDataQuery, Dependency);
             BeforeSerializeAutofillingLakeJob beforeSerializeAutofillingLakeJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_AutofillingLakeType = __TypeHandle.__AutofillingLake_RO_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_AutofillingLakeType = SystemAPI.GetComponentTypeHandle<AutofillingLake>(),
             };
             Dependency = JobChunkExtensions.Schedule(beforeSerializeAutofillingLakeJob, m_AutofillingLakeQuery, Dependency);
             BeforeSerializeDetentionBasinJob beforeSerializeDetentionBasinJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_DetentionBasinType = __TypeHandle.__DetentionBasin_RO_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_DetentionBasinType = SystemAPI.GetComponentTypeHandle<DetentionBasin>(),
             };
             Dependency = JobChunkExtensions.Schedule(beforeSerializeDetentionBasinJob, m_DetentionBasinQuery, Dependency);
             BeforeSerializeRetentionBasinJob beforeSerializeLakeLikeWaterSourcesJob = new ()
             {
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_RetentionBasinType = __TypeHandle.__Retention_RO_ComponentTypeHandle,
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_RetentionBasinType = SystemAPI.GetComponentTypeHandle<RetentionBasin>(),
             };
             Dependency = JobChunkExtensions.Schedule(beforeSerializeLakeLikeWaterSourcesJob, m_RetentionBasinQuery, Dependency);
-        }
-
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
-        }
-
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<SeasonalStreamsData> __Seasonal_Streams_OriginalAmountComponent_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<TidesAndWavesData> __TidesAndWavesData_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<AutofillingLake> __AutofillingLake_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<DetentionBasin> __DetentionBasin_RO_ComponentTypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<RetentionBasin> __Retention_RO_ComponentTypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __Seasonal_Streams_OriginalAmountComponent_RO_ComponentTypeHandle = state.GetComponentTypeHandle<SeasonalStreamsData>();
-                __TidesAndWavesData_RO_ComponentTypeHandle = state.GetComponentTypeHandle<TidesAndWavesData>();
-                __AutofillingLake_RO_ComponentTypeHandle = state.GetComponentTypeHandle<AutofillingLake>();
-                __DetentionBasin_RO_ComponentTypeHandle = state.GetComponentTypeHandle<DetentionBasin>();
-                __Retention_RO_ComponentTypeHandle = state.GetComponentTypeHandle<RetentionBasin>();
-            }
         }
 
         /// <summary>
         /// This job sets the amounts for seasonal stream water sources back to original amount.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct BeforeSerializeSeasonalStreamsJob : IJobChunk
         {
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
@@ -226,6 +190,9 @@ namespace Water_Features.Systems
         /// <summary>
         /// This job sets the amounts for sea water sources back to original amount.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct BeforeSerializeTidesAndWavesJob : IJobChunk
         {
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
@@ -245,6 +212,9 @@ namespace Water_Features.Systems
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job makes an automatic filling lake into a vanilla lake.
         /// </summary>
@@ -268,6 +238,9 @@ namespace Water_Features.Systems
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job makes all detention basins into lakes at the maximum water surface elevation.
         /// </summary>
@@ -291,6 +264,9 @@ namespace Water_Features.Systems
             }
         }
 
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job makes all retention basins into lakes at the maximum water surface elevation.
         /// </summary>

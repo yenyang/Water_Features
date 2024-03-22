@@ -1,0 +1,22 @@
+.panel {
+    position: absolute;
+    left: 375rem;
+    bottom: 75rem;
+}
+
+.panelSection {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.row {
+    padding: 10rem 20rem;
+}
+
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}

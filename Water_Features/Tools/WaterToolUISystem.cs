@@ -6,18 +6,20 @@ namespace Water_Features.Tools
 {
     using System;
     using System.Collections.Generic;
+    using System.Dynamic;
     using System.IO;
+    using System.Linq;
     using System.Xml.Serialization;
-    using cohtml.Net;
     using Colossal.Logging;
     using Colossal.PSI.Environment;
     using Colossal.Serialization.Entities;
+    using Colossal.UI.Binding;
     using Game;
     using Game.Prefabs;
-    using Game.SceneFlow;
     using Game.Simulation;
     using Game.Tools;
     using Game.UI;
+    using Game.UI.Editor;
     using Unity.Entities;
     using UnityEngine;
     using Water_Features;
@@ -30,30 +32,32 @@ namespace Water_Features.Tools
     /// </summary>
     public partial class WaterToolUISystem : UISystemBase
     {
-        private View m_UiView;
+        private const string ModId = "Water_Features";
+
         private ToolSystem m_ToolSystem;
-        private string m_InjectedJS = string.Empty;
-        private string m_AmountItemScript = string.Empty;
-        private string m_RadiusItemScript = string.Empty;
-        private string m_MinDepthItemScript = string.Empty;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
         private TerrainSystem m_TerrainSystem;
         private ILog m_Log;
-        private bool m_WaterToolPanelShown;
-        private List<BoundEventHandle> m_BoundEventHandles;
-        private float m_Radius = 10f;
-        private float m_Amount = 5f;
-        private float m_MinDepth = 10f;
         private Dictionary<string, Action> m_ChangeValueActions;
-        private bool m_ButtonPressed = false;
-        private float m_AmountRateOfChange = 1f;
-        private float m_RadiusRateOfChange = 1f;
-        private float m_MinDepthRateOfChange = 1f;
         private bool m_ResetValues = true;
-        private bool m_FirstTimeInjectingJS = true;
-        private bool m_AmountIsElevation = false;
         private string m_ContentFolder;
         private Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository> m_WaterSourcePrefabValuesRepositories;
+        private bool m_AmountIsElevation;
+        private ValueBinding<float> m_Radius;
+        private ValueBinding<float> m_Amount;
+        private ValueBinding<float> m_MinDepth;
+        private ValueBinding<string> m_AmountLocaleKey;
+        private ValueBinding<float> m_RadiusStep;
+        private ValueBinding<float> m_AmountStep;
+        private ValueBinding<float> m_MinDepthStep;
+        private ValueBinding<int> m_AmountScale;
+        private ValueBinding<int> m_MinDepthScale;
+        private ValueBinding<int> m_RadiusScale;
+        private ValueBinding<bool> m_ShowMinDepth;
+        private ValueBinding<string> m_ActivePrefabName;
+        private EditorToolUISystem m_EditorToolUISystem;
+        private ValueBinding<int> m_ToolMode;
+        private PrefabSystem m_PrefabSystem;
 
         /// <summary>
         /// Types of water sources.
@@ -99,34 +103,27 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets the radius.
         /// </summary>
-        public float Radius
-        {
-            get { return m_Radius; }
-        }
+        public float Radius { get => m_Radius.value;  }
 
         /// <summary>
         /// Gets the amount.
         /// </summary>
-        public float Amount
-        {
-            get { return m_Amount; }
-        }
+        public float Amount { get => m_Amount.value; }
 
         /// <summary>
         /// Gets the min depth.
         /// </summary>
-        public float MinDepth
-        {
-            get { return m_MinDepth; }
-        }
+        public float MinDepth { get => m_MinDepth.value; }
+
+        /// <summary>
+        /// Gets the tool mode for customw ater tool.
+        /// </summary>
+        public CustomWaterToolSystem.ToolModes ToolMode { get => (CustomWaterToolSystem.ToolModes)m_ToolMode.value; }
 
         /// <summary>
         /// Gets a value indicating whether the amount is an elevation.
         /// </summary>
-        public bool AmountIsAnElevation
-        {
-            get { return m_AmountIsElevation; }
-        }
+        public bool AmountIsAnElevation { get => m_AmountIsElevation; }
 
         /// <summary>
         /// Sets the amount value equal to elevation parameter. And sets the label for that row to Elevation.
@@ -134,17 +131,12 @@ namespace Water_Features.Tools
         /// <param name="elevation">The y coordinate from the raycast hit position.</param>
         public void SetElevation(float elevation)
         {
-            m_Amount = Mathf.Round(elevation * 10f) / 10f;
+            elevation = Mathf.Clamp(elevation, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
+            elevation = Mathf.Round(elevation * 10f) * 0.1f;
+            m_Amount.Update(elevation);
+            m_AmountScale.Update(1);
             m_AmountIsElevation = true;
-            string localeKey = "YY_WATER_FEATURES.Elevation";
-
-            UIFileUtils.ExecuteScript(m_UiView, "if (typeof yyWaterTool != 'object') var yyWaterTool = {};");
-
-            // This script changes and translates the Amount label according to the active prefab.
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amount = document.getElementById(\"YYWT-amount-label\"); if (yyWaterTool.amount) {{ yyWaterTool.amount.localeKey = \"{localeKey}\"; yyWaterTool.amount.innerHTML = engine.translate(yyWaterTool.amount.localeKey); }}");
-
-            // This script sets the amount field to the desired amount;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount} m\";");
+            m_AmountLocaleKey.Update("YY_WATER_FEATURES.Elevation");
         }
 
         /// <summary>
@@ -207,207 +199,108 @@ namespace Water_Features.Tools
         /// <inheritdoc/>
         protected override void OnCreate()
         {
+            base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
-            m_UiView = GameManager.instance.userInterface.view.View;
-            ToolSystem toolSystem = m_ToolSystem; // I don't know why vanilla game did this.
-            m_ToolSystem.EventToolChanged = (Action<ToolBaseSystem>)Delegate.Combine(toolSystem.EventToolChanged, new Action<ToolBaseSystem>(OnToolChanged));
             ToolSystem toolSystem2 = m_ToolSystem; // I don't know why vanilla game did this.
             m_ToolSystem.EventPrefabChanged = (Action<PrefabBase>)Delegate.Combine(toolSystem2.EventPrefabChanged, new Action<PrefabBase>(OnPrefabChanged));
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
-            m_BoundEventHandles = new ();
-
-            m_InjectedJS = UIFileUtils.ReadJS(Path.Combine(UIFileUtils.AssemblyPath, "ui.js"));
-            m_AmountItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Amount-Item.html"), "if (document.getElementById(\"YYWT-amount-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-amount-item\"; yyWaterTool.entities = document.getElementsByClassName(\"tool-options-panel_Se6\"); if (yyWaterTool.entities[0] != null) { yyWaterTool.entities[0].insertAdjacentElement('afterbegin', yyWaterTool.div); } }");
-            m_RadiusItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Radius-Item.html"), "if (document.getElementById(\"YYWT-radius-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-radius-item\"; yyWaterTool.amountItem = document.getElementById(\"YYWT-amount-item\"); if (yyWaterTool.amountItem != null) { yyWaterTool.amountItem.insertAdjacentElement('afterend', yyWaterTool.div); } }");
-            m_MinDepthItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Min-Depth-Item.html"), "if (document.getElementById(\"YYWT-min-depth-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-min-depth-item\"; yyWaterTool.amountItem = document.getElementById(\"YYWT-amount-item\"); if (yyWaterTool.amountItem != null) { yyWaterTool.amountItem.insertAdjacentElement('afterend', yyWaterTool.div); } }");
-
-            if (m_UiView == null)
+            m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
+            m_EditorToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EditorToolUISystem>();
+            IEditorTool[] existingTools = m_EditorToolUISystem.tools;
+            IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
+            int i = 0;
+            foreach (IEditorTool currentTool in existingTools)
             {
-                m_Log.Warn($"{nameof(WaterToolUISystem)}.{nameof(OnCreate)} m_UiView == null");
+                newTools[i++] = currentTool;
             }
 
-            m_ChangeValueActions = new Dictionary<string, Action>()
-            {
-                { "YYWT-amount-down-arrow", (Action)DecreaseAmount },
-                { "YYWT-amount-up-arrow", (Action)IncreaseAmount },
-                { "YYWT-radius-down-arrow", (Action)DecreaseRadius },
-                { "YYWT-radius-up-arrow", (Action)IncreaseRadius },
-                { "YYWT-min-depth-down-arrow", (Action)DecreaseMinDepth },
-                { "YYWT-min-depth-up-arrow", (Action)IncreaseMinDepth },
-                { "YYWT-amount-rate-of-change", (Action)AmountRateOfChangePressed },
-                { "YYWT-radius-rate-of-change", (Action)RadiusRateOfChangePressed },
-                { "YYWT-min-depth-rate-of-change", (Action)MinDepthRateOfChangePressed },
-            };
+            newTools[i] = new CustomEditorWaterTool(World.DefaultGameObjectInjectionWorld);
+            m_EditorToolUISystem.tools = newTools;
+
+            // This binding communicates the value for Amount.
+            AddBinding(m_Amount = new ValueBinding<float>(ModId, "AmountValue", 1f));
+
+            // This binding communicates the value for Radius.
+            AddBinding(m_Radius = new ValueBinding<float>(ModId, "RadiusValue", 5f));
+
+            // This binding communicates the value for Min Depth.
+            AddBinding(m_MinDepth = new ValueBinding<float>(ModId, "MinDepthValue", 10f));
+
+            // This binding communicates the Locale Key for the Amount section.
+            AddBinding(m_AmountLocaleKey = new ValueBinding<string>(ModId, "AmountLocaleKey", "YY_WATER_FEATURES.Depth"));
+
+            // This binding communicates the value of the selected Radius Step.
+            AddBinding(m_RadiusStep = new ValueBinding<float>(ModId, "RadiusStep", 1f));
+
+            // This binding communicates the value of the selected Amount Step.
+            AddBinding(m_AmountStep = new ValueBinding<float>(ModId, "AmountStep", 1f));
+
+            // This binding communicates the value of the selected Min Depth step.
+            AddBinding(m_MinDepthStep = new ValueBinding<float>(ModId, "MinDepthStep", 1f));
+
+            // This binding communicates the value of the selected Amount scale.
+            AddBinding(m_AmountScale = new ValueBinding<int>(ModId, "AmountScale", 0));
+
+            // This binding communicates the value of the selected Min Depth Scale.
+            AddBinding(m_MinDepthScale = new ValueBinding<int>(ModId, "MinDepthScale", 0));
+
+            // This binding communicates the value of the selected Radius scale.
+            AddBinding(m_RadiusScale = new ValueBinding<int>(ModId, "RadiusScale", 0));
+
+            // This binding communicates whether Min Depth section should be shown.
+            AddBinding(m_ShowMinDepth = new ValueBinding<bool>(ModId, "ShowMinDepth", false));
+
+            // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
+            AddBinding(m_ActivePrefabName = new ValueBinding<string>(ModId, "ActivePrefabName", "WaterSource Stream"));
+
+            // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
+            AddBinding(m_ToolMode = new ValueBinding<int>(ModId, "ToolMode", (int)CustomWaterToolSystem.ToolModes.PlaceWaterSource));
+
+            // This binding listens for whether the amount-up-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
+
+            // This binding listens for whether the amount-down-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "amount-down-arrow", DecreaseAmount));
+
+            // This binding listens for whether the min-depth-up-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "min-depth-up-arrow", IncreaseMinDepth));
+
+            // This binding listens for whether the min-depth-down-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "min-depth-down-arrow", DecreaseMinDepth));
+
+            // This binding listens for whether the radius-up-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "radius-up-arrow", IncreaseRadius));
+
+            // This binding listens for whether the radius-down-arrow button was clicked.
+            AddBinding(new TriggerBinding(ModId, "radius-down-arrow", DecreaseRadius));
+
+            // This binding listens for whether the amount-rate-of-change button was clicked.
+            AddBinding(new TriggerBinding(ModId, "amount-rate-of-change", AmountStepPressed));
+
+            // This binding listens for whether the radius-rate-of-change button was clicked.
+            AddBinding(new TriggerBinding(ModId, "min-depth-rate-of-change", MinDepthStepPressed));
+
+            // This binding listens for whether the min-depth-rate-of-change button was clicked.
+            AddBinding(new TriggerBinding(ModId, "radius-rate-of-change", RadiusStepPressed));
+
+            // This binding handles changing prefabs for editor version of custom water tool.
+            AddBinding(new TriggerBinding<string>(ModId, "PrefabChange", ChangePrefab));
+
+            // This binding hanldes changing tool mode for water tool.
+            AddBinding(new TriggerBinding<int>(ModId, "ChangeToolMode", ChangeToolMode));
 
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
-            base.OnCreate();
         }
 
-        /// <inheritdoc/>
-        protected override void OnUpdate()
-        {
-            if (m_UiView == null)
-            {
-                return;
-            }
-
-            if (m_ToolSystem.activeTool != m_CustomWaterToolSystem)
-            {
-                if (m_WaterToolPanelShown)
-                {
-                    UnshowWaterToolPanel();
-                    Enabled = false;
-                }
-
-                return;
-            }
-
-            m_ButtonPressed = false;
-
-            if (!m_WaterToolPanelShown)
-            {
-                UIFileUtils.ExecuteScript(m_UiView, "if (typeof yyWaterTool != 'object') var yyWaterTool = {};");
-
-                if (m_InjectedJS == string.Empty)
-                {
-                    m_Log.Warn($"{nameof(WaterToolUISystem)}.{nameof(OnUpdate)} m_InjectedJS was empty. Did you put the ui.js file in the mod install folder?");
-                    m_InjectedJS = UIFileUtils.ReadJS(Path.Combine(UIFileUtils.AssemblyPath, "ui.js"));
-                    m_AmountItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Amount-Item.html"), "if (document.getElementById(\"YYWT-amount-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-amount-item\"; yyWaterTool.entities = document.getElementsByClassName(\"tool-options-panel_Se6\"); if (yyWaterTool.entities[0] != null) { yyWaterTool.entities[0].insertAdjacentElement('afterbegin', yyWaterTool.div); } }");
-                    m_RadiusItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Radius-Item.html"), "if (document.getElementById(\"YYWT-radius-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-radius-item\"; yyWaterTool.amountItem = document.getElementById(\"YYWT-amount-item\"); if (yyWaterTool.amountItem != null) { yyWaterTool.amountItem.insertAdjacentElement('afterend', yyWaterTool.div); } }");
-                    m_MinDepthItemScript = UIFileUtils.ReadHTML(Path.Combine(UIFileUtils.AssemblyPath, "YYWT-Min-Depth-Item.html"), "if (document.getElementById(\"YYWT-min-depth-item\") == null) { yyWaterTool.div.className = \"item_bZY\"; yyWaterTool.div.id = \"YYWT-min-depth-item\"; yyWaterTool.amountItem = document.getElementById(\"YYWT-amount-item\"); if (yyWaterTool.amountItem != null) { yyWaterTool.amountItem.insertAdjacentElement('afterend', yyWaterTool.div); } }");
-                }
-
-                UIFileUtils.ExecuteScript(m_UiView, m_AmountItemScript);
-
-                UIFileUtils.ExecuteScript(m_UiView, m_RadiusItemScript);
-
-                // This script defines the JS functions and sets up typical buttons.
-                UIFileUtils.ExecuteScript(m_UiView, m_InjectedJS);
-
-                // Waiting until the next frame gives some extra time to ensure JS functions are injected.
-                if (m_FirstTimeInjectingJS)
-                {
-                    m_FirstTimeInjectingJS = false;
-                    return;
-                }
-
-                string unit = " m";
-
-                if (m_CustomWaterToolSystem.GetPrefab() != null)
-                {
-                    WaterSourcePrefab waterSourcePrefab = m_CustomWaterToolSystem.GetPrefab() as WaterSourcePrefab;
-
-                    string localeKey = waterSourcePrefab.m_AmountLocaleKey;
-
-                    if (m_AmountIsElevation)
-                    {
-                        localeKey = "YY_WATER_FEATURES.Elevation";
-                    }
-
-                    // This script changes and translates the Amount label according to the active prefab.
-                    UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amount = document.getElementById(\"YYWT-amount-label\"); if (yyWaterTool.amount) {{ yyWaterTool.amount.localeKey = \"{localeKey}\"; yyWaterTool.amount.innerHTML = engine.translate(yyWaterTool.amount.localeKey); }}");
-
-                    if (m_ResetValues)
-                    {
-                        m_Radius = waterSourcePrefab.m_DefaultRadius;
-                        m_Amount = waterSourcePrefab.m_DefaultAmount;
-                        TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref m_Amount, ref m_Radius);
-                        m_AmountIsElevation = false;
-                    }
-
-                    if (waterSourcePrefab.m_SourceType == SourceType.Stream)
-                    {
-                        unit = string.Empty;
-                    }
-
-                    if (waterSourcePrefab.m_SourceType == SourceType.RetentionBasin)
-                    {
-                        UIFileUtils.ExecuteScript(m_UiView, m_MinDepthItemScript);
-
-                        if (m_ResetValues)
-                        {
-                            m_MinDepth = 10f;
-                        }
-
-                        // This script sets the min depth field to the desired min depth;
-                        UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.minDepthField = document.getElementById(\"YYWT-min-depth-field\"); if (yyWaterTool.minDepthField) yyWaterTool.minDepthField.innerHTML = \"{m_MinDepth} m\";");
-
-                        // This script sets up the up and down buttons for min depth and applies localization to the row.
-                        UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.applyLocalization(document.getElementById(\"YYWT-min-depth-item\")); yyWaterTool.setupButton(\"YYWT-min-depth-down-arrow\", \"min-depth-down-arrow\"); yyWaterTool.setupButton(\"YYWT-min-depth-up-arrow\", \"min-depth-up-arrow\");  yyWaterTool.setupButton(\"YYWT-min-depth-rate-of-change\", \"min-depth-rate-of-change\");");
-
-                        SetRateIcon(m_MinDepthRateOfChange, "min-depth");
-                    }
-
-                    m_ResetValues = false;
-                }
-
-                // This script sets the radius field to the desired radius;
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.radiusField = document.getElementById(\"YYWT-radius-field\"); if (yyWaterTool.radiusField) yyWaterTool.radiusField.innerHTML = \"{m_Radius} m\";");
-
-                // This script sets the amount field to the desired amount;
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount}{unit}\";");
-
-                SetRateIcon(m_RadiusRateOfChange, "radius");
-                SetRateIcon(m_AmountRateOfChange, "amount");
-
-                m_BoundEventHandles.Add(m_UiView.RegisterForEvent("YYWT-log", (Action<string>)LogFromJS));
-                m_BoundEventHandles.Add(m_UiView.RegisterForEvent("CheckForElement-YYWT-amount-item", (Action<bool>)ElementCheck));
-
-                foreach (KeyValuePair<string, Action> kvp in m_ChangeValueActions)
-                {
-                    m_BoundEventHandles.Add(m_UiView.RegisterForEvent("Change-Value", (Action<string>)ChangeValue));
-                }
-
-                m_WaterToolPanelShown = true;
-            }
-            else
-            {
-                // This script checks if water tool panel exists. If it doesn't it triggers water tool panel item being recreated.
-                UIFileUtils.ExecuteScript(m_UiView, $"if (document.getElementById(\"YYWT-amount-item\") == null) engine.trigger('CheckForElement-YYWT-amount-item', false);");
-            }
-
-            base.OnUpdate();
-        }
 
         /// <inheritdoc/>
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-        }
-
-        /// <summary>
-        /// Get a script for Destroing element by id if that element exists.
-        /// </summary>
-        /// <param name="id">The id from HTML or JS.</param>
-        /// <returns>a script for Destroing element by id if that element exists.</returns>
-        private string DestroyElementByID(string id)
-        {
-            return $"yyWaterTool.itemElement = document.getElementById(\"{id}\"); if (yyWaterTool.itemElement) yyWaterTool.itemElement.parentElement.removeChild(yyWaterTool.itemElement);";
-        }
-
-        /// <summary>
-        /// Logs a string from JS.
-        /// </summary>
-        /// <param name="log">A string from JS to log.</param>
-        private void LogFromJS(string log) => m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(LogFromJS)} {log}");
-
-        /// <summary>
-        /// Converts a C# bool to JS string.
-        /// </summary>
-        /// <param name="flag">a bool.</param>
-        /// <returns>"true" or "false".</returns>
-        private string BoolToString(bool flag)
-        {
-            if (flag)
-            {
-                return "true";
-            }
-
-            return "false";
         }
 
         /// <summary>
@@ -422,10 +315,6 @@ namespace Water_Features.Tools
                 return;
             }
 
-            if (m_ButtonPressed)
-            {
-                return;
-            }
 
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(ChangeValue)} buttonID = {buttonID}");
             if (m_ChangeValueActions.ContainsKey(buttonID))
@@ -433,487 +322,445 @@ namespace Water_Features.Tools
                 m_ChangeValueActions[buttonID].Invoke();
             }
 
-            m_ButtonPressed = true;
         }
 
         private void IncreaseRadius()
         {
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_RadiusStep.value, 2f));
+            float tempRadius = m_Radius.value;
+            if (tempRadius >= 1000f && tempRadius < 10000f)
+            {
+                tempRadius += 500f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
+            }
+            else if (tempRadius >= 500f && tempRadius < 1000f)
+            {
+                tempRadius += 100f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
+            }
+            else if (tempRadius >= 100f && tempRadius < 500f)
+            {
+                tempRadius += 50f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
+            }
+            else if (tempRadius >= 10f && tempRadius < 100f)
+            {
+                tempRadius += 10f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
+            }
+            else if (tempRadius < 10000)
+            {
+               tempRadius += 1f * m_RadiusStep.value;
+               tempRadius = Mathf.Round(tempRadius * signaficantFigures) / signaficantFigures;
+               m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
+            }
 
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_RadiusRateOfChange, 2f));
-            if (m_Radius >= 1000f && m_Radius < 10000f)
+            if (WaterFeaturesMod.Instance.Settings.TrySmallerRadii)
             {
-                m_Radius += 500f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
-            }
-            else if (m_Radius >= 500f && m_Radius < 1000f)
-            {
-                m_Radius += 100f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
-            }
-            else if (m_Radius >= 100f && m_Radius < 500f)
-            {
-                m_Radius += 50f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
-            }
-            else if (m_Radius >= 10f && m_Radius < 100f)
-            {
-                m_Radius += 10f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
-            }
-            else if (m_Radius < 10000)
-            {
-               m_Radius += 1f * m_RadiusRateOfChange;
-               m_Radius = Mathf.Round(m_Radius * signaficantFigures) / signaficantFigures;
-            }
-
-            if (WaterFeaturesMod.Settings.TrySmallerRadii)
-            {
-                m_Radius = Mathf.Clamp(m_Radius, 1f, 10000f);
+                tempRadius = Mathf.Clamp(tempRadius, 1f, 10000f);
             }
             else
             {
-                m_Radius = Mathf.Clamp(m_Radius, 5f, 10000f);
+                tempRadius = Mathf.Clamp(tempRadius, 5f, 10000f);
             }
 
-            // This script sets the radius field to the desired radius;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.radiusField = document.getElementById(\"YYWT-radius-field\"); if (yyWaterTool.radiusField) yyWaterTool.radiusField.innerHTML = \"{m_Radius} m\";");
+            // This updates the binding with the new value after all changes have occured.
+            m_Radius.Update(tempRadius);
         }
 
         private void DecreaseRadius()
         {
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_RadiusRateOfChange, 2f));
-            if (m_Radius <= 10f && m_Radius > 1f)
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_RadiusStep.value, 2f));
+            float tempRadius = m_Radius.value;
+            if (tempRadius <= 10f && tempRadius > 1f)
             {
-                m_Radius -= 1f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * signaficantFigures) / signaficantFigures;
+                tempRadius -= 1f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * signaficantFigures) / signaficantFigures;
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f))));
             }
-            else if (m_Radius <= 100f && m_Radius > 10f)
+            else if (tempRadius <= 100f && tempRadius > 10f)
             {
-                m_Radius -= 10f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempRadius -= 10f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
-            else if (m_Radius <= 500f && m_Radius > 100f)
+            else if (tempRadius <= 500f && tempRadius > 100f)
             {
-                m_Radius -= 50f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempRadius -= 50f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 1));
             }
-            else if (m_Radius <= 1000f && m_Radius > 500f)
+            else if (tempRadius <= 1000f && tempRadius > 500f)
             {
-                m_Radius -= 100f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                tempRadius -= 100f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
-            else if (m_Radius > 1000f)
+            else if (tempRadius > 1000f)
             {
-                m_Radius -= 500f * m_RadiusRateOfChange;
-                m_Radius = Mathf.Round(m_Radius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                tempRadius -= 500f * m_RadiusStep.value;
+                tempRadius = Mathf.Round(tempRadius * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_RadiusScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_RadiusStep.value, 2f)) - 2));
             }
 
-            if (WaterFeaturesMod.Settings.TrySmallerRadii)
+            if (WaterFeaturesMod.Instance.Settings.TrySmallerRadii)
             {
-                m_Radius = Mathf.Clamp(m_Radius, 1f, 10000f);
+                tempRadius = Mathf.Clamp(tempRadius, 1f, 10000f);
             }
             else
             {
-                m_Radius = Mathf.Clamp(m_Radius, 5f, 10000f);
+                tempRadius = Mathf.Clamp(tempRadius, 5f, 10000f);
             }
 
-            // This script sets the radius field to the desired radius;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.radiusField = document.getElementById(\"YYWT-radius-field\"); if (yyWaterTool.radiusField) yyWaterTool.radiusField.innerHTML = \"{m_Radius} m\";");
+            // This updates the binding with the new value after all changes have occured.
+            m_Radius.Update(tempRadius);
         }
 
         private void IncreaseMinDepth()
         {
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_MinDepthRateOfChange, 2f));
-            if (m_MinDepth >= 500f && m_MinDepth < 1000f)
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_MinDepthStep.value, 2f));
+            float tempValue = m_MinDepth.value;
+            if (tempValue >= 500f && tempValue < 1000f)
             {
-                m_MinDepth += 100f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                tempValue += 100f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 2));
             }
-            else if (m_MinDepth >= 100f && m_MinDepth < 500f)
+            else if (tempValue >= 100f && tempValue < 500f)
             {
-                m_MinDepth += 50f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempValue += 50f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 1));
             }
-            else if (m_MinDepth < 100f && m_MinDepth >= 10f)
+            else if (tempValue < 100f && tempValue >= 10f)
             {
-                m_MinDepth += 10f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempValue += 10f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 1));
             }
-            else if (m_MinDepth < 10f && m_MinDepth >= 1f)
+            else if (tempValue < 10f && tempValue >= 1f)
             {
-                m_MinDepth += 1f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * signaficantFigures) / signaficantFigures;
+                tempValue += 1f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f))));
             }
-            else if (m_MinDepth < 1f)
+            else if (tempValue < 1f)
             {
-                if (m_MinDepth == 0.01f && m_MinDepthRateOfChange == 1f)
+                if (tempValue == 0.01f && m_MinDepthStep.value == 1f)
                 {
-                    m_MinDepth = 0.1f;
+                    tempValue = 0.1f;
+                    m_MinDepthScale.Update(1);
                 }
                 else
                 {
-                    m_MinDepth += 0.1f * m_MinDepthRateOfChange;
-                    m_MinDepth = Mathf.Round(m_MinDepth * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    tempValue += 0.1f * m_MinDepthStep.value;
+                    tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) + 1));
                 }
             }
 
-            m_MinDepth = Mathf.Clamp(m_MinDepth, 0.01f, 1000f);
+            tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
 
-            if (m_MinDepth > m_Amount)
+            if (tempValue > m_Amount.value)
             {
-                m_Amount = m_MinDepth;
-
-                string unit = " m";
-
-                if (m_CustomWaterToolSystem.GetPrefab() != null)
-                {
-                    WaterSourcePrefab waterSourcePrefab = m_CustomWaterToolSystem.GetPrefab() as WaterSourcePrefab;
-                    if (waterSourcePrefab.m_SourceType == SourceType.Stream)
-                    {
-                        unit = string.Empty;
-                    }
-                }
-
-                // This script sets the amount field to the desired amount.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount}{unit}\";");
+                // This updates the binding with the new value so that max Depth is not smaller than min depth.
+                m_Amount.Update(tempValue);
+                m_AmountScale.Update(m_MinDepthScale.value);
             }
 
-            // This script sets the min depth field to the desired min depth;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.minDepthField = document.getElementById(\"YYWT-min-depth-field\"); if (yyWaterTool.minDepthField) yyWaterTool.minDepthField.innerHTML = \"{m_MinDepth} m\";");
+            // This updates the binding with the new value after all changes have occured.
+            m_MinDepth.Update(tempValue);
         }
 
         private void DecreaseMinDepth()
         {
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_MinDepthRateOfChange, 2f));
-            if (m_MinDepth <= 1f)
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_MinDepthStep.value, 2f));
+            float tempValue = m_MinDepth.value;
+            if (tempValue <= 1f)
             {
-                m_MinDepth -= 0.1f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 10f * signaficantFigures) / (10f * signaficantFigures);
+                tempValue -= 0.1f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) + 1));
             }
-            else if (m_MinDepth <= 10f && m_MinDepth > 1f)
+            else if (tempValue <= 10f && tempValue > 1f)
             {
-                m_MinDepth -= 1f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * signaficantFigures) / signaficantFigures;
+                tempValue -= 1f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f))));
             }
-            else if (m_MinDepth <= 100f && m_MinDepth > 10f)
+            else if (tempValue <= 100f && tempValue > 10f)
             {
-                m_MinDepth -= 10f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempValue -= 10f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 1));
             }
-            else if (m_MinDepth <= 500f && m_MinDepth > 100f)
+            else if (tempValue <= 500f && tempValue > 100f)
             {
-                m_MinDepth -= 50f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                tempValue -= 50f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 1));
             }
-            else if (m_MinDepth > 500f)
+            else if (tempValue > 500f)
             {
-                m_MinDepth -= 100f * m_MinDepthRateOfChange;
-                m_MinDepth = Mathf.Round(m_MinDepth * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                tempValue -= 100f * m_MinDepthStep.value;
+                tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                m_MinDepthScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_MinDepthStep.value, 2f)) - 2));
             }
 
-            m_MinDepth = Mathf.Clamp(m_MinDepth, 0.01f, 1000f);
+            tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
 
-            // This script sets the radius field to the desired radius;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.minDepthField = document.getElementById(\"YYWT-min-depth-field\"); if (yyWaterTool.minDepthField) yyWaterTool.minDepthField.innerHTML = \"{m_MinDepth} m\";");
+            if (tempValue == 0.01f)
+            {
+                m_MinDepthScale.Update(2);
+            }
+
+            // This updates the binding with the new value after all changes have occured.
+            m_MinDepth.Update(tempValue);
         }
 
         private void IncreaseAmount()
         {
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountRateOfChange, 2f));
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountStep.value, 2f));
+            float tempValue = m_Amount.value;
             if (!m_AmountIsElevation)
             {
-                if (m_Amount >= 500f && m_Amount < 1000f)
+                if (tempValue >= 500f && tempValue < 1000f)
                 {
-                    m_Amount += 100f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    tempValue += 100f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 2));
                 }
-                else if (m_Amount >= 100f && m_Amount < 500f)
+                else if (tempValue >= 100f && tempValue < 500f)
                 {
-                    m_Amount += 50f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    tempValue += 50f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 1));
                 }
-                else if (m_Amount < 100f && m_Amount >= 10f)
+                else if (tempValue < 100f && tempValue >= 10f)
                 {
-                    m_Amount += 10f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    tempValue += 10f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 1));
                 }
-                else if (m_Amount < 10f && m_Amount >= 1f)
+                else if (tempValue < 10f && tempValue >= 1f)
                 {
-                    m_Amount += 1f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * signaficantFigures) / signaficantFigures;
+                    tempValue += 1f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f))));
                 }
-                else if (m_Amount < 1f)
+                else if (tempValue < 1f)
                 {
-                    if (m_Amount == 0.01f && m_AmountRateOfChange == 1f)
+                    if (tempValue == 0.01f && m_AmountStep.value == 1f)
                     {
-                        m_Amount = 0.1f;
+                        tempValue = 0.1f;
+                        m_AmountScale.Update(1);
                     }
                     else
                     {
-                        m_Amount += 0.1f * m_AmountRateOfChange;
-                        m_Amount = Mathf.Round(m_Amount * 10f * signaficantFigures) / (10f * signaficantFigures);
+                        tempValue += 0.1f * m_AmountStep.value;
+                        tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                        m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) + 1));
                     }
                 }
 
-                m_Amount = Mathf.Clamp(m_Amount, 0.01f, 1000f);
+                tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
             }
             else
             {
-                m_Amount += 10f * m_AmountRateOfChange;
-                m_Amount = Mathf.Round(m_Amount * 10f) / 10f;
-                m_Amount = Mathf.Clamp(m_Amount, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
+                tempValue += 10f * m_AmountStep.value;
+                tempValue = Mathf.Round(tempValue * 10f) / 10f;
+                m_AmountScale.Update(1);
+                tempValue = Mathf.Clamp(tempValue, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
             }
 
-            string unit = " m";
-
-            if (m_CustomWaterToolSystem.GetPrefab() != null)
-            {
-                WaterSourcePrefab waterSourcePrefab = m_CustomWaterToolSystem.GetPrefab() as WaterSourcePrefab;
-                if (waterSourcePrefab.m_SourceType == SourceType.Stream)
-                {
-                    unit = string.Empty;
-                }
-            }
-
-            // This script sets the amount field to the desired amount;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount}{unit}\";");
+            // This updates the binding with the new value after all changes have occured.
+            m_Amount.Update(tempValue);
         }
 
         private void DecreaseAmount()
         {
-            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountRateOfChange, 2f));
+            float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountStep.value, 2f));
+            float tempValue = m_Amount.value;
             if (!m_AmountIsElevation)
             {
-                if (m_Amount <= 1f)
+                if (tempValue <= 1f)
                 {
-                    m_Amount -= 0.1f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    tempValue -= 0.1f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 10f * signaficantFigures) / (10f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) + 1));
                 }
-                else if (m_Amount <= 10f && m_Amount > 1f)
+                else if (tempValue <= 10f && tempValue > 1f)
                 {
-                    m_Amount -= 1f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * signaficantFigures) / signaficantFigures;
+                    tempValue -= 1f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * signaficantFigures) / signaficantFigures;
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f))));
                 }
-                else if (m_Amount <= 100f && m_Amount > 10f)
+                else if (tempValue <= 100f && tempValue > 10f)
                 {
-                    m_Amount -= 10f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    tempValue -= 10f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 1));
                 }
-                else if (m_Amount <= 500f && m_Amount > 100f)
+                else if (tempValue <= 500f && tempValue > 100f)
                 {
-                    m_Amount -= 50f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    tempValue -= 50f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.1f * signaficantFigures) / (0.1f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 1));
                 }
-                else if (m_Amount > 500f)
+                else if (tempValue > 500f)
                 {
-                    m_Amount -= 100f * m_AmountRateOfChange;
-                    m_Amount = Mathf.Round(m_Amount * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    tempValue -= 100f * m_AmountStep.value;
+                    tempValue = Mathf.Round(tempValue * 0.01f * signaficantFigures) / (0.01f * signaficantFigures);
+                    m_AmountScale.Update(Math.Max(0, Mathf.RoundToInt(-1f * Mathf.Log(m_AmountStep.value, 2f)) - 2));
                 }
 
-                m_Amount = Mathf.Clamp(m_Amount, 0.01f, 1000f);
+                tempValue = Mathf.Clamp(tempValue, 0.01f, 1000f);
+                if (tempValue == 0.01f)
+                {
+                    m_AmountScale.Update(2);
+                }
             }
             else
             {
-                m_Amount -= 10f * m_AmountRateOfChange;
-                m_Amount = Mathf.Round(m_Amount * 10f) / 10f;
-                m_Amount = Mathf.Clamp(m_Amount, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
+                tempValue -= 10f * m_AmountStep.value;
+                tempValue = Mathf.Round(tempValue * 10f) / 10f;
+                m_AmountScale.Update(1);
+                tempValue = Mathf.Clamp(tempValue, m_TerrainSystem.GetTerrainBounds().min.y, m_TerrainSystem.GetTerrainBounds().max.y);
             }
 
-            if (m_Amount < m_MinDepth)
+            if (tempValue < m_MinDepth.value)
             {
-                m_MinDepth = m_Amount;
-
-                // This script sets the min depth field to the desired min depth;
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.minDepthField = document.getElementById(\"YYWT-min-depth-field\"); if (yyWaterTool.minDepthField) yyWaterTool.minDepthField.innerHTML = \"{m_MinDepth} m\";");
+                // This updates the binding with the new value so that max Depth is not smaller than min depth.
+                m_MinDepth.Update(tempValue);
+                m_MinDepthScale.Update(m_AmountScale.value);
             }
 
-            string unit = " m";
+            // This updates the binding with the new value after all changes have occured.
+            m_Amount.Update(tempValue);
+        }
 
-            if (m_CustomWaterToolSystem.GetPrefab() != null)
+        private void RadiusStepPressed()
+        {
+            float tempValue = m_RadiusStep.value;
+            tempValue /= 2f;
+            if (tempValue < 0.125f)
             {
-                WaterSourcePrefab waterSourcePrefab = m_CustomWaterToolSystem.GetPrefab() as WaterSourcePrefab;
-                if (waterSourcePrefab.m_SourceType == SourceType.Stream)
+                tempValue = 1.0f;
+            }
+
+            m_RadiusStep.Update(tempValue);
+        }
+
+        private void AmountStepPressed()
+        {
+            float tempValue = m_AmountStep.value;
+            tempValue /= 2f;
+            if (tempValue < 0.125f)
+            {
+                tempValue = 1.0f;
+            }
+
+            m_AmountStep.Update(tempValue);
+        }
+
+        private void MinDepthStepPressed()
+        {
+            float tempValue = m_MinDepthStep.value;
+            tempValue /= 2f;
+            if (tempValue < 0.125f)
+            {
+                tempValue = 1.0f;
+            }
+
+            m_MinDepthStep.Update(tempValue);
+        }
+
+        private void ChangePrefab(string prefabName)
+        {
+            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), prefabName), out PrefabBase prefabBase))
+            {
+                if (m_ToolSystem.ActivatePrefabTool(prefabBase) || (m_ToolSystem.activeTool == m_CustomWaterToolSystem && prefabBase is WaterSourcePrefab))
                 {
-                    unit = string.Empty;
+                    m_ActivePrefabName.Update(prefabName);
                 }
             }
-
-            // This script sets the amount field to the desired amount;
-            UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount}{unit}\";");
         }
 
-        private void RadiusRateOfChangePressed()
-        {
-            m_RadiusRateOfChange /= 2f;
-            if (m_RadiusRateOfChange < 0.125f)
-            {
-                m_RadiusRateOfChange = 1.0f;
-            }
-
-            SetRateIcon(m_RadiusRateOfChange, "radius");
-        }
-
-        private void AmountRateOfChangePressed()
-        {
-            m_AmountRateOfChange /= 2f;
-            if (m_AmountRateOfChange < 0.125f)
-            {
-                m_AmountRateOfChange = 1.0f;
-            }
-
-            SetRateIcon(m_AmountRateOfChange, "amount");
-        }
-
-        private void MinDepthRateOfChangePressed()
-        {
-            m_MinDepthRateOfChange /= 2f;
-            if (m_MinDepthRateOfChange < 0.125f)
-            {
-                m_MinDepthRateOfChange = 1.0f;
-            }
-
-            SetRateIcon(m_MinDepthRateOfChange, "min-depth");
-        }
-
-        private void SetRateIcon(float field, string id)
-        {
-            if (field == 1f)
-            {
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-1\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#1e83aa\");");
-
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-0pt5\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#1e83aa\");");
-
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-0pt25\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#1e83aa\");");
-            }
-            else if (field == 0.5f)
-            {
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-1\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-            }
-            else if (field == 0.25f)
-            {
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-1\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-0pt5\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-            }
-            else
-            {
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-1\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-0pt5\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-
-                // This script changes the fill color of one of the rate of change indicators.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.rateOfChange = document.getElementById(\"YYWT-{id}-roc-0pt25\"); if (yyWaterTool.rateOfChange) yyWaterTool.rateOfChange.setAttribute(\"fill\",\"#424242\");");
-            }
-        }
-
-
-
-        /// <summary>
-        /// C# event handler for event callback from UI JavaScript. If element YYWT-amount-item is found then set value to flag.
-        /// </summary>
-        /// <param name="flag">A bool for whether to element was found.</param>
-        private void ElementCheck(bool flag) => m_WaterToolPanelShown = flag;
-
-        /// <summary>
-        /// Handles cleaning up after the icons are no longer needed.
-        /// </summary>
-        private void UnshowWaterToolPanel()
-        {
-            if (m_UiView == null)
-            {
-                return;
-            }
-
-            // This script destroys the amount item if it exists.
-            UIFileUtils.ExecuteScript(m_UiView, DestroyElementByID("YYWT-amount-item"));
-
-            // This script destroys the radius item if it exists.
-            UIFileUtils.ExecuteScript(m_UiView, DestroyElementByID("YYWT-radius-item"));
-
-            // This script destroys the min depth item if it exists.
-            UIFileUtils.ExecuteScript(m_UiView, DestroyElementByID("YYWT-min-depth-item"));
-
-            // This unregisters the events.
-            foreach (BoundEventHandle eventHandle in m_BoundEventHandles)
-            {
-                m_UiView.UnregisterFromEvent(eventHandle);
-            }
-
-            m_BoundEventHandles.Clear();
-
-            // This records that everything is cleaned up.
-            m_WaterToolPanelShown = false;
-        }
-
-        private void OnToolChanged(ToolBaseSystem tool)
-        {
-            if (tool != m_CustomWaterToolSystem)
-            {
-                if (m_WaterToolPanelShown)
-                {
-                    UnshowWaterToolPanel();
-                }
-
-                Enabled = false;
-                return;
-            }
-
-            Enabled = true;
-        }
+        private void ChangeToolMode(int toolMode) => m_ToolMode.Update(toolMode);
 
         private void OnPrefabChanged(PrefabBase prefabBase)
         {
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnPrefabChanged)}");
-            if (prefabBase is WaterSourcePrefab && m_UiView != null)
+            if (prefabBase is WaterSourcePrefab)
             {
                 m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnPrefabChanged)} prefab is water source.");
                 WaterSourcePrefab waterSourcePrefab = prefabBase as WaterSourcePrefab;
 
-                // This script sets up the yyWaterTool object if it is not defined.
-                UIFileUtils.ExecuteScript(m_UiView, "if (typeof yyWaterTool != 'object') var yyWaterTool = {};");
-
-                // This script changes and translates the Amount label according to the active prefab.
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amount = document.getElementById(\"YYWT-amount-label\"); if (yyWaterTool.amount) {{ yyWaterTool.amount.localeKey = \"{waterSourcePrefab.m_AmountLocaleKey}\"; yyWaterTool.amount.innerHTML = engine.translate(yyWaterTool.amount.localeKey); }}");
-
-                m_Radius = waterSourcePrefab.m_DefaultRadius;
-                m_Amount = waterSourcePrefab.m_DefaultAmount;
-                TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref m_Amount, ref m_Radius);
+                float tempRadius = waterSourcePrefab.m_DefaultRadius;
+                float tempAmount = waterSourcePrefab.m_DefaultAmount;
+                TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref tempAmount, ref tempRadius);
                 m_AmountIsElevation = false;
-
-                // This script sets the radius field to the desired radius;
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.radiusField = document.getElementById(\"YYWT-radius-field\"); if (yyWaterTool.radiusField) yyWaterTool.radiusField.innerHTML = \"{m_Radius} m\";");
-
-                string unit = " m";
-                if (waterSourcePrefab.m_SourceType == SourceType.Stream)
+                m_Radius.Update(tempRadius);
+                m_Amount.Update(tempAmount);
+                m_AmountScale.Update(Math.Max(0, CalculateScale(tempAmount)));
+                m_RadiusScale.Update(Math.Max(0, CalculateScale(tempRadius)));
+                m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
+                bool flag = waterSourcePrefab.m_SourceType == SourceType.RetentionBasin;
+                if (m_ShowMinDepth.value != flag)
                 {
-                    unit = string.Empty;
+                    m_ShowMinDepth.Update(flag);
                 }
 
-                // This script sets the amount field to the desired amount;
-                UIFileUtils.ExecuteScript(m_UiView, $"yyWaterTool.amountField = document.getElementById(\"YYWT-amount-field\"); if (yyWaterTool.amountField) yyWaterTool.amountField.innerHTML = \"{m_Amount}{unit}\";");
-
-                if (waterSourcePrefab.m_SourceType == SourceType.RetentionBasin)
+                if (flag)
                 {
-                    m_WaterToolPanelShown = false;
-                }
-                else
-                {
-                    // This script destroys the min depth item if it exists.
-                    UIFileUtils.ExecuteScript(m_UiView, DestroyElementByID("YYWT-min-depth-item"));
+                    m_MinDepth.Update(tempAmount / 2f);
+                    m_MinDepthScale.Update(Math.Max(0, CalculateScale(tempAmount / 2f)));
                 }
 
-                m_ResetValues = true;
-
-                return;
+                m_ToolMode.Update((int)CustomWaterToolSystem.ToolModes.PlaceWaterSource);
             }
+        }
+
+        private int CalculateScale(float value)
+        {
+            value = Mathf.Abs(value);
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} value = {value}");
+            int afterTheDecimal = Mathf.FloorToInt(value * 10000);
+            int significantFiguresBeforeTheDecimal = 0;
+            if (value > 1f)
+            {
+                afterTheDecimal = Mathf.FloorToInt((value % Mathf.Floor(value)) * 10000);
+                significantFiguresBeforeTheDecimal = Mathf.CeilToInt(Mathf.Log10(value));
+            }
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} afterTheDecimal = {afterTheDecimal}");
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresBeforeTheDecimal = {significantFiguresBeforeTheDecimal}");
+            int significantFiguresAfterTheDecimal = 0;
+            for (int i = 10; i <= 10000; i *= 10)
+            {
+                if (Mathf.FloorToInt(afterTheDecimal % i) > 1)
+                {
+                    significantFiguresAfterTheDecimal++;
+                }
+            }
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} significantFiguresAfterTheDecimal = {significantFiguresAfterTheDecimal}");
+
+            int maxSignificantFiguresAfterTheDecimal = Math.Max(4 - significantFiguresBeforeTheDecimal, 1);
+            if (value > 100f && value <= 500f)
+            {
+                maxSignificantFiguresAfterTheDecimal++;
+            }
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} maxSignificantFiguresAfterTheDecimal = {maxSignificantFiguresAfterTheDecimal}");
+
+            m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(CalculateScale)} result = {Math.Min(significantFiguresAfterTheDecimal, maxSignificantFiguresAfterTheDecimal)}");
+
+            return Math.Min(significantFiguresAfterTheDecimal, maxSignificantFiguresAfterTheDecimal);
         }
 
         /// <summary>

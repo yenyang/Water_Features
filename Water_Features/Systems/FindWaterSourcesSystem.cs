@@ -2,15 +2,16 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
-    using System.Runtime.CompilerServices;
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
     using Game.Common;
     using Game.Prefabs;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -22,7 +23,6 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class FindWaterSourcesSystem : GameSystemBase
     {
-        private TypeHandle __TypeHandle;
         private EntityQuery m_WaterSourcesQuery;
         private EndFrameBarrier m_EndFrameBarrier;
         private ILog m_Log;
@@ -69,17 +69,16 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Unity_Entities_Entity_TypeHandle.Update(ref CheckedStateRef);
-            m_Log.Debug($"{nameof(FindWaterSourcesSystem)}.{nameof(OnUpdate)} WaterFeaturesMod.Settings.EnableSeasonalStreams = {WaterFeaturesMod.Settings.EnableSeasonalStreams} &  WaterFeaturesMod.Settings.EnableWavesAndTides = {WaterFeaturesMod.Settings.EnableWavesAndTides}");
-            FindWaterSourcesJob findWaterSourcesJob = default;
-            findWaterSourcesJob.m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            findWaterSourcesJob.m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle;
-            findWaterSourcesJob.buffer = m_EndFrameBarrier.CreateCommandBuffer();
-            findWaterSourcesJob.m_SeasonalStreamsEnabled = WaterFeaturesMod.Settings.EnableSeasonalStreams;
-            findWaterSourcesJob.m_WavesAndTidesEnabled = WaterFeaturesMod.Settings.EnableWavesAndTides;
-            FindWaterSourcesJob jobData = findWaterSourcesJob;
-            JobHandle jobHandle = JobChunkExtensions.Schedule(jobData, m_WaterSourcesQuery, Dependency);
+            m_Log.Debug($"{nameof(FindWaterSourcesSystem)}.{nameof(OnUpdate)} WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = {WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams} &  WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = {WaterFeaturesMod.Instance.Settings.EnableWavesAndTides}");
+            FindWaterSourcesJob findWaterSourcesJob = new ()
+            {
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                buffer = m_EndFrameBarrier.CreateCommandBuffer(),
+                m_SeasonalStreamsEnabled = WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams,
+                m_WavesAndTidesEnabled = WaterFeaturesMod.Instance.Settings.EnableWavesAndTides,
+            };
+            JobHandle jobHandle = JobChunkExtensions.Schedule(findWaterSourcesJob, m_WaterSourcesQuery, Dependency);
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
             Dependency = jobHandle;
 
@@ -93,27 +92,9 @@ namespace Water_Features.Systems
             base.OnGameLoadingComplete(purpose, mode);
         }
 
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
-        }
-
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Unity_Entities_Entity_TypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Unity_Entities_Entity_TypeHandle = state.GetEntityTypeHandle();
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-            }
-        }
-
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// If Seasonal streams is enabled, this job will add seasonal streams component to streams and record the original amounts.
         /// If Waves and tides are enabled, this job will add waves and tides component to seas and record the original amounts.

@@ -2,16 +2,16 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
-    using System.Runtime.CompilerServices;
-    using Colossal.Entities;
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
     using Game.Common;
     using Game.Simulation;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -25,7 +25,6 @@ namespace Water_Features.Systems
     public partial class TidesAndWavesSystem : GameSystemBase
     {
         private EndFrameBarrier m_EndFrameBarrier;
-        private TypeHandle __TypeHandle;
         private TimeSystem m_TimeSystem;
         private EntityQuery m_WaterSourceQuery;
         private ILog m_Log;
@@ -37,6 +36,7 @@ namespace Water_Features.Systems
         private int m_TerrainToolCooloff;
         private TerrainSystem m_TerrainSystem;
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
+        private bool m_EditorSimulationReset;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TidesAndWavesSystem"/> class.
@@ -99,9 +99,22 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__Unity_Entities_Entity_TypeHandle.Update(ref CheckedStateRef);
-            __TypeHandle.__TidesAndWavesData_RO_ComponentTypeHandle.Update(ref CheckedStateRef);
+            // This section handles optting in to having seasonal streams affect editor simulation.
+            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            {
+                if (m_EditorSimulationReset == false)
+                {
+                    DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                    disableWavesAndTidesSystem.Enabled = true;
+                    m_EditorSimulationReset = true;
+                }
+
+                return;
+            }
+            else if (m_ToolSystem.actionMode.IsEditor())
+            {
+                m_EditorSimulationReset = false;
+            }
 
             if (m_ToolSystem.activeTool == m_TerrainToolSystem)
             {
@@ -154,9 +167,9 @@ namespace Water_Features.Systems
                     }
                 }
 
-                m_PreviousWaveAndTideHeight = WaterFeaturesMod.Settings.WaveHeight + WaterFeaturesMod.Settings.TideHeight;
+                m_PreviousWaveAndTideHeight = WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
 
-                seaLevel -= WaterFeaturesMod.Settings.WaveHeight + WaterFeaturesMod.Settings.TideHeight;
+                seaLevel -= WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
                 WaterSourceData waterSourceData = new WaterSourceData()
                 {
                     m_Amount = seaLevel,
@@ -188,22 +201,15 @@ namespace Water_Features.Systems
 
             AlterSeaWaterSourcesJob alterSeaWaterSourcesJob = new ()
             {
-                m_EntityType = __TypeHandle.__Unity_Entities_Entity_TypeHandle,
-                m_SourceType = __TypeHandle.__Game_Simulation_WaterSourceData_RW_ComponentTypeHandle,
-                m_TidesAndWavesDataType = __TypeHandle.__TidesAndWavesData_RO_ComponentTypeHandle,
+                m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                m_TidesAndWavesDataType = SystemAPI.GetComponentTypeHandle<TidesAndWavesData>(),
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-                m_WaveHeight = (WaterFeaturesMod.Settings.WaveHeight / 2f * Mathf.Sin(2f * Mathf.PI * WaterFeaturesMod.Settings.WaveFrequency * m_TimeSystem.normalizedTime)) + (WaterFeaturesMod.Settings.TideHeight / 2f * Mathf.Cos(2f * Mathf.PI * (float)WaterFeaturesMod.Settings.TideClassification * m_TimeSystem.normalizedDate)) + (WaterFeaturesMod.Settings.WaveHeight / 2f) + (WaterFeaturesMod.Settings.TideHeight / 2f),
+                m_WaveHeight = (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f * Mathf.Sin(2f * Mathf.PI * WaterFeaturesMod.Instance.Settings.WaveFrequency * m_TimeSystem.normalizedTime)) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f * Mathf.Cos(2f * Mathf.PI * (float)WaterFeaturesMod.Instance.Settings.TideClassification * m_TimeSystem.normalizedDate)) + (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f),
             };
             JobHandle jobHandle = JobChunkExtensions.Schedule(alterSeaWaterSourcesJob, m_WaterSourceQuery, Dependency);
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
             Dependency = jobHandle;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnCreateForCompiler()
-        {
-            base.OnCreateForCompiler();
-            __TypeHandle.AssignHandles(ref CheckedStateRef);
         }
 
         /// <inheritdoc/>
@@ -212,7 +218,7 @@ namespace Water_Features.Systems
             base.OnGameLoadingComplete(purpose, mode);
 
             // This will disable the system if the user has the setting for Waves and Tides disabled.
-            if (!WaterFeaturesMod.Settings.EnableWavesAndTides)
+            if (!WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
             {
                 m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnGameLoadingComplete)} Waves and Tides disabled.");
                 Enabled = false;
@@ -224,23 +230,9 @@ namespace Water_Features.Systems
             ResetDummySeaWaterSource();
         }
 
-        private struct TypeHandle
-        {
-            public ComponentTypeHandle<Game.Simulation.WaterSourceData> __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle;
-            [ReadOnly]
-            public EntityTypeHandle __Unity_Entities_Entity_TypeHandle;
-            [ReadOnly]
-            public ComponentTypeHandle<TidesAndWavesData> __TidesAndWavesData_RO_ComponentTypeHandle;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void AssignHandles(ref SystemState state)
-            {
-                __Unity_Entities_Entity_TypeHandle = state.GetEntityTypeHandle();
-                __Game_Simulation_WaterSourceData_RW_ComponentTypeHandle = state.GetComponentTypeHandle<Game.Simulation.WaterSourceData>();
-                __TidesAndWavesData_RO_ComponentTypeHandle = state.GetComponentTypeHandle<TidesAndWavesData>();
-            }
-        }
-
+#if BURST
+        [BurstCompile]
+#endif
         /// <summary>
         /// This job adjusts the water surface elevation of sea water sources according to the settings for waves and tides.
         /// </summary>

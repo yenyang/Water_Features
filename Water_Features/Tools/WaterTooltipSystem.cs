@@ -6,12 +6,11 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
-    using Game.Simulation;
     using Game.Tools;
-    using Game.UI;
     using Game.UI.Localization;
     using Game.UI.Tooltip;
     using Unity.Entities;
+    using Unity.Mathematics;
     using UnityEngine;
     using Water_Features.Components;
     using Water_Features.Prefabs;
@@ -73,52 +72,108 @@ namespace Water_Features.Tools
             }
 
             var prefab = m_CustomWaterTool.GetPrefab();
-            if (prefab == null || prefab is not WaterSourcePrefab)
+            if (m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.PlaceWaterSource)
             {
-                return;
+                prefab = m_CustomWaterTool.GetSelectedPrefab();
             }
 
-            WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
+            Entity hoveredWaterSourceEntity = m_CustomWaterTool.GetHoveredEntity(m_HitPosition);
 
-            // Checks position of river and displays tooltip if needed.
-            if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
+            if (prefab != null && prefab is WaterSourcePrefab)
             {
-                if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, m_WaterToolUISystem.Radius, true))
+                WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
+                float radius = m_WaterToolUISystem.Radius;
+                if ((m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange) && m_CustomWaterTool.TryGetSelectedRadius(out float waterSourceRadius))
                 {
-                    StringTooltip mustBePlacedNearMapBorderTooltip = new ()
-                    {
-                        path = "Tooltip.LABEL[YY.WT.PlaceNearBorder]",
-                        value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.PlaceNearBorder]", "Rivers must be placed near map border."),
-                    };
-                    AddMouseTooltip(mustBePlacedNearMapBorderTooltip);
+                    radius = waterSourceRadius;
                 }
-            }
 
-            // Checks position of sea and displays tooltip if needed.
-            else if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea)
-            {
-                if (!m_CustomWaterTool.IsPositionNearBorder(m_HitPosition, m_WaterToolUISystem.Radius, false))
+                Vector3 position = m_HitPosition;
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange && m_CustomWaterTool.TryGetSelectedPosition(out float3 waterSourcePosition))
                 {
-                    StringTooltip mustTouchBorderTooltip = new ()
-                    {
-                        path = "Tooltip.LABEL[YY.WT.MustTouchBorder]",
-                        value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.MustTouchBorder]", "Sea water sources must touch the map border."),
-                    };
-                    AddMouseTooltip(mustTouchBorderTooltip);
+                    position = waterSourcePosition;
                 }
-            }
 
-            // Checks position of water sources placed in playable area and displays tooltip if needed.
-            else
-            {
-                if (!m_CustomWaterTool.IsPositionWithinBorder(m_HitPosition))
+                if ((hoveredWaterSourceEntity == Entity.Null && m_WaterToolUISystem.ToolMode != CustomWaterToolSystem.ToolModes.ElevationChange) || m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.MoveWaterSource)
                 {
-                    StringTooltip mustBePlacedInsideBorderTooltip = new ()
+                    // Checks position of river and displays tooltip if needed.
+                    if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
                     {
-                        path = "Tooltip.LABEL[YY.WT.PlaceInsideBorder]",
-                        value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.PlaceInsideBorder]", "This water source must be placed inside the playable map."),
+                        if (!m_CustomWaterTool.IsPositionNearBorder(position, radius, true))
+                        {
+                            StringTooltip mustBePlacedNearMapBorderTooltip = new ()
+                            {
+                                path = "Tooltip.LABEL[YY.WT.PlaceNearBorder]",
+                                value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.PlaceNearBorder]", "Rivers must be placed near map border."),
+                            };
+                            AddMouseTooltip(mustBePlacedNearMapBorderTooltip);
+                        }
+                    }
+
+                    // Checks position of sea and displays tooltip if needed.
+                    else if (waterSourcePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea)
+                    {
+                        if (!m_CustomWaterTool.IsPositionNearBorder(position, radius, false))
+                        {
+                            StringTooltip mustTouchBorderTooltip = new ()
+                            {
+                                path = "Tooltip.LABEL[YY.WT.MustTouchBorder]",
+                                value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.MustTouchBorder]", "Sea water sources must touch the map border."),
+                            };
+                            AddMouseTooltip(mustTouchBorderTooltip);
+                        }
+                    }
+
+                    // Checks position of water sources placed in playable area and displays tooltip if needed.
+                    else
+                    {
+                        if (!m_CustomWaterTool.IsPositionWithinBorder(position))
+                        {
+                            StringTooltip mustBePlacedInsideBorderTooltip = new ()
+                            {
+                                path = "Tooltip.LABEL[YY.WT.PlaceInsideBorder]",
+                                value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.PlaceInsideBorder]", "This water source must be placed inside the playable map."),
+                            };
+                            AddMouseTooltip(mustBePlacedInsideBorderTooltip);
+                        }
+                    }
+                }
+
+                // Informs the player if they can set the elevation by right clicking.
+                if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && !m_WaterToolUISystem.AmountIsAnElevation && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.PlaceWaterSource)
+                {
+                    StringTooltip lockElevationTooltip = new ()
+                    {
+                        path = "Tooltip.LABEL[YY.WT.LockElevation]",
+                        value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.LockElevation]", "Right click to designate the water surface elevation."),
                     };
-                    AddMouseTooltip(mustBePlacedInsideBorderTooltip);
+                    AddMouseTooltip(lockElevationTooltip);
+                }
+
+                if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.ElevationChange)
+                {
+                    m_StartedHoveringTime = 0;
+                    FloatTooltip newElevationTooltip = new FloatTooltip
+                    {
+                        value = m_HitPosition.y,
+                        unit = "floatSingleFraction",
+                        path = "YY_WATER_FEATURES.ElevationChange",
+                        label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Elevation", "Elevation"),
+                    };
+                    AddMouseTooltip(newElevationTooltip);
+                }
+
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.RadiusChange)
+                {
+                    m_StartedHoveringTime = 0;
+                    FloatTooltip radiusTooltip = new FloatTooltip
+                    {
+                        value = radius,
+                        unit = "floatSingleFraction",
+                        path = "YY_WATER_FEATURES.RadiusChange",
+                        label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Radius", "Radius"),
+                    };
+                    AddMouseTooltip(radiusTooltip);
                 }
             }
 
@@ -140,7 +195,7 @@ namespace Water_Features.Tools
             }
 
             // Displays a tooltip while hovering over a water source.
-            if (m_CustomWaterTool.CanDeleteWaterSource())
+            if (hoveredWaterSourceEntity != Entity.Null && m_CustomWaterTool.GetSelectedPrefab() == null)
             {
                 if (m_StartedHoveringTime == 0)
                 {
@@ -149,156 +204,143 @@ namespace Water_Features.Tools
 
                 if (UnityEngine.Time.time > m_StartedHoveringTime + 1f)
                 {
-                    Entity entity = m_CustomWaterTool.GetHoveredEntity(m_HitPosition);
-                    if (entity != Entity.Null)
+                    if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Simulation.WaterSourceData waterSourceData))
                     {
-                        if (EntityManager.TryGetComponent(entity, out WaterSourceData waterSourceData))
+                        string amountLocaleKey = "YY_WATER_FEATURES.Elevation";
+                        string fallback = "Elevation";
+                        if (waterSourceData.m_ConstantDepth == 0)
                         {
-                            string amountLocaleKey = "YY_WATER_FEATURES.Elevation";
-                            string fallback = "Elevation";
-                            if (waterSourceData.m_ConstantDepth == 0)
-                            {
-                                amountLocaleKey = "YY_WATER_FEATURES.Flow";
-                                fallback = "Flow";
-                            }
-
-                            FloatTooltip amountTooltip = new FloatTooltip
-                            {
-                                value = waterSourceData.m_Amount,
-                                unit = "floatSingleFraction",
-                                path = amountLocaleKey,
-                                label = LocalizedString.IdWithFallback(amountLocaleKey, fallback),
-                            };
-                            AddMouseTooltip(amountTooltip);
-
-                            FloatTooltip radiusTooltip = new FloatTooltip
-                            {
-                                value = waterSourceData.m_Radius,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.Radius",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Radius", "Radius"),
-                            };
-                            AddMouseTooltip(radiusTooltip);
+                            amountLocaleKey = "YY_WATER_FEATURES.Flow";
+                            fallback = "Flow";
                         }
 
-                        if (EntityManager.TryGetComponent(entity, out DetentionBasin detentionBasin))
+                        FloatTooltip amountTooltip = new FloatTooltip
                         {
-                            FloatTooltip maxElevationTooptip = new FloatTooltip
-                            {
-                                value = detentionBasin.m_MaximumWaterHeight,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.MaxElevation",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
-                            };
-                            AddMouseTooltip(maxElevationTooptip);
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
-                            {
-                                FloatTooltip snowAccumulation = new FloatTooltip
-                                {
-                                    value = detentionBasin.m_SnowAccumulation,
-                                    unit = "floatSingleFraction",
-                                    path = "YY_WATER_FEATURES.SnowAccumulation",
-                                    label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
-                                };
-                                AddMouseTooltip(snowAccumulation);
-                            }
-                        }
-                        else if (EntityManager.TryGetComponent(entity, out AutofillingLake lake))
-                        {
-                            FloatTooltip maxElevationTooptip = new FloatTooltip
-                            {
-                                value = lake.m_MaximumWaterHeight,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.MaxElevation",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
-                            };
-                            AddMouseTooltip(maxElevationTooptip);
-                        }
-                        else if (EntityManager.TryGetComponent(entity, out RetentionBasin retentionBasin))
-                        {
-                            FloatTooltip maxElevationTooptip = new FloatTooltip
-                            {
-                                value = retentionBasin.m_MaximumWaterHeight,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.MaxElevation",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
-                            };
-                            AddMouseTooltip(maxElevationTooptip);
-                            FloatTooltip minElevationTooptip = new FloatTooltip
-                            {
-                                value = retentionBasin.m_MinimumWaterHeight,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.MinElevation",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MinElevation", "Min Elevation"),
-                            };
-                            AddMouseTooltip(minElevationTooptip);
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
-                            {
-                                FloatTooltip snowAccumulation = new FloatTooltip
-                                {
-                                    value = retentionBasin.m_SnowAccumulation,
-                                    unit = "floatSingleFraction",
-                                    path = "YY_WATER_FEATURES.SnowAccumulation",
-                                    label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
-                                };
-                                AddMouseTooltip(snowAccumulation);
-                            }
-                        }
-                        else if (EntityManager.TryGetComponent(entity, out SeasonalStreamsData seasonalStreamsData))
-                        {
-                            FloatTooltip originalAmount = new FloatTooltip
-                            {
-                                value = seasonalStreamsData.m_OriginalAmount,
-                                unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.OriginalFlow",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
-                            };
-                            AddMouseTooltip(originalAmount);
+                            value = waterSourceData.m_Amount,
+                            unit = "floatSingleFraction",
+                            path = amountLocaleKey,
+                            label = LocalizedString.IdWithFallback(amountLocaleKey, fallback),
+                        };
+                        AddMouseTooltip(amountTooltip);
 
-                            if (WaterFeaturesMod.Settings.SimulateSnowMelt)
-                            {
-                                FloatTooltip snowAccumulation = new FloatTooltip
-                                {
-                                    value = seasonalStreamsData.m_SnowAccumulation,
-                                    unit = "floatSingleFraction",
-                                    path = "YY_WATER_FEATURES.SnowAccumulation",
-                                    label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
-                                };
-                                AddMouseTooltip(snowAccumulation);
-                            }
-                        }
-                        else if (EntityManager.TryGetComponent(entity, out TidesAndWavesData tidesAndWavesData))
+                        FloatTooltip radiusTooltip = new FloatTooltip
                         {
-                            FloatTooltip maxElevationTooptip = new FloatTooltip
+                            value = waterSourceData.m_Radius,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.Radius",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.Radius", "Radius"),
+                        };
+                        AddMouseTooltip(radiusTooltip);
+                    }
+
+                    if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out DetentionBasin detentionBasin))
+                    {
+                        FloatTooltip maxElevationTooptip = new FloatTooltip
+                        {
+                            value = detentionBasin.m_MaximumWaterHeight,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MaxElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                        };
+                        AddMouseTooltip(maxElevationTooptip);
+                        if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
+                        {
+                            FloatTooltip snowAccumulation = new FloatTooltip
                             {
-                                value = tidesAndWavesData.m_OriginalAmount,
+                                value = detentionBasin.m_SnowAccumulation,
                                 unit = "floatSingleFraction",
-                                path = "YY_WATER_FEATURES.MaxElevation",
-                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                                path = "YY_WATER_FEATURES.SnowAccumulation",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
                             };
-                            AddMouseTooltip(maxElevationTooptip);
+                            AddMouseTooltip(snowAccumulation);
                         }
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out AutofillingLake lake))
+                    {
+                        FloatTooltip maxElevationTooptip = new FloatTooltip
+                        {
+                            value = lake.m_MaximumWaterHeight,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MaxElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                        };
+                        AddMouseTooltip(maxElevationTooptip);
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out RetentionBasin retentionBasin))
+                    {
+                        FloatTooltip maxElevationTooptip = new FloatTooltip
+                        {
+                            value = retentionBasin.m_MaximumWaterHeight,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MaxElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                        };
+                        AddMouseTooltip(maxElevationTooptip);
+                        FloatTooltip minElevationTooptip = new FloatTooltip
+                        {
+                            value = retentionBasin.m_MinimumWaterHeight,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MinElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MinElevation", "Min Elevation"),
+                        };
+                        AddMouseTooltip(minElevationTooptip);
+                        if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
+                        {
+                            FloatTooltip snowAccumulation = new FloatTooltip
+                            {
+                                value = retentionBasin.m_SnowAccumulation,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.SnowAccumulation",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
+                            };
+                            AddMouseTooltip(snowAccumulation);
+                        }
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out SeasonalStreamsData seasonalStreamsData))
+                    {
+                        FloatTooltip originalAmount = new FloatTooltip
+                        {
+                            value = seasonalStreamsData.m_OriginalAmount,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.OriginalFlow",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
+                        };
+                        AddMouseTooltip(originalAmount);
+
+                        if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
+                        {
+                            FloatTooltip snowAccumulation = new FloatTooltip
+                            {
+                                value = seasonalStreamsData.m_SnowAccumulation,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.SnowAccumulation",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.SnowAccumulation", "Snow Accumulation"),
+                            };
+                            AddMouseTooltip(snowAccumulation);
+                        }
+                    }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out TidesAndWavesData tidesAndWavesData))
+                    {
+                        FloatTooltip maxElevationTooptip = new FloatTooltip
+                        {
+                            value = tidesAndWavesData.m_OriginalAmount,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MaxElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                        };
+                        AddMouseTooltip(maxElevationTooptip);
                     }
                 }
 
-                StringTooltip removeWaterSourceTooltip = new ()
+                if (m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.PlaceWaterSource)
                 {
-                    path = "Tooltip.LABEL[YY.WT.RemoveWaterSource]",
-                    value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.RemoveWaterSource]", "Right click to remove water source."),
-                };
-                AddMouseTooltip(removeWaterSourceTooltip);
-            }
-
-            // Informs the player if they can set the elevation by right clicking.
-            else if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && !m_WaterToolUISystem.AmountIsAnElevation)
-            {
-                m_StartedHoveringTime = 0;
-                StringTooltip lockElevationTooltip = new ()
-                {
-                    path = "Tooltip.LABEL[YY.WT.LockElevation]",
-                    value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.LockElevation]", "Right click to designate the water surface elevation."),
-                };
-                AddMouseTooltip(lockElevationTooltip);
+                    StringTooltip removeWaterSourceTooltip = new ()
+                    {
+                        path = "Tooltip.LABEL[YY.WT.RemoveWaterSource]",
+                        value = LocalizedString.IdWithFallback("Tooltip.LABEL[YY.WT.RemoveWaterSource]", "Right click to remove water source."),
+                    };
+                    AddMouseTooltip(removeWaterSourceTooltip);
+                }
             }
             else
             {
