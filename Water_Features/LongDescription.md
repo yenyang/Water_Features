@@ -1,4 +1,4 @@
-﻿In-Game Water Tool - Place and remove water sources. Lakes, Streams, Rivers, and Seas.
+﻿In-Game Water Tool - Place, remove, and edit water sources. Lakes, Streams, Rivers, and Seas.
 Optional Opt-out: Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
 Optional Opt-in: Waves and Tides - Sea level rises and falls.
 
@@ -57,6 +57,7 @@ All features of this mod within the editor are considered experimental.
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
 Keep in mind that while filling up Constant Level water sources placed with the custom water tool are differnet than vanilla. They revert to vanilla when they have reached the target elevation.
 Seasonal Streams, evaporation, water cleanup cycle, fluidness, and waves and tides settings will not affect the editor simulation unless you opt-in with the settings.
+You may need to untoggle and retoggle seasonal streams and waves and tides to get them to start in the editor.
 
 ## Planned Features
 Option to add polluted water sources...?

@@ -26,6 +26,7 @@ namespace Water_Features.Systems
         private EntityQuery m_WaterSourcesQuery;
         private EndFrameBarrier m_EndFrameBarrier;
         private ILog m_Log;
+        private ToolSystem m_ToolSystem;
         private PrefabSystem m_PrefabSystem;
 
         /// <summary>
@@ -39,6 +40,7 @@ namespace Water_Features.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
+            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[] {
@@ -69,14 +71,30 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            bool seasonalStreamsEnabled = WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams;
+            bool wavesAndTidesEnabled = WaterFeaturesMod.Instance.Settings.EnableWavesAndTides;
+            if (m_ToolSystem.actionMode.IsEditor())
+            {
+                if (!WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+                {
+                    seasonalStreamsEnabled = false;
+                }
+
+                if (!WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)
+                {
+                    wavesAndTidesEnabled = false;
+                }
+            }
+
+
             m_Log.Debug($"{nameof(FindWaterSourcesSystem)}.{nameof(OnUpdate)} WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = {WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams} &  WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = {WaterFeaturesMod.Instance.Settings.EnableWavesAndTides}");
             FindWaterSourcesJob findWaterSourcesJob = new ()
             {
                 m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
                 m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-                m_SeasonalStreamsEnabled = WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams,
-                m_WavesAndTidesEnabled = WaterFeaturesMod.Instance.Settings.EnableWavesAndTides,
+                m_SeasonalStreamsEnabled = seasonalStreamsEnabled,
+                m_WavesAndTidesEnabled = wavesAndTidesEnabled,
             };
             JobHandle jobHandle = JobChunkExtensions.Schedule(findWaterSourcesJob, m_WaterSourcesQuery, Dependency);
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
