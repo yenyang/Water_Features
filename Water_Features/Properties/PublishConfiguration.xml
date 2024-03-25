@@ -6,7 +6,6 @@
   <!--Short description of the mod-->
   <ShortDescription Value="In-Game Water Tool, Optional Seasonal Streams, and Optional Waves and Tides" />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-  <!--LongDescription Value="" /-->
   <LongDescription>In-Game Water Tool - Place, remove, and edit water sources. Lakes, Streams, Rivers, and Seas.
 Optional Opt-out: Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
 Optional Opt-in: Waves and Tides - Sea level rises and falls.
@@ -14,6 +13,12 @@ Optional Opt-in: Waves and Tides - Sea level rises and falls.
 Sully has made an outstanding demo video covering the new features related to water. Available on Youtube.
 ## Dependencies
 Unified Icon Library
+
+## Donations
+If you want to say thank you with a donation you can do so on Paypal.
+
+## Translations
+I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -&gt; mods-wip -&gt; Water Features: Translations.
 
 # Detailed Descrption
 ## Water Tool
@@ -88,23 +93,24 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Thumbnail-->
   <Thumbnail Value="Properties/Thumbnail.png" />
   <!--Screenshot, can be set multiple-->
-  <Screenshot Value="" />
+  <Screenshot Value="Properties/Previews/waterFall.jpg" />
   <!--Tag, can be set multiple-->
   <Tag Value="Code Mod" />
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="" />
   <!--Version of the mod-->
-  <ModVersion Value="1.1.0" />
+  <ModVersion Value="1.1.1" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.0.*" />
+  <GameVersion Value="1.*" />
   <!--Dependency for the mod, can be set multiple-->
-  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="0.9" />
+  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog Value="" />
-  <!--ChangeLog>
-	</ChangeLog-->
+  <ChangeLog>## Patch V1.1.1
+* New icons by Chameleon TBN
+* Cleanup some React UI code.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
-  <ExternalLink Type="discord" Url="https://discord.com/invite/DgH7rDKZ6r" />
+  <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
   <ExternalLink Type="github" Url="https://github.com/yenyang/Water_Features" />
+  <ExternalLink Type="paypal" Url="https://www.paypal.com/paypalme/YenyangsMods" />
 </Publish>
