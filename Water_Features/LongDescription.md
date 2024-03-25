@@ -6,6 +6,12 @@ Sully has made an outstanding demo video covering the new features related to wa
 ## Dependencies
 Unified Icon Library
 
+## Donations
+If you want to say thank you with a donation you can do so on Paypal.
+
+## Translations
+I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -> mods-wip -> Water Features: Translations.
+
 # Detailed Descrption
 ## Water Tool
 Water Sources:
