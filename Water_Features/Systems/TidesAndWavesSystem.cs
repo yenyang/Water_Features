@@ -67,13 +67,13 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_TimeSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TimeSystem>();
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            m_TerrainToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainToolSystem>();
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
-            m_ChangeWaterSystemValues = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
+            m_TimeSystem = World.GetOrCreateSystemManaged<TimeSystem>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_TerrainToolSystem = World.GetOrCreateSystemManaged<TerrainToolSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_ChangeWaterSystemValues = World.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_TerrainToolCooloff = -1;
             m_WaterSourceQuery = GetEntityQuery(new EntityQueryDesc[]
             {
@@ -100,11 +100,11 @@ namespace Water_Features.Systems
         protected override void OnUpdate()
         {
             // This section handles optting in to having seasonal streams affect editor simulation.
-            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)
             {
                 if (m_EditorSimulationReset == false)
                 {
-                    DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                    DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
                     disableWavesAndTidesSystem.Enabled = true;
                     m_EditorSimulationReset = true;
                 }
@@ -222,7 +222,7 @@ namespace Water_Features.Systems
             {
                 m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnGameLoadingComplete)} Waves and Tides disabled.");
                 Enabled = false;
-                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
                 disableWavesAndTidesSystem.Enabled = true;
             }
 
