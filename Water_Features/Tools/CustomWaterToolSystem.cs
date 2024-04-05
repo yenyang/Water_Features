@@ -734,14 +734,15 @@ namespace Water_Features.Tools
                 }
             }
 
-            // This section resets things after finishing moving or changing elevation of a water source.
+            // This section resets things after finishing moving, changing elevation, or radius of a water source.
             else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasReleasedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 // This adds automatic filling lake to vanilla lakes that have moved.
                 if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake
                     && !EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource)
                     && !EntityManager.HasComponent<RetentionBasin>(m_SelectedWaterSource)
-                    && !EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource))
+                    && !EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource)
+                    && m_ToolSystem.actionMode.IsGame())
                 {
                     float targetElevation = m_RaycastPoint.m_HitPosition.y;
                     if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
@@ -773,6 +774,10 @@ namespace Water_Features.Tools
                 // This resets everything after action.
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                if (m_ToolSystem.actionMode.IsEditor())
+                {
+                    m_FetchWaterSources = true;
+                }
             }
 
 

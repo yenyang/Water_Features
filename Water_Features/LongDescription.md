@@ -11,6 +11,7 @@ If you want to say thank you with a donation you can do so on Paypal.
 
 ## Translations
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -> mods-wip -> Water Features: Translations.
+Suppored Languages: German, Spanish, Portuguese, Polish, 
 
 # Detailed Descrption
 ## Water Tool
