@@ -63,23 +63,14 @@ YY_WATER_FEATURES.SnowAccumulation,Snow Accumulation
 YY_WATER_FEATURES.OriginalFlow,Original Flow
 YY_WATER_FEATURES.MinDepth,Min Depth
 YY_WATER_FEATURES.Radius,Radius
-YY_WATER_FEATURES.amount-down-arrow,Reduce Flow/Depth/Elevation
 YY_WATER_FEATURES_DESCRIPTION.amount-down-arrow,"Reduces the flow for Streams. Decreases the depth or elevation for rivers, seas, and lakes. Reduces the max depth for retention and detention basins."
-YY_WATER_FEATURES.amount-up-arrow,Increase Flow/Depth/Elevation
 YY_WATER_FEATURES_DESCRIPTION.amount-up-arrow,"Increases the flow for Streams. Increases the depth or elevation for rivers, seas, and lakes. Increases the max depth for retention and detention basins."
-YY_WATER_FEATURES.radius-down-arrow,Reduce Radius
 YY_WATER_FEATURES_DESCRIPTION.radius-down-arrow,Reduces the radius.
-YY_WATER_FEATURES.radius-up-arrow,Increase Radius
 YY_WATER_FEATURES_DESCRIPTION.radius-up-arrow,Increases the radius.
-YY_WATER_FEATURES.min-depth-down-arrow,Reduce Min Depth
 YY_WATER_FEATURES_DESCRIPTION.min-depth-down-arrow,Reduces the minimum depth.
-YY_WATER_FEATURES.min-depth-up-arrow,Increase Min Depth
 YY_WATER_FEATURES_DESCRIPTION.min-depth-up-arrow,Increases the minimum depth.
-YY_WATER_FEATURES.amount-rate-of-change,Flow/Depth/Elevation Rate of Change
 YY_WATER_FEATURES_DESCRIPTION.amount-rate-of-change,"Changes the rate in which the increase and decrease buttons work for Flow, Depth and Elevation."
-YY_WATER_FEATURES.radius-rate-of-change,Radius Rate of Change
 YY_WATER_FEATURES_DESCRIPTION.radius-rate-of-change,Changes the rate in which the increase and decrease buttons work for Radius.
-YY_WATER_FEATURES.min-depth-rate-of-change,Minimum Depth Rate of Change
 YY_WATER_FEATURES_DESCRIPTION.min-depth-rate-of-change,Changes the rate in which the increase and decrease buttons work for minimum depth.
 SubServices.NAME[WaterTool],Water Tool
 Assets.SUB_SERVICE_DESCRIPTION[WaterTool],Water tool allows you to add and remove water sources from your map.
@@ -104,10 +95,7 @@ Tooltip.LABEL[YY.WT.LockElevation],Right click to designate the water surface el
 Options.GROUP:Experimental,"Experimental"
 Options.GROUP:Stable,"Stable"
 Options.OPTION:Fluidness,"Fluidness"
-Options.OPTION_DESCRIPTION:Fluidness,"Alter the Fluidness factor of the water system. Let's see what this does."
-Options.OPTION:ResetExperimentalSettingsButton,"Reset Experimental Settings"
-Options.OPTION_DESCRIPTION:ResetExperimentalSettingsButton,"On confirmation, resets Experimental Settings."
-Options.WARNING:ResetExperimentalSettingsButton,"Reset Experimental Settings?"
+Options.OPTION_DESCRIPTION:Fluidness,"Alter the Fluidness factor of the water system. It should change the flow characteristics."
 Editor.TOOL[Yenyang's Water Tool],"Yenyang's Water Tool"
 Options.OPTION:WaterToolSettingsAffectEditorSimulation,"Water Tool Settings Affect Editor Simulation"
 Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation,"Allows the settings in the Water Tool tab to affect the editor simulation such as evaporation, fluidness, and Water Clean Up Cycle."
@@ -119,3 +107,7 @@ YY_WATER_FEATURES_DESCRIPTION.ElevationChange,"Water Tool will change target ele
 YY_WATER_FEATURES_DESCRIPTION.PlaceWaterSource,"Water Tool will place water sources with left click, and remove water sources with right click."
 YY_WATER_FEATURES_DESCRIPTION.MoveWaterSource,"Water Tool will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel."
 YY_WATER_FEATURES_DESCRIPTION.RadiusChange,"Water Tool will change radius of water sources. Right click to cancel."
+YY_WATER_FEATURES.ElevationChange,"Elevation Change"
+YY_WATER_FEATURES.PlaceWaterSource,"Place Water Source"
+YY_WATER_FEATURES.MoveWaterSource,"Move Water Source"
+YY_WATER_FEATURES.RadiusChange,"Change Radius"
