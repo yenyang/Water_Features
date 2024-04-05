@@ -91,6 +91,15 @@ namespace Water_Features.Systems
                 }
             }
 
+            // This adds vanilla lake prefab without ui information so it can be used in editor.
+            WaterSourcePrefab vanillaLakePrefabBase = ScriptableObject.CreateInstance<WaterSourcePrefab>();
+            vanillaLakePrefabBase.active = true;
+            vanillaLakePrefabBase.m_SourceType = SourceType.VanillaLake;
+            vanillaLakePrefabBase.m_DefaultRadius = 20f;
+            vanillaLakePrefabBase.m_AmountLocaleKey = "YY_WATER_FEATURES.Depth";
+            vanillaLakePrefabBase.m_DefaultAmount = 15f;
+            vanillaLakePrefabBase.name = $"{PrefabPrefix}{SourceType.VanillaLake}";
+            m_PrefabSystem.AddPrefab(vanillaLakePrefabBase);
             Enabled = false;
         }
 

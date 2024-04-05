@@ -21,7 +21,7 @@ export const ActivePrefabName$ =        bindValue<string> (mod.id, 'ActivePrefab
 // defines trigger event names.
 export const eventName = "PrefabChange";
 export const streamPrefab = "WaterSource Stream";
-export const lakePrefab = "WaterSource Lake";
+export const lakePrefab = "WaterSource VanillaLake";
 export const riverPrefab = "WaterSource River";
 export const seaPrefab = "WaterSource Sea";
 
