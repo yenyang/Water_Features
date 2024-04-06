@@ -11,7 +11,7 @@ If you want to say thank you with a donation you can do so on Paypal.
 
 ## Translations
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -> mods-wip -> Water Features: Translations.
-Suppored Languages: German, Spanish, Portuguese, Polish, 
+Fully or Partially Suppored Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, and Russian. See credits for list of translators.
 
 # Detailed Descrption
 ## Water Tool
@@ -77,8 +77,8 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * yenyang - Mod Author
 * Sully - Testing, Feedback, and Promotional Material
 * Chameleon TBN - Testing, Feedback, Icons, and Logo
-* Klyte45, Algernon, Alpha Gaming - Help with UI, Cooperative Development and Code Sharing
+* Klyte45, Algernon, Triton Supreme - Help with UI, Cooperative Development and Code Sharing
 * T.D.W., krzychu124, and Quboid - Cooperative Development and Code Sharing
-* Localization: Hendrix (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish)
+* Localization: Hendrix (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st (Korean), and OWSEEX(Russian)
 * ST-Apps - Help with UI and Code Sharing
 * Tigon Ologdring, Dante - Testing, Feedback

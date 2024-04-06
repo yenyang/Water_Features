@@ -71,7 +71,7 @@ const descriptionToolTipStyle = getModule("game-ui/common/tooltip/description-to
     
 
 // This is working, but it's possible a better solution is possible.
-function descriptionTooltip(tooltipTitle: string | null, tooltipDescription: string | null) : JSX.Element {
+export function descriptionTooltip(tooltipTitle: string | null, tooltipDescription: string | null) : JSX.Element {
     return (
         <>
             <div className={descriptionToolTipStyle.title}>{tooltipTitle}</div>
