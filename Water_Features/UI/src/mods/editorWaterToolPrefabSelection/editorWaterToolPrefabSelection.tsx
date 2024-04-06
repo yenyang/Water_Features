@@ -1,7 +1,7 @@
 import { bindValue, trigger, useValue } from "cs2/api";
 import { tool } from "cs2/bindings";
 import styles from "./editorWaterToolPrefabSelection.module.scss";
-import { Button, FOCUS_DISABLED, Icon, Panel, Portal } from "cs2/ui";
+import { Button, FOCUS_DISABLED, Icon, Panel, Portal, Tooltip } from "cs2/ui";
 import { VanillaComponentResolver } from "mods/VanillaComponentResolver/VanillaComponentResolver";
 import StreamSrc from "./WaterSourceStream.svg";
 import LakeSrc from "./WaterSourceLake.svg";

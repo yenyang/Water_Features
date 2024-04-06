@@ -19,6 +19,7 @@ If you want to say thank you with a donation you can do so on Paypal.
 
 ## Translations
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -&gt; mods-wip -&gt; Water Features: Translations.
+Suppored Languages: German, Spanish, Portuguese, Polish, 
 
 # Detailed Descrption
 ## Water Tool
@@ -69,7 +70,6 @@ Experimental: Adjust fluidness.
 ## In the Editor
 All features of this mod within the editor are considered experimental.
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
-Keep in mind that while filling up Constant Level water sources placed with the custom water tool are differnet than vanilla. They revert to vanilla when they have reached the target elevation.
 Seasonal Streams, evaporation, water cleanup cycle, fluidness, and waves and tides settings will not affect the editor simulation unless you opt-in with the settings.
 You may need to untoggle and retoggle seasonal streams and waves and tides to get them to start in the editor.
 
@@ -105,9 +105,11 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Patch V1.1.1
-* New icons by Chameleon TBN
-* Cleanup some React UI code.</ChangeLog>
+  <ChangeLog>## Patch V1.1.2
+* Fixed Editor water panel removes all water sources placed with Yenyang's custom water tool.
+* Fixed water sources placed in editor with Yenyang's custom water tool do not appear in Editor water panel.
+* Change lakes placed in editor will behave per Constant Level Water Sources in editor.
+* Updated localization.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

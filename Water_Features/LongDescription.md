@@ -62,7 +62,6 @@ Experimental: Adjust fluidness.
 ## In the Editor
 All features of this mod within the editor are considered experimental.
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
-Keep in mind that while filling up Constant Level water sources placed with the custom water tool are differnet than vanilla. They revert to vanilla when they have reached the target elevation.
 Seasonal Streams, evaporation, water cleanup cycle, fluidness, and waves and tides settings will not affect the editor simulation unless you opt-in with the settings.
 You may need to untoggle and retoggle seasonal streams and waves and tides to get them to start in the editor.
 

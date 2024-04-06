@@ -13,7 +13,7 @@ type PropsToolButton = {
     selected? : boolean
     multiSelect? : boolean
     disabled?: boolean
-    tooltip?: string | null
+    tooltip?: string | JSX.Element | null
     selectSound?: any
     uiTag?: string
     className?: string
