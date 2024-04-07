@@ -7,6 +7,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game;
     using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
@@ -14,6 +15,7 @@ namespace Water_Features.Tools
     using Game.Rendering;
     using Game.Simulation;
     using Game.Tools;
+    using Game.UI.Editor;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
@@ -58,6 +60,8 @@ namespace Water_Features.Tools
         private Game.Simulation.WaterSourceData m_PressedWaterSource;
         private Game.Objects.Transform m_PressedTransform;
         private float m_PressedMaxHeight;
+        private bool m_FetchWaterSources;
+        private WaterPanelSystem m_WaterPanelSystem;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -311,21 +315,22 @@ namespace Water_Features.Tools
             m_ApplyAction = InputManager.instance.FindAction("Tool", "Apply");
             m_SecondaryApplyAction = InputManager.instance.FindAction("Tool", "Secondary Apply");
             m_Log.Info($"[{nameof(CustomWaterToolSystem)}] {nameof(OnCreate)}");
-            m_ToolOutputBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolOutputBarrier>();
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
-            m_WaterTooltipSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterTooltipSystem>();
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
-            m_AutofillingLakesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<AutofillingLakesSystem>();
-            m_TidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
-            m_WaterToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterToolUISystem>();
-            m_FindWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_WaterTooltipSystem = World.GetOrCreateSystemManaged<WaterTooltipSystem>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_AutofillingLakesSystem = World.GetOrCreateSystemManaged<AutofillingLakesSystem>();
+            m_TidesAndWavesSystem = World.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            m_WaterToolUISystem = World.GetOrCreateSystemManaged<WaterToolUISystem>();
+            m_FindWaterSourcesSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             m_WaterSourceArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>());
             m_AutoFillingLakeArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<AutofillingLake>());
             m_DetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<DetentionBasin>());
             m_RetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<RetentionBasin>());
-            m_OverlayRenderSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<OverlayRenderSystem>();
-            m_AddPrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<AddPrefabsSystem>();
+            m_OverlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
+            m_AddPrefabSystem = World.GetOrCreateSystemManaged<AddPrefabsSystem>();
             m_HoveredWaterSources = new NativeList<Entity>(0, Allocator.Persistent);
+            m_WaterPanelSystem = World.GetOrCreateSystemManaged<WaterPanelSystem>();
             m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new ()
@@ -366,6 +371,12 @@ namespace Water_Features.Tools
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             inputDeps = Dependency;
+
+            if (m_FetchWaterSources)
+            {
+                m_FetchWaterSources = false;
+                m_WaterPanelSystem.FetchWaterSources();
+            }
 
             if (m_ActivePrefab == null)
             {
@@ -723,14 +734,15 @@ namespace Water_Features.Tools
                 }
             }
 
-            // This section resets things after finishing moving or changing elevation of a water source.
+            // This section resets things after finishing moving, changing elevation, or radius of a water source.
             else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyAction.WasReleasedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 // This adds automatic filling lake to vanilla lakes that have moved.
                 if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake
                     && !EntityManager.HasComponent<DetentionBasin>(m_SelectedWaterSource)
                     && !EntityManager.HasComponent<RetentionBasin>(m_SelectedWaterSource)
-                    && !EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource))
+                    && !EntityManager.HasComponent<AutofillingLake>(m_SelectedWaterSource)
+                    && m_ToolSystem.actionMode.IsGame())
                 {
                     float targetElevation = m_RaycastPoint.m_HitPosition.y;
                     if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
@@ -762,6 +774,10 @@ namespace Water_Features.Tools
                 // This resets everything after action.
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+                if (m_ToolSystem.actionMode.IsEditor())
+                {
+                    m_FetchWaterSources = true;
+                }
             }
 
 
@@ -962,6 +978,7 @@ namespace Water_Features.Tools
 
             if (acceptableMultiplier)
             {
+                bool scheduledWaterSourceCreation = false;
                 if ((int)m_ActivePrefab.m_SourceType <= 3)
                 {
                     if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea)
@@ -979,6 +996,7 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = IJobExtensions.Schedule(addWaterSourceJob, Dependency);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     deps = jobHandle;
+                    scheduledWaterSourceCreation = true;
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Lake)
                 {
@@ -1001,6 +1019,7 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = IJobExtensions.Schedule(addAutoFillingLakeJob, Dependency);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     deps = jobHandle;
+                    scheduledWaterSourceCreation = true;
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.DetentionBasin)
                 {
@@ -1016,6 +1035,7 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = IJobExtensions.Schedule(addDetentionBasinJob, Dependency);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     deps = jobHandle;
+                    scheduledWaterSourceCreation = true;
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.RetentionBasin)
                 {
@@ -1031,6 +1051,12 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = IJobExtensions.Schedule(addRetentionBasinJob, Dependency);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     deps = jobHandle;
+                    scheduledWaterSourceCreation = true;
+                }
+
+                if (scheduledWaterSourceCreation && m_ToolSystem.actionMode.IsEditor())
+                {
+                    m_FetchWaterSources = true;
                 }
             }
             else

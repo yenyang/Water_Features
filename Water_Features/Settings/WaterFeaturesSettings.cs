@@ -56,9 +56,6 @@ namespace Water_Features.Settings
         /// </summary>
         public const string Reset = "Reset";
 
-        private ChangeWaterSystemValues m_ChangeWaterSystemValues;
-        private ILog m_Log;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="WaterFeaturesSettings"/> class.
         /// </summary>
@@ -67,9 +64,6 @@ namespace Water_Features.Settings
             : base(mod)
         {
             SetDefaults();
-            Contra = false;
-            m_ChangeWaterSystemValues = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
-            m_Log = WaterFeaturesMod.Instance.Log;
         }
 
         /// <summary>
@@ -123,7 +117,8 @@ namespace Water_Features.Settings
         {
             set
             {
-                m_ChangeWaterSystemValues.ApplyNewEvaporationRate = true;
+                ChangeWaterSystemValues changeWaterSystemValues = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
+                changeWaterSystemValues.ApplyNewEvaporationRate = true;
             }
         }
 
@@ -164,7 +159,7 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value with a slider indicating the multiplier for water always emitted from a stream.
         /// </summary>
-        [SettingsUISlider(min = 0f, max = 100f, step = 5f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
+        [SettingsUISlider(min = 0f, max = 100f, step = 1f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
         [SettingsUISection(SeasonalStreams, Stable)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float ConstantFlowRate { get; set; }
@@ -387,10 +382,11 @@ namespace Water_Features.Settings
         {
             SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
             TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            ILog log = WaterFeaturesMod.Instance.Log;
 
             if (EnableSeasonalStreams != seasonalStreamsSystem.Enabled)
             {
-                m_Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Seasonal streams Enabled = {EnableSeasonalStreams}");
+                log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Seasonal streams Enabled = {EnableSeasonalStreams}");
                 seasonalStreamsSystem.Enabled = EnableSeasonalStreams;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
                 FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
@@ -408,7 +404,7 @@ namespace Water_Features.Settings
 
             if (EnableWavesAndTides != tidesAndWavesSystem.Enabled)
             {
-                m_Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Waves And Tides Enabled = {EnableWavesAndTides}");
+                log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Waves And Tides Enabled = {EnableWavesAndTides}");
                 tidesAndWavesSystem.Enabled = EnableWavesAndTides;
                 DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
                 FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
@@ -423,8 +419,6 @@ namespace Water_Features.Settings
                     disableWavesAndTidesSystem.Enabled = true;
                 }
             }
-
-            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
 
             if (WaveHeight + TideHeight != tidesAndWavesSystem.PreviousWaveAndTideHeight)
             {
