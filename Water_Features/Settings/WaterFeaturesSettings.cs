@@ -159,7 +159,7 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value with a slider indicating the multiplier for water always emitted from a stream.
         /// </summary>
-        [SettingsUISlider(min = 0f, max = 100f, step = 5f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
+        [SettingsUISlider(min = 0f, max = 100f, step = 1f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
         [SettingsUISection(SeasonalStreams, Stable)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float ConstantFlowRate { get; set; }
