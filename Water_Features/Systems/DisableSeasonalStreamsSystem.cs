@@ -36,7 +36,7 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_SeasonalStreamsDataQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc

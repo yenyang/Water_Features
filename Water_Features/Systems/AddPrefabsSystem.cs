@@ -52,7 +52,7 @@ namespace Water_Features.Systems
         protected override void OnCreate()
         {
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
+            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             if (WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins)
             {
                 m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = "coui://ui-mods/images/WaterSourceDetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultAmount = 15f, });

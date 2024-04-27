@@ -4,16 +4,16 @@ import { tool } from "cs2/bindings";
 import mod from "../../../mod.json";
 import { VanillaComponentResolver } from "../VanillaComponentResolver/VanillaComponentResolver";
 import { useLocalization } from "cs2/l10n";
-import radiusChangeSrc from "./WaterSourceChangeRadius.svg";
-import moveWaterSourceSrc from "./WaterSourceMove.svg";
-import placeWaterSourceSrc from "./WaterSourcePlacement.svg";
-import elevationChangeSrc from "./WaterSourceRaiseOrLower.svg";
 import { getModule } from "cs2/modding";
 
 // These contain the coui paths to Unified Icon Library svg assets
 const couiStandard =                         "coui://uil/Standard/";
 const arrowDownSrc =         couiStandard +  "ArrowDownThickStroke.svg";
 const arrowUpSrc =           couiStandard +  "ArrowUpThickStroke.svg";
+const radiusChangeSrc =      couiStandard + "WaterSourceChangeRadius.svg";
+const moveWaterSourceSrc =   couiStandard + "WaterSourceMove.svg";
+const placeWaterSourceSrc = couiStandard + "WaterSourcePlacement.svg";
+const elevationChangeSrc = couiStandard + "WaterSourceRaiseOrLower.svg";
 
 // These establishes the binding with C# side. Without C# side game ui will crash.
 const AmountValue$ =        bindValue<number> (mod.id, 'AmountValue');

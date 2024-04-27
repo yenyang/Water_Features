@@ -99,22 +99,18 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.1.2" />
+  <ModVersion Value="1.1.3" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.1.*" />
   <!--Dependency for the mod, can be set multiple-->
-  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0" />
+  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.7" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Patch V1.1.2
-* Fixed Editor water panel removes all water sources placed with Yenyang's custom water tool.
-* Fixed water sources placed in editor with Yenyang's custom water tool do not appear in Editor water panel.
-* Changed lakes placed in editor will behave per Constant Level Water Sources in editor.
+  <ChangeLog>## Patch V1.1.3
+* Added Yenyang's water tool options panel sections in Editor to water source selection due to Base game change in V1.1.2f1.
+* Optimized various systems.
+* Bug fix related to snow melt.
 * Updated localization.
-* Added tooltip titles for tool modes.
-* Added basic tooltips with titles to water source prefabs in editor.
-* Potentially fixed settings bug that preventing settings from saving occasionally.
-* Reduced step for Seasonal Streams -&gt; Constant Flow Rate from 5 to 1.
-* Fixed issue with experimental setting for Waves and Tides in Editor was not handled correctly.</ChangeLog>
+* Stop selfhosting some images that are hosted by UIL.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

@@ -39,8 +39,8 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_TidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
+            m_TidesAndWavesSystem = World.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_TidesAndWavesDataQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc

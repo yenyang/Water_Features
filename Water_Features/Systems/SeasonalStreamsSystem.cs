@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
     using System;
@@ -15,6 +16,7 @@ namespace Water_Features.Systems
     using Game.Prefabs.Climate;
     using Game.Simulation;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -66,13 +68,13 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            m_ClimateSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ClimateSystem>();
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_ClimateSystem = World.GetOrCreateSystemManaged<ClimateSystem>();
             m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
-            m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
+            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_ClimateQuery = GetEntityQuery(ComponentType.ReadOnly<ClimateData>());
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_OriginalAmountsQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new ()
@@ -267,6 +269,9 @@ namespace Water_Features.Systems
         /// <summary>
         /// This job sets the stream flow amount based on all the various factors calculated during the onUpdate.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct ReviseWaterSourcesJob : IJobChunk
         {
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
@@ -293,21 +298,28 @@ namespace Water_Features.Systems
                     Game.Objects.Transform currentTransform = transformNativeArray[i];
                     float3 terrainPosition = new (currentTransform.m_Position.x, TerrainUtils.SampleHeight(ref m_TerrainHeightData, currentTransform.m_Position), currentTransform.m_Position.z);
 
-                    // 500f is completely arbitrary.
-                    float temperatureDifferentialAtWaterSource = m_TemperatureDifferential - (terrainPosition.y / 500f);
+                    // 1000f is completely arbitrary.
+                    float temperatureDifferentialAtWaterSource = m_TemperatureDifferential - (terrainPosition.y / 1000f);
                     SeasonalStreamsData currentSeasonalStreamData = seasonalStreamDataNativeArray[i];
+                    bool setSeasonalStreamData = false;
 
-                    // If snow accumulated add that to seasonal stream data. 
+                    // If snow accumulated add that to seasonal stream data.
                     if (m_SnowAccumulationMultiplier > 0f)
                     {
                         currentSeasonalStreamData.m_SnowAccumulation += seasonalStreamDataNativeArray[i].m_OriginalAmount * m_SnowAccumulationMultiplier;
-                        buffer.SetComponent(entityNativeArray[i], currentSeasonalStreamData);
+                        setSeasonalStreamData = true;
                     }
 
                     // Calculate the amount of snow melt at the calculated temperature at the elevation of the water source.
                     if (m_PotentialSnowMeltMultiplier > 0f && currentSeasonalStreamData.m_SnowAccumulation > 0f && temperatureDifferentialAtWaterSource > 0f)
                     {
                         snowMelt = TryMeltSnow(m_PotentialSnowMeltMultiplier, ref currentSeasonalStreamData, temperatureDifferentialAtWaterSource);
+                        setSeasonalStreamData = true;
+                    }
+
+                    if (setSeasonalStreamData)
+                    {
+                        buffer.SetComponent(entityNativeArray[i], currentSeasonalStreamData);
                     }
 
                     // Set the amount.
@@ -317,12 +329,28 @@ namespace Water_Features.Systems
             }
 
             // Determines a value of snow to melt right now based on the amount of snow and the tepmerature differential.
-            private static float TryMeltSnow(float maxMultiplier, ref SeasonalStreamsData data, float temperatureDifferential)
+            private float TryMeltSnow(float maxMultiplier, ref SeasonalStreamsData data, float temperatureDifferential)
             {
-                const float meltingRate = 1f / 30f;
-                float maxSnowMelt = Mathf.Min(data.m_OriginalAmount * maxMultiplier, data.m_SnowAccumulation, temperatureDifferential * meltingRate * data.m_OriginalAmount);
+                float meltingRate = 1f / 30f;
+                float maxSnowMelt = GetMinimum(data.m_OriginalAmount * maxMultiplier, data.m_SnowAccumulation, temperatureDifferential * meltingRate * data.m_OriginalAmount);
                 data.m_SnowAccumulation -= maxSnowMelt;
                 return maxSnowMelt;
+            }
+
+            // Determines the minimum between three floats.
+            private float GetMinimum(float one, float two, float three)
+            {
+                if (one < two && one < three)
+                {
+                    return one;
+                }
+
+                if (two < three)
+                {
+                    return two;
+                }
+
+                return three;
             }
         }
     }

@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
     using System.Runtime.CompilerServices;
@@ -11,6 +12,7 @@ namespace Water_Features.Systems
     using Game.Common;
     using Game.Simulation;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -51,10 +53,10 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_ClimateSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ClimateSystem>();
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
+            m_ClimateSystem = World.GetOrCreateSystemManaged<ClimateSystem>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_RetentionBasinQuery = GetEntityQuery(new EntityQueryDesc[] 
             {
                 new EntityQueryDesc
@@ -120,6 +122,9 @@ namespace Water_Features.Systems
         /// When it reaches 95% full then the amount is throttled.
         /// When it reaches 100% full or higher the amount is set to 0.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct RetentionBasinJob : IJobChunk
         {
             public ComponentTypeHandle<RetentionBasin> m_RetentionBasinType;
@@ -226,13 +231,26 @@ namespace Water_Features.Systems
                 }
             }
 
-            private static float TryMeltSnow(ref RetentionBasin data, float temperatureDifferential, float maxDepth)
+            private float TryMeltSnow(ref RetentionBasin data, float temperatureDifferential, float maxDepth)
             {
                 const float meltingRate = 1f / 30f;
                 float maxHeightToRunoffCoefficient = 0.1f;
-                float maxSnowMelt = Mathf.Min(data.m_SnowAccumulation, temperatureDifferential * meltingRate * maxDepth * maxHeightToRunoffCoefficient);
+                float maxSnowMelt = GetMinimum(data.m_SnowAccumulation, temperatureDifferential * meltingRate * maxDepth * maxHeightToRunoffCoefficient);
                 data.m_SnowAccumulation -= maxSnowMelt;
                 return maxSnowMelt;
+            }
+
+
+            // Determines the minimum between two floats.
+            private float GetMinimum(float one, float two)
+            {
+                if (one < two)
+                {
+                    return one;
+                }
+
+               return two;
+
             }
         }
     }
