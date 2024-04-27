@@ -3,3 +3,4 @@
 * Optimized various systems.
 * Bug fix related to snow melt.
 * Updated localization.
+* Stop selfhosting some images that are hosted by UIL.
