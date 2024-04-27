@@ -41,7 +41,7 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_TidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            m_TidesAndWavesSystem = World.GetOrCreateSystemManaged<TidesAndWavesSystem>();
             m_SeasonalStreamsDataQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc

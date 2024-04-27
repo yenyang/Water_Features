@@ -55,12 +55,12 @@ namespace Water_Features.Systems
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
-            m_TimeSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TimeSystem>();
+            m_TimeSystem = World.GetOrCreateSystemManaged<TimeSystem>();
             m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)}");
         }
 

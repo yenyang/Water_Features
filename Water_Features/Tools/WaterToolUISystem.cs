@@ -201,15 +201,14 @@ namespace Water_Features.Tools
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            m_CustomWaterToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>();
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
-            ToolSystem toolSystem2 = m_ToolSystem; // I don't know why vanilla game did this.
-            m_ToolSystem.EventPrefabChanged = (Action<PrefabBase>)Delegate.Combine(toolSystem2.EventPrefabChanged, new Action<PrefabBase>(OnPrefabChanged));
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_ToolSystem.EventPrefabChanged += OnPrefabChanged;
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
-            m_PrefabSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<PrefabSystem>();
-            m_EditorToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EditorToolUISystem>();
+            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            m_EditorToolUISystem = World.GetOrCreateSystemManaged<EditorToolUISystem>();
             IEditorTool[] existingTools = m_EditorToolUISystem.tools;
             IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
             int i = 0;

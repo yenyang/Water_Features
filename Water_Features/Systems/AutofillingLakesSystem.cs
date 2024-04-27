@@ -40,9 +40,9 @@ namespace Water_Features.Systems
         protected override void OnCreate()
         {
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
-            m_WaterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
-            m_TerrainSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TerrainSystem>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_AutofillingLakesQuery = GetEntityQuery(new EntityQueryDesc[] {
                 new EntityQueryDesc
                 {

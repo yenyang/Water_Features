@@ -57,9 +57,9 @@ namespace Water_Features.Tools
         {
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            m_CustomWaterTool = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>();
-            m_WaterToolUISystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterToolUISystem>();
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_CustomWaterTool = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
+            m_WaterToolUISystem = World.GetOrCreateSystemManaged<WaterToolUISystem>();
             m_Log.Info($"[{nameof(WaterTooltipSystem)}] {nameof(OnCreate)}");
         }
 

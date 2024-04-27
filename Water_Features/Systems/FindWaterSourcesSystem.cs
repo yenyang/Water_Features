@@ -40,9 +40,9 @@ namespace Water_Features.Systems
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_Log = WaterFeaturesMod.Instance.Log;
-            m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
+            m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[] {
                 new EntityQueryDesc
                 {
