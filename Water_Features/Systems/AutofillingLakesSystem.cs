@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define BURST
 namespace Water_Features.Systems
 {
     using Colossal.Logging;
@@ -9,6 +10,7 @@ namespace Water_Features.Systems
     using Game.Common;
     using Game.Simulation;
     using Game.Tools;
+    using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
     using Unity.Entities;
@@ -98,6 +100,9 @@ namespace Water_Features.Systems
         /// When it reaches 100% full or higher the water source is converted to a lake.
         /// The component for automatic filling is then removed.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct AutofillingLakesJob : IJobChunk
         {
             public ComponentTypeHandle<AutofillingLake> m_AutofillingLakeType;

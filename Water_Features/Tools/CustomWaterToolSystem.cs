@@ -1220,6 +1220,9 @@ namespace Water_Features.Tools
         /// <summary>
         /// This job renders circles related to the various water sources.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct WaterSourceCirclesRenderJob : IJobChunk
         {
             public OverlayRenderSystem.Buffer m_OverlayBuffer;
@@ -1313,6 +1316,9 @@ namespace Water_Features.Tools
         /// <summary>
         /// This job renders the circle for the current water source being placed.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct WaterToolRadiusJob : IJob
         {
             public OverlayRenderSystem.Buffer m_OverlayBuffer;
@@ -1366,6 +1372,9 @@ namespace Water_Features.Tools
         /// <summary>
         /// This job draws the overlay for the projected water level.
         /// </summary>
+#if BURST
+        [BurstCompile]
+#endif
         private struct WaterLevelProjectionJob : IJob
         {
             public OverlayRenderSystem.Buffer m_OverlayBuffer;
