@@ -8,7 +8,6 @@ namespace Water_Features.Tools
     using Colossal.Entities;
     using Colossal.Logging;
     using Game;
-    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
@@ -1084,7 +1083,6 @@ namespace Water_Features.Tools
             }
         }
 
-
 #if BURST
         [BurstCompile]
 #endif
@@ -1220,6 +1218,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// This job renders circles related to the various water sources.
         /// </summary>
+
 #if BURST
         [BurstCompile]
 #endif

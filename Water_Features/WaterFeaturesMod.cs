@@ -83,7 +83,6 @@ namespace Water_Features
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
-            Settings.Contra = false;
             Log.Info("Handling create world");
             Log.Info("ModInstallFolder = " + ModInstallFolder);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting systems.");

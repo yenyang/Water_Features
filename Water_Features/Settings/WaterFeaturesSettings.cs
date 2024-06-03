@@ -136,13 +136,6 @@ namespace Water_Features.Settings
             }
         }
 
-
-        /// <summary>
-        /// Gets or sets a value indicating whether: Used to force saving of Modsettings if settings would result in empty Json.
-        /// </summary>
-        [SettingsUIHidden]
-        public bool Contra { get; set; }
-
         /// <summary>
         /// Gets or sets a value indicating whether to have Seasonal Streams.
         /// </summary>
@@ -351,7 +344,6 @@ namespace Water_Features.Settings
         /// <inheritdoc/>
         public override void SetDefaults()
         {
-            Contra = true;
             TrySmallerRadii = false;
             EvaporationRate = 0.0001f;
             IncludeDetentionBasins = false;
