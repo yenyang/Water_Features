@@ -1,6 +1,5 @@
-﻿## Patch V1.1.3
-* Added Yenyang's water tool options panel sections in Editor to water source selection due to Base game change in V1.1.2f1.
-* Optimized various systems.
-* Bug fix related to snow melt.
-* Updated localization.
-* Stop selfhosting some images that are hosted by UIL.
+﻿## Patch V1.1.4
+* fix editor issue with components changing to different entities when changing water sim speed.
+* updated english localization for fluidness description.
+* code clean up and improvements for toggling seasonal streams and waves and tides off/on and in the editor.
+* Added Asset Icon Library hard dependency as an image host for prefab images.
