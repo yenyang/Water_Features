@@ -36,6 +36,7 @@ namespace Water_Features.Systems
 
         private ClimateSystem m_ClimateSystem;
         private string m_CurrentSeason;
+        private WaterSystem m_WaterSystem;
         private EntityQuery m_ClimateQuery;
         private EntityQuery m_OriginalAmountsQuery;
         private PrefabSystem m_PrefabSystem;
@@ -49,6 +50,8 @@ namespace Water_Features.Systems
         private EndFrameBarrier m_EndFrameBarrier;
         private ToolSystem m_ToolSystem;
         private bool m_EditorSimulationReset = false;
+        private int m_RecordedWaterSimSpeed = 1;
+        private FindWaterSourcesSystem m_FindWaterSourceSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SeasonalStreamsSystem"/> class.
@@ -73,7 +76,9 @@ namespace Water_Features.Systems
             m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_ClimateQuery = GetEntityQuery(ComponentType.ReadOnly<ClimateData>());
+            m_FindWaterSourceSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_OriginalAmountsQuery = GetEntityQuery(new EntityQueryDesc[]
             {
@@ -116,6 +121,11 @@ namespace Water_Features.Systems
             else if (m_ToolSystem.actionMode.IsEditor())
             {
                 m_EditorSimulationReset = false;
+            }
+
+            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            {
+                m_FindWaterSourceSystem.Enabled = true;
             }
 
             if (ClimateInteractionInitialized == false)
@@ -295,6 +305,13 @@ namespace Water_Features.Systems
                 {
                     float snowMelt = 0f;
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
+
+                    if (currentWaterSourceData.m_ConstantDepth != 0)
+                    {
+                        buffer.RemoveComponent<SeasonalStreamsData>(entityNativeArray[i]);
+                        continue;
+                    }
+
                     Game.Objects.Transform currentTransform = transformNativeArray[i];
                     float3 terrainPosition = new (currentTransform.m_Position.x, TerrainUtils.SampleHeight(ref m_TerrainHeightData, currentTransform.m_Position), currentTransform.m_Position.z);
 

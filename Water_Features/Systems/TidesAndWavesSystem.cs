@@ -37,6 +37,8 @@ namespace Water_Features.Systems
         private TerrainSystem m_TerrainSystem;
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
         private bool m_EditorSimulationReset;
+        private int m_RecordedWaterSimSpeed = 1;
+        private FindWaterSourcesSystem m_FindWaterSourcesSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TidesAndWavesSystem"/> class.
@@ -73,6 +75,7 @@ namespace Water_Features.Systems
             m_TerrainToolSystem = World.GetOrCreateSystemManaged<TerrainToolSystem>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ChangeWaterSystemValues = World.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
+            m_FindWaterSourcesSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_TerrainToolCooloff = -1;
             m_WaterSourceQuery = GetEntityQuery(new EntityQueryDesc[]
@@ -114,6 +117,12 @@ namespace Water_Features.Systems
             else if (m_ToolSystem.actionMode.IsEditor())
             {
                 m_EditorSimulationReset = false;
+            }
+
+
+            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            {
+                m_FindWaterSourcesSystem.Enabled = true;
             }
 
             if (m_ToolSystem.activeTool == m_TerrainToolSystem)
@@ -259,6 +268,10 @@ namespace Water_Features.Systems
                     {
                         currentWaterSourceData.m_Amount = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
+                    }
+                    else if (currentWaterSourceData.m_ConstantDepth != 3)
+                    {
+                        buffer.RemoveComponent<TidesAndWavesData>(currentEntity);
                     }
                 }
             }
