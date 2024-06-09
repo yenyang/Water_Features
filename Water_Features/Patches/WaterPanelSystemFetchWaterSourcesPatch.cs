@@ -38,7 +38,6 @@ namespace Water_Features.Patches
 
                     waterSourceData.m_Amount = seasonalStreamsData.m_OriginalAmount;
                     seasonalStreamsSystem.EntityManager.SetComponentData(entity, waterSourceData);
-                    seasonalStreamsSystem.EntityManager.RemoveComponent<SeasonalStreamsData>(entity);
                 }
             }
 
@@ -54,7 +53,6 @@ namespace Water_Features.Patches
 
                     waterSourceData.m_Amount = tidesAndWavesData.m_OriginalAmount;
                     wavesAndTidesSystem.EntityManager.SetComponentData(entity, waterSourceData);
-                    wavesAndTidesSystem.EntityManager.RemoveComponent<TidesAndWavesData>(entity);
                 }
             }
         }
