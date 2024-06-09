@@ -104,7 +104,6 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <GameVersion Value="1.1.*" />
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.8" />
-  <Dependency Id="79634" DisplayName="Asset Icon Library" Version="1.0.1.1" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>## Patch V1.1.4
 * fix editor issue with components changing to different entities when changing water sim speed.
