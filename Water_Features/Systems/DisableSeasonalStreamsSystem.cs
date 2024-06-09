@@ -24,13 +24,6 @@ namespace Water_Features.Systems
         private ILog m_Log;
         private EndFrameBarrier m_EndFrameBarrier;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DisableSeasonalStreamSystem"/> class.
-        /// </summary>
-        public DisableSeasonalStreamSystem()
-        {
-        }
-
         /// <inheritdoc/>
         protected override void OnCreate()
         {
@@ -53,7 +46,6 @@ namespace Water_Features.Systems
                     },
                 },
             });
-            RequireForUpdate(m_SeasonalStreamsDataQuery);
             m_Log.Info($"[{nameof(DisableSeasonalStreamSystem)}] {nameof(OnCreate)}");
             Enabled = false;
         }
@@ -61,15 +53,18 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            ResetSeasonalStreamsJob resetSeasonalStreamsJob = new ()
+            if (!m_SeasonalStreamsDataQuery.IsEmptyIgnoreFilter)
             {
-                m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<SeasonalStreamsData>(),
-                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
-                m_EntityType = SystemAPI.GetEntityTypeHandle(),
-                buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-            };
-            Dependency = JobChunkExtensions.Schedule(resetSeasonalStreamsJob, m_SeasonalStreamsDataQuery, Dependency);
-            m_EndFrameBarrier.AddJobHandleForProducer(Dependency);
+                ResetSeasonalStreamsJob resetSeasonalStreamsJob = new()
+                {
+                    m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<SeasonalStreamsData>(),
+                    m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                    m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                    buffer = m_EndFrameBarrier.CreateCommandBuffer(),
+                };
+                Dependency = JobChunkExtensions.Schedule(resetSeasonalStreamsJob, m_SeasonalStreamsDataQuery, Dependency);
+                m_EndFrameBarrier.AddJobHandleForProducer(Dependency);
+            }
             Enabled = false;
         }
 

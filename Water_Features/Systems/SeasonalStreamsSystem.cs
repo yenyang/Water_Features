@@ -53,17 +53,16 @@ namespace Water_Features.Systems
         private FindWaterSourcesSystem m_FindWaterSourceSystem;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SeasonalStreamsSystem"/> class.
+        /// Gets the query for seasonal streams sources.
         /// </summary>
-        public SeasonalStreamsSystem()
-        {
-        }
+        public EntityQuery SeasonalStreamsSourcesQuery => m_OriginalAmountsQuery;
 
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
             return 262144 / kUpdatesPerDay;
         }
+
 
         /// <inheritdoc/>
         protected override void OnCreate()
@@ -107,6 +106,7 @@ namespace Water_Features.Systems
         {
             if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
             {
+                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
                 m_FindWaterSourceSystem.Enabled = true;
             }
 

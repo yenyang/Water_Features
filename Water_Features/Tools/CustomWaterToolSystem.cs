@@ -296,6 +296,7 @@ namespace Water_Features.Tools
             {
                 m_ToolRaycastSystem.typeMask = TypeMask.Terrain;
             }
+
             m_ToolRaycastSystem.raycastFlags = RaycastFlags.Outside;
         }
 

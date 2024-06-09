@@ -40,16 +40,14 @@ namespace Water_Features.Systems
         private FindWaterSourcesSystem m_FindWaterSourcesSystem;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TidesAndWavesSystem"/> class.
-        /// </summary>
-        public TidesAndWavesSystem()
-        {
-        }
-
-        /// <summary>
         /// Gets the previous wave and tide height that was used to determine the dummy sea water source.
         /// </summary>
         public float PreviousWaveAndTideHeight { get => m_PreviousWaveAndTideHeight; }
+
+        /// <summary>
+        /// Gets the query for waves and tides data water sources.
+        /// </summary>
+        public EntityQuery WavesAndTidesDataQuery => m_WaterSourceQuery;
 
         /// <summary>
         /// The dummy sea water source should not be saved so this allows it to be removed before saving. This may need to be done in a job with a jobhandle. . .?.
@@ -103,6 +101,7 @@ namespace Water_Features.Systems
         {
             if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
             {
+                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
                 m_FindWaterSourcesSystem.Enabled = true;
             }
 

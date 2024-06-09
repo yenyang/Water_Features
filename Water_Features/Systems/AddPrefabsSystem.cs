@@ -43,13 +43,6 @@ namespace Water_Features.Systems
         /// </summary>
         public string Prefix { get => PrefabPrefix; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AddPrefabsSystem"/> class.
-        /// </summary>
-        public AddPrefabsSystem()
-        {
-        }
-
         /// <inheritdoc/>
         protected override void OnCreate()
         {
