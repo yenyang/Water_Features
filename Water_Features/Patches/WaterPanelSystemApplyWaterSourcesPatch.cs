@@ -5,6 +5,7 @@
 namespace Water_Features.Patches
 {
     using Colossal.Entities;
+    using Game;
     using Game.UI.Editor;
     using HarmonyLib;
     using Unity.Collections;
@@ -15,8 +16,8 @@ namespace Water_Features.Patches
     /// <summary>
     /// Patches WaterPanelSystem FetchWaterSources as water sources need to be reset before data is recorded.
     /// </summary>
-    [HarmonyPatch(typeof(WaterPanelSystem), "FetchWaterSources")]
-    public class WaterPanelSystemFetchWaterSourcesPatch
+    [HarmonyPatch(typeof(WaterPanelSystem), "ApplyWaterSources")]
+    public class WaterPanelSystemApplyWaterSourcesPatch
     {
         /// <summary>
         /// Patches WaterPanelSystem FetchWaterSources as water sources need to be reset before data is recorded.
@@ -76,6 +77,28 @@ namespace Water_Features.Patches
         /// </summary>
         public static void Postfix()
         {
+            SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
+            TidesAndWavesSystem wavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            EndFrameBarrier endFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
+            EntityCommandBuffer buffer = endFrameBarrier.CreateCommandBuffer();
+            if (!seasonalStreamsSystem.SeasonalStreamsSourcesQuery.IsEmptyIgnoreFilter)
+            {
+                NativeArray<Entity> seasonalStreamsEntities = seasonalStreamsSystem.SeasonalStreamsSourcesQuery.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in seasonalStreamsEntities)
+                {
+                    buffer.RemoveComponent<SeasonalStreamsData>(entity);
+                }
+            }
+
+            if (!wavesAndTidesSystem.WavesAndTidesDataQuery.IsEmptyIgnoreFilter)
+            {
+                NativeArray<Entity> wavesAndTidesEntities = wavesAndTidesSystem.WavesAndTidesDataQuery.ToEntityArray(Allocator.Temp);
+                foreach (Entity entity in wavesAndTidesEntities)
+                {
+                    buffer.RemoveComponent<TidesAndWavesData>(entity);
+                }
+            }
+
             FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             findWaterSourcesSystem.Enabled = true;
         }
