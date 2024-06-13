@@ -7,6 +7,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Colossal.Serialization.Entities;
     using Game;
     using Game.Common;
     using Game.Input;
@@ -349,6 +350,14 @@ namespace Water_Features.Tools
                 },
             });
             base.OnCreate();
+        }
+
+        /// <inheritdoc/>
+        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
+        {
+            base.OnGameLoadingComplete(purpose, mode);
+            m_ToolSystem.tools.Remove(this);
+            m_ToolSystem.tools.Insert(0, this);
         }
 
         /// <inheritdoc/>
