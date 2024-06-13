@@ -11,6 +11,7 @@ namespace Water_Features
     using Colossal.Logging;
     using Game;
     using Game.Modding;
+    using HarmonyLib;
     using Water_Features.Settings;
     using Water_Features.Systems;
     using Water_Features.Tools;
@@ -24,6 +25,8 @@ namespace Water_Features
         /// Gets the install folder for the mod.
         /// </summary>
         private static string m_modInstallFolder;
+
+        private Harmony m_Harmony;
 
         /// <summary>
         /// Gets the static reference to the mod instance.
@@ -85,6 +88,9 @@ namespace Water_Features
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
             Log.Info("Handling create world");
             Log.Info("ModInstallFolder = " + ModInstallFolder);
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting Harmony Patches.");
+            m_Harmony = new Harmony("Mods_Yenyang_Water_Features");
+            m_Harmony.PatchAll();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting systems.");
             updateSystem.UpdateAt<AddPrefabsSystem>(SystemUpdatePhase.PrefabUpdate);
 
@@ -126,6 +132,7 @@ namespace Water_Features
         public void OnDispose()
         {
             Log.Info($"[{nameof(WaterFeaturesMod)}] {nameof(OnDispose)}");
+            m_Harmony.UnpatchAll();
             if (Settings != null)
             {
                 Settings.UnregisterInOptionsUI();

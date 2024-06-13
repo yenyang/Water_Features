@@ -14,7 +14,7 @@
 		<FileVersion>1.1.4</FileVersion>
 		<Version>1.1.4</Version>
 	</PropertyGroup>
-	<Import Project="Keys.props"/>
+	<Import Project="Keys.props" />
 	<!--Imports must be after PropertyGroup block-->
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
@@ -155,6 +155,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="Lib.Harmony" Version="2.2.2" />
 	  <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
 	    <PrivateAssets>all</PrivateAssets>
 	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -162,27 +163,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="images\WaterSourceAutomaticFill.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceDetentionBasin.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceLake.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceRetentionBasin.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceRiver.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceSea.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="images\WaterSourceStream.svg">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
 	  <None Update="images\water_features_icon.svg">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>

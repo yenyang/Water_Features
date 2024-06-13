@@ -27,13 +27,6 @@ namespace Water_Features.Systems
         private EndFrameBarrier m_EndFrameBarrier;
         private WaterSystem m_WaterSystem;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DisableWavesAndTidesSystem"/> class.
-        /// </summary>
-        public DisableWavesAndTidesSystem()
-        {
-        }
-
         /// <inheritdoc/>
         protected override void OnCreate()
         {
@@ -58,7 +51,6 @@ namespace Water_Features.Systems
                 },
             });
             m_EndFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
-            RequireForUpdate(m_TidesAndWavesDataQuery);
             m_Log.Info($"[{nameof(DisableWavesAndTidesSystem)}] {nameof(OnCreate)}");
             Enabled = false;
         }
@@ -66,19 +58,22 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            m_TidesAndWavesSystem.ResetDummySeaWaterSource();
-            ResetTidesAndWavesJob resetTidesAndWavesJob = new ()
+            if (!m_TidesAndWavesDataQuery.IsEmptyIgnoreFilter)
             {
-                m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<TidesAndWavesData>(),
-                m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
-                m_EntityType = SystemAPI.GetEntityTypeHandle(),
-                buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-            };
-            Dependency = JobChunkExtensions.Schedule(resetTidesAndWavesJob, m_TidesAndWavesDataQuery, Dependency);
-            m_EndFrameBarrier.AddJobHandleForProducer(Dependency);
-            if (m_WaterSystem.WaterSimSpeed == 0)
-            {
-                m_WaterSystem.WaterSimSpeed = 1;
+                m_TidesAndWavesSystem.ResetDummySeaWaterSource();
+                ResetTidesAndWavesJob resetTidesAndWavesJob = new ()
+                {
+                    m_OriginalAmountType = SystemAPI.GetComponentTypeHandle<TidesAndWavesData>(),
+                    m_SourceType = SystemAPI.GetComponentTypeHandle<Game.Simulation.WaterSourceData>(),
+                    m_EntityType = SystemAPI.GetEntityTypeHandle(),
+                    buffer = m_EndFrameBarrier.CreateCommandBuffer(),
+                };
+                Dependency = JobChunkExtensions.Schedule(resetTidesAndWavesJob, m_TidesAndWavesDataQuery, Dependency);
+                m_EndFrameBarrier.AddJobHandleForProducer(Dependency);
+                if (m_WaterSystem.WaterSimSpeed == 0)
+                {
+                    m_WaterSystem.WaterSimSpeed = 1;
+                }
             }
 
             Enabled = false;

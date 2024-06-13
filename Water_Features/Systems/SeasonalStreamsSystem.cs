@@ -49,22 +49,20 @@ namespace Water_Features.Systems
         private bool ClimateInteractionInitialized = false;
         private EndFrameBarrier m_EndFrameBarrier;
         private ToolSystem m_ToolSystem;
-        private bool m_EditorSimulationReset = false;
         private int m_RecordedWaterSimSpeed = 1;
         private FindWaterSourcesSystem m_FindWaterSourceSystem;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SeasonalStreamsSystem"/> class.
+        /// Gets the query for seasonal streams sources.
         /// </summary>
-        public SeasonalStreamsSystem()
-        {
-        }
+        public EntityQuery SeasonalStreamsSourcesQuery => m_OriginalAmountsQuery;
 
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
             return 262144 / kUpdatesPerDay;
         }
+
 
         /// <inheritdoc/>
         protected override void OnCreate()
@@ -106,21 +104,10 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            // This section handles optting in to having seasonal streams affect editor simulation.
-            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
+            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
             {
-                if (m_EditorSimulationReset == false)
-                {
-                    DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                    disableSeasonalStreamSystem.Enabled = true;
-                    m_EditorSimulationReset = true;
-                }
-
-                return;
-            }
-            else if (m_ToolSystem.actionMode.IsEditor())
-            {
-                m_EditorSimulationReset = false;
+                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
+                m_FindWaterSourceSystem.Enabled = true;
             }
 
             if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)

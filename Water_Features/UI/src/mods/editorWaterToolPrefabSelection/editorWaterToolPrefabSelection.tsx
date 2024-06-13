@@ -3,10 +3,6 @@ import { tool } from "cs2/bindings";
 import styles from "./editorWaterToolPrefabSelection.module.scss";
 import { Button, FOCUS_DISABLED, Icon, Panel, Portal, Tooltip } from "cs2/ui";
 import { VanillaComponentResolver } from "mods/VanillaComponentResolver/VanillaComponentResolver";
-import StreamSrc from "./WaterSourceStream.svg";
-import LakeSrc from "./WaterSourceLake.svg";
-import RiverSrc from "./WaterSourceRiver.svg";
-import SeaSrc from "./WaterSourceSea.svg";
 import mod from "../../../mod.json";
 import { useLocalization } from "cs2/l10n";
 import { getModule } from "cs2/modding";
@@ -17,13 +13,19 @@ function changePrefab(prefab: string) {
 }
 
 // These contain the coui paths to Unified Icon Library svg assets
-const couiStandard =                         "coui://uil/Standard/";
-const arrowDownSrc =         couiStandard +  "ArrowDownThickStroke.svg";
-const arrowUpSrc =           couiStandard +  "ArrowUpThickStroke.svg";
-const radiusChangeSrc =      couiStandard + "WaterSourceChangeRadius.svg";
-const moveWaterSourceSrc =   couiStandard + "WaterSourceMove.svg";
-const placeWaterSourceSrc = couiStandard + "WaterSourcePlacement.svg";
-const elevationChangeSrc = couiStandard + "WaterSourceRaiseOrLower.svg";
+const uilStandard =                         "coui://uil/Standard/";
+const uilColored =                         "coui://uil/Colored/";
+const arrowDownSrc =         uilStandard +  "ArrowDownThickStroke.svg";
+const arrowUpSrc =           uilStandard +  "ArrowUpThickStroke.svg";
+const radiusChangeSrc =      uilStandard + "WaterSourceChangeRadius.svg";
+const moveWaterSourceSrc =   uilStandard + "WaterSourceMove.svg";
+const placeWaterSourceSrc = uilStandard + "WaterSourcePlacement.svg";
+const elevationChangeSrc = uilStandard + "WaterSourceRaiseOrLower.svg";
+const ailPath =                             "coui://ail/";
+const StreamSrc =               uilColored + "WaterSourceCreek.svg";
+const LakeSrc =                 uilColored + "WaterSourceLake.svg";
+const RiverSrc =                uilColored + "WaterSourceRiver.svg";
+const SeaSrc =                  uilColored + "WaterSourceSea.svg";
 
 // These establishes the binding with C# side. Without C# side game ui will crash.
 const AmountValue$ =        bindValue<number> (mod.id, 'AmountValue');
