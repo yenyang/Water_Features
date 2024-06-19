@@ -4,4 +4,4 @@
 * code clean up and improvements for toggling seasonal streams and waves and tides off/on and in the editor.
 * Offloaded some additional image hosting to UIL.
 * Prioritizes custom water tool in tool order.
-* Compatibility with V1.1.4 of base game.
+* Compatibility with V1.1.3 of base game.

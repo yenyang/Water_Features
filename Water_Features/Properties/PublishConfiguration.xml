@@ -111,7 +111,7 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * code clean up and improvements for toggling seasonal streams and waves and tides off/on and in the editor.
 * Offloaded some additional image hosting to UIL.
 * Prioritizes custom water tool in tool order.
-* Compatibility with V1.1.4 of base game.</ChangeLog>
+* Compatibility with V1.1.3 of base game.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

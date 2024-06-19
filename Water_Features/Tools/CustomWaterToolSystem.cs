@@ -23,7 +23,6 @@ namespace Water_Features.Tools
     using Unity.Jobs;
     using Unity.Mathematics;
     using UnityEngine;
-    using UnityEngine.InputSystem;
     using Water_Features;
     using Water_Features.Components;
     using Water_Features.Prefabs;
@@ -39,8 +38,8 @@ namespace Water_Features.Tools
         private EntityArchetype m_AutoFillingLakeArchetype;
         private EntityArchetype m_DetentionBasinArchetype;
         private EntityArchetype m_RetentionBasinArchetype;
-        private InputAction m_ApplyAction;
-        private InputAction m_SecondaryApplyAction;
+        private ProxyAction m_ApplyAction;
+        private ProxyAction m_SecondaryApplyAction;
         private ControlPoint m_RaycastPoint;
         private EntityQuery m_WaterSourcesQuery;
         private ToolOutputBarrier m_ToolOutputBarrier;
@@ -314,10 +313,8 @@ namespace Water_Features.Tools
         {
             m_Log = WaterFeaturesMod.Instance.Log;
             Enabled = false;
-            m_ApplyAction = new InputAction($"{nameof(WaterFeaturesMod)}.ApplyAction");
-            m_ApplyAction.AddBinding(UnityEngine.InputSystem.Mouse.current.leftButton);
-            m_SecondaryApplyAction = new InputAction($"{nameof(WaterFeaturesMod)}.SecondaryApplyAction");
-            m_SecondaryApplyAction.AddBinding(UnityEngine.InputSystem.Mouse.current.leftButton);
+            m_ApplyAction = InputManager.instance.FindAction("Tool", "Apply");
+            m_SecondaryApplyAction = InputManager.instance.FindAction("Tool", "Secondary Apply");
             m_Log.Info($"[{nameof(CustomWaterToolSystem)}] {nameof(OnCreate)}");
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
@@ -367,16 +364,16 @@ namespace Water_Features.Tools
         protected override void OnStartRunning()
         {
             m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnStartRunning)}");
-            m_ApplyAction.Enable();
-            m_SecondaryApplyAction.Enable();
+            m_ApplyAction.shouldBeEnabled = true;
+            m_SecondaryApplyAction.shouldBeEnabled = true;
             m_RaycastPoint = default;
         }
 
         /// <inheritdoc/>
         protected override void OnStopRunning()
         {
-            m_ApplyAction.Disable();
-            m_SecondaryApplyAction.Disable();
+            m_ApplyAction.shouldBeEnabled = false;
+            m_SecondaryApplyAction.shouldBeEnabled = false;
         }
 
         /// <inheritdoc/>
