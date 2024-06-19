@@ -317,7 +317,7 @@ namespace Water_Features.Tools
             m_ApplyAction = new InputAction($"{nameof(WaterFeaturesMod)}.ApplyAction");
             m_ApplyAction.AddBinding(UnityEngine.InputSystem.Mouse.current.leftButton);
             m_SecondaryApplyAction = new InputAction($"{nameof(WaterFeaturesMod)}.SecondaryApplyAction");
-            m_SecondaryApplyAction.AddBinding(UnityEngine.InputSystem.Mouse.current.rightButton);
+            m_SecondaryApplyAction.AddBinding(UnityEngine.InputSystem.Mouse.current.leftButton);
             m_Log.Info($"[{nameof(CustomWaterToolSystem)}] {nameof(OnCreate)}");
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
