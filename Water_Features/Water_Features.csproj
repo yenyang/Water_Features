@@ -14,7 +14,6 @@
 		<FileVersion>1.1.4</FileVersion>
 		<Version>1.1.4</Version>
 	</PropertyGroup>
-	<Import Project="Keys.props" />
 	<!--Imports must be after PropertyGroup block-->
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
