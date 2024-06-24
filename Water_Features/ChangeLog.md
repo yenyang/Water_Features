@@ -1,6 +1,7 @@
-﻿## Patch V1.1.3
-* Added Yenyang's water tool options panel sections in Editor to water source selection due to Base game change in V1.1.2f1.
-* Optimized various systems.
-* Bug fix related to snow melt.
-* Updated localization.
-* Stop selfhosting some images that are hosted by UIL.
+﻿## Patch V1.1.4
+* fix editor issue with components changing to different entities. Special Thanks to Chair for testing and feedback.
+* updated english localization for fluidness description.
+* code clean up and improvements for toggling seasonal streams and waves and tides off/on and in the editor.
+* Offloaded some additional image hosting to UIL.
+* Prioritizes custom water tool in tool order.
+* Compatibility with V1.1.5 of base game.

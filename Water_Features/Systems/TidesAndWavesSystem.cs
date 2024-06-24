@@ -36,19 +36,18 @@ namespace Water_Features.Systems
         private int m_TerrainToolCooloff;
         private TerrainSystem m_TerrainSystem;
         private ChangeWaterSystemValues m_ChangeWaterSystemValues;
-        private bool m_EditorSimulationReset;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="TidesAndWavesSystem"/> class.
-        /// </summary>
-        public TidesAndWavesSystem()
-        {
-        }
+        private int m_RecordedWaterSimSpeed = 1;
+        private FindWaterSourcesSystem m_FindWaterSourcesSystem;
 
         /// <summary>
         /// Gets the previous wave and tide height that was used to determine the dummy sea water source.
         /// </summary>
         public float PreviousWaveAndTideHeight { get => m_PreviousWaveAndTideHeight; }
+
+        /// <summary>
+        /// Gets the query for waves and tides data water sources.
+        /// </summary>
+        public EntityQuery WavesAndTidesDataQuery => m_WaterSourceQuery;
 
         /// <summary>
         /// The dummy sea water source should not be saved so this allows it to be removed before saving. This may need to be done in a job with a jobhandle. . .?.
@@ -73,6 +72,7 @@ namespace Water_Features.Systems
             m_TerrainToolSystem = World.GetOrCreateSystemManaged<TerrainToolSystem>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ChangeWaterSystemValues = World.GetOrCreateSystemManaged<ChangeWaterSystemValues>();
+            m_FindWaterSourcesSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_TerrainToolCooloff = -1;
             m_WaterSourceQuery = GetEntityQuery(new EntityQueryDesc[]
@@ -99,21 +99,16 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            // This section handles optting in to having seasonal streams affect editor simulation.
-            if (m_ToolSystem.actionMode.IsEditor() && !WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)
+            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
             {
-                if (m_EditorSimulationReset == false)
-                {
-                    DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                    disableWavesAndTidesSystem.Enabled = true;
-                    m_EditorSimulationReset = true;
-                }
-
-                return;
+                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
+                m_FindWaterSourcesSystem.Enabled = true;
             }
-            else if (m_ToolSystem.actionMode.IsEditor())
+
+
+            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
             {
-                m_EditorSimulationReset = false;
+                m_FindWaterSourcesSystem.Enabled = true;
             }
 
             if (m_ToolSystem.activeTool == m_TerrainToolSystem)
@@ -259,6 +254,10 @@ namespace Water_Features.Systems
                     {
                         currentWaterSourceData.m_Amount = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
+                    }
+                    else if (currentWaterSourceData.m_ConstantDepth != 3)
+                    {
+                        buffer.RemoveComponent<TidesAndWavesData>(currentEntity);
                     }
                 }
             }

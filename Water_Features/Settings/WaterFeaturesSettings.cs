@@ -136,17 +136,11 @@ namespace Water_Features.Settings
             }
         }
 
-
-        /// <summary>
-        /// Gets or sets a value indicating whether: Used to force saving of Modsettings if settings would result in empty Json.
-        /// </summary>
-        [SettingsUIHidden]
-        public bool Contra { get; set; }
-
         /// <summary>
         /// Gets or sets a value indicating whether to have Seasonal Streams.
         /// </summary>
         [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsToggled))]
         public bool EnableSeasonalStreams { get; set; }
 
         /// <summary>
@@ -214,6 +208,7 @@ namespace Water_Features.Settings
         /// Gets or sets a value indicating whether to have Waves and Tides.
         /// </summary>
         [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesToggled))]
         public bool EnableWavesAndTides { get; set; }
 
         /// <summary>
@@ -222,6 +217,7 @@ namespace Water_Features.Settings
         [SettingsUISection(WavesAndTides, Stable)]
         [SettingsUISlider(min = 0f, max = 20f, step = 0.5f, unit = "floatSingleFraction")]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(ResetDummyWaterSource))]
         public float WaveHeight { get; set; }
 
         /// <summary>
@@ -238,6 +234,7 @@ namespace Water_Features.Settings
         [SettingsUISection(WavesAndTides, Stable)]
         [SettingsUISlider(min = 0f, max = 15f, step = 0.5f, unit = "floatSingleFraction")]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(ResetDummyWaterSource))]
         public float TideHeight { get; set; }
 
         /// <summary>
@@ -287,6 +284,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(SeasonalStreams, Experimental)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsAffectsEditorToggled))]
         public bool SeasonalStreamsAffectEditorSimulation { get; set; }
 
         /// <summary>
@@ -294,6 +292,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WavesAndTides, Experimental)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesAffectsEditorSimulationToggled))]
         public bool WavesAndTidesAffectEditorSimulation { get; set; }
 
         /// <summary>
@@ -321,6 +320,7 @@ namespace Water_Features.Settings
             MaximumMultiplier = 1.0f;
             SimulateSnowMelt = true;
             SeasonalStreamsAffectEditorSimulation = false;
+            SeasonalStreamsAffectsEditorToggled(false);
         }
 
         /// <summary>
@@ -334,6 +334,7 @@ namespace Water_Features.Settings
             TideClassification = TideClassificationYYTAW.Semidiurnal;
             Damping = 0.9999f;
             WavesAndTidesAffectEditorSimulation = false;
+            WavesAndTidesToggled(false);
         }
 
         /// <summary>
@@ -351,7 +352,6 @@ namespace Water_Features.Settings
         /// <inheritdoc/>
         public override void SetDefaults()
         {
-            Contra = true;
             TrySmallerRadii = false;
             EvaporationRate = 0.0001f;
             IncludeDetentionBasins = false;
@@ -376,56 +376,121 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
-        /// Overriding Apply so that toggling the enable/disable buttons controls the systems involved. Also for Change
+        /// Resets the dummy water source from waves and tides.
         /// </summary>
-        public override void Apply()
+        /// <param name="value">not used.</param>
+        public void ResetDummyWaterSource(float value)
         {
-            SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
             TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
-            ILog log = WaterFeaturesMod.Instance.Log;
+            tidesAndWavesSystem.ResetDummySeaWaterSource();
+        }
 
-            if (EnableSeasonalStreams != seasonalStreamsSystem.Enabled)
+        /// <summary>
+        /// Handles toggling seasonal streams either in game or editor.
+        /// </summary>
+        /// <param name="value">true if enabled, false if not.</param>
+        public void SeasonalStreamsToggled(bool value)
+        {
+            WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)}");
+            SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
+            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            if (value && (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && SeasonalStreamsAffectEditorSimulation)))
             {
-                log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Seasonal streams Enabled = {EnableSeasonalStreams}");
-                seasonalStreamsSystem.Enabled = EnableSeasonalStreams;
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Enabled");
+                seasonalStreamsSystem.Enabled = true;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
                 FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                if (EnableSeasonalStreams)
-                {
-                    findWaterSourcesSystem.Enabled = true;
-                    disableSeasonalStreamSystem.Enabled = false;
-                }
-                else
-                {
-                    findWaterSourcesSystem.Enabled = false;
-                    disableSeasonalStreamSystem.Enabled = true;
-                }
+                findWaterSourcesSystem.Enabled = true;
+                disableSeasonalStreamSystem.Enabled = false;
             }
-
-            if (EnableWavesAndTides != tidesAndWavesSystem.Enabled)
+            else
             {
-                log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(Apply)} Toggling Waves And Tides Enabled = {EnableWavesAndTides}");
-                tidesAndWavesSystem.Enabled = EnableWavesAndTides;
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Disabled");
+                seasonalStreamsSystem.Enabled = false;
+                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
+                disableSeasonalStreamSystem.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Handles toggling seasonal streams affects editor simulation.
+        /// </summary>
+        /// <param name="value">true if enabled, false if not.</param>
+        public void SeasonalStreamsAffectsEditorToggled(bool value)
+        {
+            WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)}");
+            SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
+            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            if (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && value))
+            {
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)} Enabled");
+                seasonalStreamsSystem.Enabled = true;
+                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
+                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                findWaterSourcesSystem.Enabled = true;
+                disableSeasonalStreamSystem.Enabled = false;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)} Disabled");
+                seasonalStreamsSystem.Enabled = false;
+                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
+                disableSeasonalStreamSystem.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// Handles toggling waves and tides either in game or editor.
+        /// </summary>
+        /// <param name="value">true if enabled, false if not.</param>
+        public void WavesAndTidesToggled(bool value)
+        {
+            WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)}");
+            TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            if (value && (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && WavesAndTidesAffectEditorSimulation)))
+            {
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)} Enabled");
+                tidesAndWavesSystem.Enabled = true;
                 DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
                 FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                if (EnableWavesAndTides)
-                {
-                    findWaterSourcesSystem.Enabled = true;
-                    disableWavesAndTidesSystem.Enabled = false;
-                }
-                else
-                {
-                    findWaterSourcesSystem.Enabled = false;
-                    disableWavesAndTidesSystem.Enabled = true;
-                }
+                findWaterSourcesSystem.Enabled = true;
+                disableWavesAndTidesSystem.Enabled = false;
             }
-
-            if (WaveHeight + TideHeight != tidesAndWavesSystem.PreviousWaveAndTideHeight)
+            else
             {
-                tidesAndWavesSystem.ResetDummySeaWaterSource();
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)} Disabled");
+                tidesAndWavesSystem.Enabled = false;
+                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                disableWavesAndTidesSystem.Enabled = true;
             }
+        }
 
-            base.Apply();
+        /// <summary>
+        /// Handles toggling waves and tides either in game or editor.
+        /// </summary>
+        /// <param name="value">true if enabled, false if not.</param>
+        public void WavesAndTidesAffectsEditorSimulationToggled(bool value)
+        {
+            WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)}");
+            TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            if (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && value))
+            {
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)} Enabled");
+                tidesAndWavesSystem.Enabled = true;
+                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                findWaterSourcesSystem.Enabled = true;
+                disableWavesAndTidesSystem.Enabled = false;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)} Disabled");
+                tidesAndWavesSystem.Enabled = false;
+                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
+                disableWavesAndTidesSystem.Enabled = true;
+            }
         }
     }
 }

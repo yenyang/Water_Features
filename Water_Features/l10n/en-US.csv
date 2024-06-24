@@ -95,7 +95,7 @@ Tooltip.LABEL[YY.WT.LockElevation],Right click to designate the water surface el
 Options.GROUP:Experimental,"Experimental"
 Options.GROUP:Stable,"Stable"
 Options.OPTION:Fluidness,"Fluidness"
-Options.OPTION_DESCRIPTION:Fluidness,"Alter the Fluidness factor of the water system. It should change the flow characteristics."
+Options.OPTION_DESCRIPTION:Fluidness,"Alter the Fluidness factor of the water system. It should change the flow characteristics. This can create small waves, cause flooding, or cause instabilities and spikes in the water system."
 Editor.TOOL[Yenyang's Water Tool],"Yenyang's Water Tool"
 Options.OPTION:WaterToolSettingsAffectEditorSimulation,"Water Tool Settings Affect Editor Simulation"
 Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation,"Allows the settings in the Water Tool tab to affect the editor simulation such as evaporation, fluidness, and Water Clean Up Cycle."

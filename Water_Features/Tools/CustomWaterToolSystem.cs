@@ -7,8 +7,8 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Colossal.Serialization.Entities;
     using Game;
-    using Game.Audio.Radio;
     using Game.Common;
     using Game.Input;
     using Game.Prefabs;
@@ -296,6 +296,7 @@ namespace Water_Features.Tools
             {
                 m_ToolRaycastSystem.typeMask = TypeMask.Terrain;
             }
+
             m_ToolRaycastSystem.raycastFlags = RaycastFlags.Outside;
         }
 
@@ -352,6 +353,14 @@ namespace Water_Features.Tools
         }
 
         /// <inheritdoc/>
+        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
+        {
+            base.OnGameLoadingComplete(purpose, mode);
+            m_ToolSystem.tools.Remove(this);
+            m_ToolSystem.tools.Insert(0, this);
+        }
+
+        /// <inheritdoc/>
         protected override void OnStartRunning()
         {
             m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnStartRunning)}");
@@ -372,10 +381,14 @@ namespace Water_Features.Tools
         {
             inputDeps = Dependency;
 
-            if (m_FetchWaterSources)
+            if (m_FetchWaterSources && m_ToolSystem.actionMode.IsEditor())
             {
                 m_FetchWaterSources = false;
                 m_WaterPanelSystem.FetchWaterSources();
+            }
+            else if (m_FetchWaterSources && m_ToolSystem.actionMode.IsGame())
+            {
+                m_FetchWaterSources = false;
             }
 
             if (m_ActivePrefab == null)
@@ -468,15 +481,12 @@ namespace Water_Features.Tools
                 Entity closestWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
                 if (closestWaterSource != Entity.Null)
                 {
-                    RemoveEntityJob removeEntityJob = new RemoveEntityJob()
+                    EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
+                    buffer.AddComponent<Deleted>(closestWaterSource);
+                    if (m_ToolSystem.actionMode.IsEditor())
                     {
-                        m_Entity = closestWaterSource,
-                        buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
-                    };
-
-                    JobHandle jobHandle1 = removeEntityJob.Schedule(inputDeps);
-                    m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle1);
-                    inputDeps = jobHandle1;
+                        m_FetchWaterSources = true;
+                    }
                 }
                 else
                 {
@@ -492,6 +502,10 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = JobChunkExtensions.Schedule(removeWaterSourcesJob, m_WaterSourcesQuery, inputDeps);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     inputDeps = jobHandle;
+                    if (m_ToolSystem.actionMode.IsEditor())
+                    {
+                        m_FetchWaterSources = true;
+                    }
                 }
             }
 
@@ -596,6 +610,11 @@ namespace Water_Features.Tools
 
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
+
+                if (m_ToolSystem.actionMode.IsEditor())
+                {
+                    m_FetchWaterSources = true;
+                }
             }
 
 
@@ -649,6 +668,11 @@ namespace Water_Features.Tools
                     JobHandle jobHandle2 = moveWaterSourceJob.Schedule(inputDeps);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle2);
                     inputDeps = JobHandle.CombineDependencies(jobHandle2, inputDeps);
+
+                    if (m_ToolSystem.actionMode.IsEditor())
+                    {
+                        m_FetchWaterSources = true;
+                    }
                 }
             }
 
@@ -1071,24 +1095,6 @@ namespace Water_Features.Tools
         [BurstCompile]
 #endif
         /// <summary>
-        /// This job removes any Entity.
-        /// </summary>
-        private struct RemoveEntityJob : IJob
-        {
-            public Entity m_Entity;
-            public EntityCommandBuffer buffer;
-
-            public void Execute()
-            {
-                buffer.DestroyEntity(m_Entity);
-            }
-        }
-
-
-#if BURST
-        [BurstCompile]
-#endif
-        /// <summary>
         /// This job removes a water source.
         /// </summary>
         private struct RemoveWaterSourcesJob : IJobChunk
@@ -1220,6 +1226,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// This job renders circles related to the various water sources.
         /// </summary>
+
 #if BURST
         [BurstCompile]
 #endif

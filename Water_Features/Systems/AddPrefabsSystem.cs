@@ -21,16 +21,18 @@ namespace Water_Features.Systems
     {
         private const string PrefabPrefix = "WaterSource ";
         private const string TabName = "WaterTool";
+        private const string CouiPathPrefix = "coui://uil/Colored/";
+        private const string FileType = ".svg";
 
         /// <summary>
         /// Defined the data for the prefabs here.
         /// </summary>
         private List<WaterSourcePrefabData> m_SourcePrefabDataList = new List<WaterSourcePrefabData>()
         {
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = "coui://ui-mods/images/WaterSourceStream.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultAmount = 1f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = "coui://ui-mods/images/WaterSourceRiver.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultAmount = 20f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = "coui://ui-mods/images/WaterSourceSea.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultAmount = 25f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = "coui://ui-mods/images/WaterSourceLake.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = $"{CouiPathPrefix}WaterSourceCreek{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultAmount = 1f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = $"{CouiPathPrefix}WaterSourceRiver{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultAmount = 20f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = $"{CouiPathPrefix}WaterSourceSea{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultAmount = 25f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
         };
 
         private PrefabSystem m_PrefabSystem;
@@ -41,13 +43,6 @@ namespace Water_Features.Systems
         /// </summary>
         public string Prefix { get => PrefabPrefix; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AddPrefabsSystem"/> class.
-        /// </summary>
-        public AddPrefabsSystem()
-        {
-        }
-
         /// <inheritdoc/>
         protected override void OnCreate()
         {
@@ -55,11 +50,11 @@ namespace Water_Features.Systems
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             if (WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins)
             {
-                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = "coui://ui-mods/images/WaterSourceDetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultAmount = 15f, });
+                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceDetentionBasin{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultAmount = 15f, });
             }
 
             if (WaterFeaturesMod.Instance.Settings.IncludeRetentionBasins) {
-                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = "coui://ui-mods/images/WaterSourceRetentionBasin.svg", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultAmount = 20f, });
+                m_SourcePrefabDataList.Add(new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceRetentionBasin{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultAmount = 20f, });
             }
 
             base.OnCreate();

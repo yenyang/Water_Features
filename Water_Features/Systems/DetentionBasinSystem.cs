@@ -33,13 +33,6 @@ namespace Water_Features.Systems
         private EntityQuery m_DetentionBasinQuery;
         private ILog m_Log;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DetentionBasinSystem"/> class.
-        /// </summary>
-        public DetentionBasinSystem()
-        {
-        }
-
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
