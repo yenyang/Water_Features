@@ -95,7 +95,7 @@
 "Options.GROUP:Experimental","Experimentell","","","","","","","","","","","",""
 "Options.GROUP:Stable","Stabil","","","","","","","","","","","",""
 "Options.OPTION:Fluidness","Fluidität","","","","","","","","","","","",""
-"Options.OPTION_DESCRIPTION:Fluidness","Ändert die Fluidität des Wassers und sollte die Strömungseigenschaften ändern.","","","","","","","","","","","",""
+"Options.OPTION_DESCRIPTION:Fluidness","Ändert den Flüssigkeitsfaktor des Wassersystems und sollte die Strömungseigenschaften ändern. Dies kann zu kleinen Wellen führen, Überschwemmungen verursachen oder Instabilitäten und Stacheln im Wassersystem verursachen.","","","","","","","","","","","",""
 "Editor.TOOL[Yenyang's Water Tool]","Yenyang's Wasserwerkzeug","","","","","","","","","","","",""
 "Options.OPTION:WaterToolSettingsAffectEditorSimulation","Wasserwerkzeugeinstellungen beeinflussen die Editor Simulation","","","","","","","","","","","",""
 "Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation","Erlaubt es den Wasserwerkzeugeinstellungen die Editor Simulation zu beeinflussen wie Verdampfung, Fluidität, und den Wasserbereinigungszyklus.","","","","","","","","","","","",""

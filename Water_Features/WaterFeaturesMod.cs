@@ -22,6 +22,16 @@ namespace Water_Features
     public class WaterFeaturesMod : IMod
     {
         /// <summary>
+        /// Fake keybind action for apply.
+        /// </summary>
+        public const string ApplyMimicAction = "ApplyMimic";
+
+        /// <summary>
+        /// Fake keybind action for secondary apply.
+        /// </summary>
+        public const string SecondaryApplyMimicAction = "SecondaryApplyMimic";
+
+        /// <summary>
         /// Gets the install folder for the mod.
         /// </summary>
         private static string m_modInstallFolder;
@@ -83,6 +93,7 @@ namespace Water_Features
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading localization");
             Localization.LoadTranslations(Settings, Log);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
+            Settings.RegisterKeyBindings();
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
