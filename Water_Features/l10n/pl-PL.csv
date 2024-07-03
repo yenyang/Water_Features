@@ -95,7 +95,7 @@
 "Options.GROUP:Experimental","Eksperymentalne","","","","","","","","","","","",""
 "Options.GROUP:Stable","Stabilne","","","","","","","","","","","",""
 "Options.OPTION:Fluidness","Płynność","","","","","","","","","","","",""
-"Options.OPTION_DESCRIPTION:Fluidness","Zmień współczynnik płynności wody. Powinno to zmienić właściwości przepływ wody.","","","","","","","","","","","",""
+"Options.OPTION_DESCRIPTION:Fluidness","Zmień współczynnik płynności systemu wody. Powinien on zmienić właściwości przepływu wody. Może to wywołać niewielkie fale, spowodować powódź lub spowodować niestabilność i kolce w systemie wody.","","","","","","","","","","","",""
 "Editor.TOOL[Yenyang's Water Tool]","Narzędzie — woda Yenyanga","","","","","","","","","","","",""
 "Options.OPTION:WaterToolSettingsAffectEditorSimulation","Ustawienia narzędzia — woda wpływa na symulację w edytorze","","","","","","","","","","","",""
 "Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation","Pozwala na działanie ustawień z zakładki narzędzie — woda w symulacji edytora, takich jak parowanie, płynność i usuwanie rozlewisk wody.","","","","","","","","","","","",""

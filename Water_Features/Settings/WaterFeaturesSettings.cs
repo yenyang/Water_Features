@@ -6,7 +6,9 @@ namespace Water_Features.Settings
 {
     using Colossal.IO.AssetDatabase;
     using Colossal.Logging;
+    using Colossal.PSI.Common;
     using Game;
+    using Game.Input;
     using Game.Modding;
     using Game.Settings;
     using Game.Simulation;
@@ -24,6 +26,8 @@ namespace Water_Features.Settings
     [SettingsUISection(SeasonalStreams, WaterToolGroup, WavesAndTides)]
     [SettingsUIShowGroupName(Stable, Experimental)]
     [SettingsUIGroupOrder(Stable, Experimental, Reset)]
+    [SettingsUIMouseAction(WaterFeaturesMod.ApplyMimicAction, "WaterTool")]
+    [SettingsUIMouseAction(WaterFeaturesMod.SecondaryApplyMimicAction, "WaterTool")]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
@@ -52,9 +56,14 @@ namespace Water_Features.Settings
         public const string Stable = "Stable";
 
         /// <summary>
-        /// This is for rest settings button group.
+        /// This is for reset settings button group.
         /// </summary>
         public const string Reset = "Reset";
+
+        /// <summary>
+        /// This is for keybindings gorup.
+        /// </summary>
+        public const string Keybinds = "Keybinds";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaterFeaturesSettings"/> class.
@@ -294,6 +303,22 @@ namespace Water_Features.Settings
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesAffectsEditorSimulationToggled))]
         public bool WavesAndTidesAffectEditorSimulation { get; set; }
+
+        /// <summary>
+        /// Gets or sets hidden keybinding for apply action.
+        /// </summary>
+        [SettingsUIMouseBinding(WaterFeaturesMod.ApplyMimicAction)]
+        [SettingsUISection(WaterToolGroup, Keybinds)]
+        [SettingsUIHidden]
+        public ProxyBinding ApplyMimic { get; set; }
+
+        /// <summary>
+        /// Gets or sets hidden keybinding for secondary apply action.
+        /// </summary>
+        [SettingsUIMouseBinding(WaterFeaturesMod.SecondaryApplyMimicAction)]
+        [SettingsUISection(WaterToolGroup, Keybinds)]
+        [SettingsUIHidden]
+        public ProxyBinding SecondaryApplyMimic { get; set; }
 
         /// <summary>
         /// Resets only the water tool settings.

@@ -95,7 +95,7 @@
 "Options.GROUP:Experimental","Expérimental","","","","","","","","","","","",""
 "Options.GROUP:Stable","Stable","","","","","","","","","","","",""
 "Options.OPTION:Fluidness","Fluide","","","","","","","","","","","",""
-"Options.OPTION_DESCRIPTION:Fluidness","Modifier le facteur de fluidité du système d'eau va modifier les caractéristiques de l'écoulement.","","","","","","","","","","","",""
+"Options.OPTION_DESCRIPTION:Fluidness","Modifie le facteur de fluidité du système d’eau. Impacte les caractéristiques d’écoulement de l’eau. Cela peut créer de petites vagues, causer des inondations ou encore des instabilités et des pics dans les systèmes d’eau.","","","","","","","","","","","",""
 "Editor.TOOL[Yenyang's Water Tool]","Yenyang's Water Tool","","","","","","","","","","","",""
 "Options.OPTION:WaterToolSettingsAffectEditorSimulation","Les paramètres de l'outil d'eau affectent la simulation de l'éditeur","","","","","","","","","","","",""
 "Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation","Permet aux paramètres de l'onglet Outil d'eau d'affecter la simulation de l'éditeur tels que l'évaporation, la fluidité et le cycle de nettoyage de l'eau.","","","","","","","","","","","",""

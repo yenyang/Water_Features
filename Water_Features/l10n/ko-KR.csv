@@ -95,7 +95,7 @@
 "Options.GROUP:Experimental","실험 기능","","","","","","","","","","","",""
 "Options.GROUP:Stable","일반","","","","","","","","","","","",""
 "Options.OPTION:Fluidness","유동성","","","","","","","","","","","",""
-"Options.OPTION_DESCRIPTION:Fluidness","물 시스템의 유동성 계수를 변경합니다. 이것이 무엇을 하는지 봅시다.","","","","","","","","","","","",""
+"Options.OPTION_DESCRIPTION:Fluidness","물 시스템의 유동성 값을 변경합니다. 흐름 특성을 변경합니다. 이로 인해 작은 파도가 생기거나, 홍수가 발생하거나, 물 시스템이 불안정해지고 급증할 수 있습니다.","","","","","","","","","","","",""
 "Editor.TOOL[Yenyang's Water Tool]","Yenyang의 물 도구","","","","","","","","","","","",""
 "Options.OPTION:WaterToolSettingsAffectEditorSimulation","물 도구 설정은 에디터 시뮬레이션에 영향을 줍니다","","","","","","","","","","","",""
 "Options.OPTION_DESCRIPTION:WaterToolSettingsAffectEditorSimulation","물 도구탭의 설정이 증발, 유동성 및 물 청소 주기와 같은 에디터 시뮬레이션에 영향을 미칠 수 있습니다.","","","","","","","","","","","",""
