@@ -30,11 +30,6 @@ namespace Water_Features
         /// </summary>
         public const string SecondaryApplyMimicAction = "SecondaryApplyMimic";
 
-        /// <summary>
-        /// Gets the install folder for the mod.
-        /// </summary>
-        private static string m_modInstallFolder;
-
         private Harmony m_Harmony;
 
         /// <summary>
@@ -44,24 +39,6 @@ namespace Water_Features
         {
             get;
             private set;
-        }
-
-        /// <summary>
-        /// Gets the Install Folder for the mod as a string.
-        /// </summary>
-        public static string ModInstallFolder
-        {
-            get
-            {
-                if (m_modInstallFolder is null)
-                {
-                    var thisFullName = Instance.GetType().Assembly.FullName;
-                    ExecutableAsset thisInfo = AssetDatabase.global.GetAsset(SearchFilter<ExecutableAsset>.ByCondition(x => x.definition?.FullName == thisFullName)) ?? throw new Exception("This mod info was not found!!!!");
-                    m_modInstallFolder = Path.GetDirectoryName(thisInfo.GetMeta().path);
-                }
-
-                return m_modInstallFolder;
-            }
         }
 
         /// <summary>
@@ -97,7 +74,6 @@ namespace Water_Features
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
             Log.Info("Handling create world");
-            Log.Info("ModInstallFolder = " + ModInstallFolder);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting Harmony Patches.");
             m_Harmony = new Harmony("Mods_Yenyang_Water_Features");
             m_Harmony.PatchAll();
