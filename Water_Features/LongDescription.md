@@ -13,7 +13,7 @@ If you want to say thank you with a donation you can do so on Paypal.
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -> mods-wip -> Water Features: Translations.
 Fully or Partially Suppored Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, Russian, and Italian. See credits for list of translators.
 
-# Detailed Descrption
+# Detailed Description
 ## Water Tool
 Water Sources:
 Stream - Constant or Variable Rate Water Source: Emits water depending on the settings for this mod. With Seasonal Streams disabled, the flow rate will be constant. With Seasonal Streams enabled the flow rate will vary with season, precipitation, and snowmelt depending on your settings. Left click to place within playable area. Hover over and right click to remove.

@@ -6,7 +6,6 @@ namespace Water_Features
 {
     using System;
     using System.IO;
-    using Better_Bulldozer.Localization;
     using Colossal.IO.AssetDatabase;
     using Colossal.Logging;
     using Game;
@@ -91,7 +90,7 @@ namespace Water_Features
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Initializing settings");
             Settings = new (this);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading localization");
-            Localization.LoadTranslations(Settings, Log);
+            Localization.Localization.LoadTranslations(Settings, Log);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterKeyBindings();
             Settings.RegisterInOptionsUI();

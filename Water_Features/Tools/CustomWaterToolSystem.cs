@@ -352,18 +352,8 @@ namespace Water_Features.Tools
             });
 
             m_ApplyMimic = WaterFeaturesMod.Instance.Settings.GetAction(WaterFeaturesMod.ApplyMimicAction);
-            var builtInApplyAction = InputManager.instance.FindAction(InputManager.kToolMap, "Apply");
-            var mimicApplyBinding = m_ApplyMimic.bindings.FirstOrDefault(b => b.group == nameof(Mouse));
-            var builtInApplyBinding = builtInApplyAction.bindings.FirstOrDefault(b => b.group == nameof(Mouse));
-            var applyWatcher = new ProxyBinding.Watcher(builtInApplyBinding, binding => SetMimic(mimicApplyBinding, binding));
-            SetMimic(mimicApplyBinding, applyWatcher.binding);
 
             m_SecondaryApplyMimic = WaterFeaturesMod.Instance.Settings.GetAction(WaterFeaturesMod.SecondaryApplyMimicAction);
-            var builtInSecondaryApplyAction = InputManager.instance.FindAction(InputManager.kToolMap, "Secondary Apply");
-            var mimicSecondaryApplyBinding = m_SecondaryApplyMimic.bindings.FirstOrDefault(b => b.group == nameof(Mouse));
-            var builtInSecondaryApplyBinding = builtInSecondaryApplyAction.bindings.FirstOrDefault(b => b.group == nameof(Mouse));
-            var secondaryApplyWatcher = new ProxyBinding.Watcher(builtInSecondaryApplyBinding, binding => SetMimic(mimicSecondaryApplyBinding, binding));
-            SetMimic(mimicSecondaryApplyBinding, secondaryApplyWatcher.binding);
         }
 
         /// <inheritdoc/>
@@ -864,14 +854,6 @@ namespace Water_Features.Tools
         {
             m_HoveredWaterSources.Dispose();
             base.OnDestroy();
-        }
-
-        private void SetMimic(ProxyBinding mimic, ProxyBinding buildIn)
-        {
-            var newMimicBinding = mimic.Copy();
-            newMimicBinding.path = buildIn.path;
-            newMimicBinding.modifiers = buildIn.modifiers;
-            InputManager.instance.SetBinding(newMimicBinding, out _);
         }
 
         /// <summary>

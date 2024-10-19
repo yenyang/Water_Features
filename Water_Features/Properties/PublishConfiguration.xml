@@ -21,7 +21,7 @@ If you want to say thank you with a donation you can do so on Paypal.
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -&gt; mods-wip -&gt; Water Features: Translations.
 Fully or Partially Suppored Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, Russian, and Italian. See credits for list of translators.
 
-# Detailed Descrption
+# Detailed Description
 ## Water Tool
 Water Sources:
 Stream - Constant or Variable Rate Water Source: Emits water depending on the settings for this mod. With Seasonal Streams disabled, the flow rate will be constant. With Seasonal Streams enabled the flow rate will vary with season, precipitation, and snowmelt depending on your settings. Left click to place within playable area. Hover over and right click to remove.
@@ -99,7 +99,7 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.1.5" />
+  <ModVersion Value="1.1.6" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.1.*" />
   <!--Dependency for the mod, can be set multiple-->
