@@ -1,3 +1,4 @@
-﻿## Patch V1.1.5
-* Compatible with V1.1.6 of base game.
-* Updated localization.
+﻿## Patch V1.1.6
+* Code Cleanup
+* LICENSE.txt file now shipped with mod.
+* Fix incorrect namespace.

@@ -170,6 +170,9 @@
 	  <None Update="l10n\l10n.csv">
 	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </None>
+	  <None Update="LICENSE.txt">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 
 	<Target Name="BuildUI" AfterTargets="AfterBuild">

@@ -105,9 +105,10 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.8" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Patch V1.1.5
-* Compatible with V1.1.6 of base game.
-* Updated localization.</ChangeLog>
+  <ChangeLog>## Patch V1.1.6
+* Code Cleanup
+* LICENSE.txt file now shipped with mod.
+* Fix incorrect namespace.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
