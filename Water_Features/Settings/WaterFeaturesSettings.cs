@@ -5,8 +5,6 @@
 namespace Water_Features.Settings
 {
     using Colossal.IO.AssetDatabase;
-    using Colossal.Logging;
-    using Colossal.PSI.Common;
     using Game;
     using Game.Input;
     using Game.Modding;
@@ -15,7 +13,6 @@ namespace Water_Features.Settings
     using Game.Tools;
     using Game.UI;
     using Unity.Entities;
-    using UnityEngine;
     using Water_Features.Systems;
 
     /// <summary>
@@ -309,6 +306,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIMouseBinding(WaterFeaturesMod.ApplyMimicAction)]
         [SettingsUISection(WaterToolGroup, Keybinds)]
+        [SettingsUIBindingMimic(InputManager.kToolMap, "Apply")]
         [SettingsUIHidden]
         public ProxyBinding ApplyMimic { get; set; }
 
@@ -316,6 +314,7 @@ namespace Water_Features.Settings
         /// Gets or sets hidden keybinding for secondary apply action.
         /// </summary>
         [SettingsUIMouseBinding(WaterFeaturesMod.SecondaryApplyMimicAction)]
+        [SettingsUIBindingMimic(InputManager.kToolMap, "Secondary Apply")]
         [SettingsUISection(WaterToolGroup, Keybinds)]
         [SettingsUIHidden]
         public ProxyBinding SecondaryApplyMimic { get; set; }

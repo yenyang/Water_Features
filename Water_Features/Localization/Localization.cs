@@ -2,7 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-namespace Better_Bulldozer.Localization
+namespace Water_Features.Localization
 {
     using System;
     using System.Collections.Generic;
