@@ -198,6 +198,14 @@ namespace Water_Features.Localization
                                 // Add translation..
                                 log.Info($" - Adding translation for {localeID} with {translations.Count} entries");
                                 GameManager.instance.localizationManager.AddSource(localeID, new MemorySource(translations));
+
+#if DEBUG
+                                var json = Colossal.Json.JSON.Dump(translations, Colossal.Json.EncodeOptions.ForceTypeHints);
+
+                                var filePath = Path.Combine("C:\\Users\\TJ\\source\\repos\\Water_Features\\Water_Features\\lang\\", $"{localeID}.json");
+
+                                File.WriteAllText(filePath, json, Encoding.Unicode);
+#endif
                             }
                         }
                         catch (Exception e)
@@ -234,7 +242,7 @@ namespace Water_Features.Localization
         /// <param name="translationKey">Translation key.</param>
         /// <param name="settings">Mod settings instance.</param>
         /// <returns>Unpacked option localization key, or unchanged original key if no packing was detected.</returns>
-        private static string UnpackOptionsKey(string translationKey, ModSetting settings)
+        public static string UnpackOptionsKey(string translationKey, ModSetting settings)
         {
             // Find any colon divider.
             int divider = translationKey.IndexOf(':');

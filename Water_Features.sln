@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Water_Features", "Water_Features\Water_Features.csproj", "{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Water_Features", "Water_Features\Water_Features.csproj", "{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertLocalization", "ConvertLocalization\ConvertLocalization.csproj", "{45C41C44-C2A9-4504-967B-06CB192D90ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45C41C44-C2A9-4504-967B-06CB192D90ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45C41C44-C2A9-4504-967B-06CB192D90ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45C41C44-C2A9-4504-967B-06CB192D90ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45C41C44-C2A9-4504-967B-06CB192D90ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

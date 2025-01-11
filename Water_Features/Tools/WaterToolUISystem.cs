@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+# define  DUMP_VANILLA_LOCALIZATION
 namespace Water_Features.Tools
 {
     using System;
@@ -16,6 +17,7 @@ namespace Water_Features.Tools
     using Colossal.UI.Binding;
     using Game;
     using Game.Prefabs;
+    using Game.SceneFlow;
     using Game.Simulation;
     using Game.Tools;
     using Game.UI;
@@ -300,6 +302,18 @@ namespace Water_Features.Tools
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
+
+#if DUMP_VANILLA_LOCALIZATION && DEBUG
+            var strings = GameManager.instance.localizationManager.activeDictionary.entries
+                .OrderBy(kv => kv.Key)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            var json = Colossal.Json.JSON.Dump(strings);
+
+            var filePath = Path.Combine(Application.persistentDataPath, "locale-dictionary.json");
+
+            File.WriteAllText(filePath, json);
+#endif
         }
 
         /// <summary>

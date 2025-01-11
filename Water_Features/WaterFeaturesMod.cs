@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define VERBOSE
 namespace Water_Features
 {
     using System;
@@ -20,16 +21,6 @@ namespace Water_Features
     /// </summary>
     public class WaterFeaturesMod : IMod
     {
-        /// <summary>
-        /// Fake keybind action for apply.
-        /// </summary>
-        public const string ApplyMimicAction = "ApplyMimic";
-
-        /// <summary>
-        /// Fake keybind action for secondary apply.
-        /// </summary>
-        public const string SecondaryApplyMimicAction = "SecondaryApplyMimic";
-
         private Harmony m_Harmony;
 
         /// <summary>
@@ -57,10 +48,10 @@ namespace Water_Features
             Instance = this;
             Log = LogManager.GetLogger("Mods_Yenyang_Water_Features").SetShowsErrorsInUI(false);
             Log.Info($"[{nameof(WaterFeaturesMod)}] {nameof(OnLoad)}");
-#if DEBUG
-            Log.effectivenessLevel = Level.Debug;
-#elif VERBOSE
+#if VERBOSE
             Log.effectivenessLevel = Level.Verbose;
+#elif DEBUG
+            Log.effectivenessLevel = Level.Debug;
 #else
             Log.effectivenessLevel = Level.Info;
 #endif
@@ -69,7 +60,6 @@ namespace Water_Features
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading localization");
             Localization.Localization.LoadTranslations(Settings, Log);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
-            Settings.RegisterKeyBindings();
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));

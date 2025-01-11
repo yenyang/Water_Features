@@ -18,6 +18,9 @@
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 	<ItemGroup>
+	  <Compile Remove="Settings\LocaleEN.cs" />
+	</ItemGroup>
+	<ItemGroup>
 	  <None Remove="l10n\de-DE.csv" />
 	  <None Remove="l10n\en-US.csv" />
 	  <None Remove="l10n\es-ES.csv" />
@@ -26,6 +29,7 @@
 	  <None Remove="l10n\ko-KR.csv" />
 	  <None Remove="l10n\pl-PL.csv" />
 	  <None Remove="l10n\pt-BR.csv" />
+	  <None Remove="l10n\pt-PT.csv" />
 	  <None Remove="l10n\ru-RU.csv" />
 	  <None Remove="l10n\zh-HANS.csv" />
 	  <None Remove="l10n\zh-HANT.csv" />
@@ -43,6 +47,7 @@
 	  <EmbeddedResource Include="l10n\ko-KR.csv" />
 	  <EmbeddedResource Include="l10n\pl-PL.csv" />
 	  <EmbeddedResource Include="l10n\pt-BR.csv" />
+	  <EmbeddedResource Include="l10n\pt-PT.csv" />
 	  <EmbeddedResource Include="l10n\ru-RU.csv" />
 	  <EmbeddedResource Include="l10n\zh-HANS.csv" />
 	  <EmbeddedResource Include="l10n\zh-HANT.csv" />
@@ -97,6 +102,9 @@
 		<Reference Include="Colossal.IO.AssetDatabase">
 			<Private>False</Private>
 		</Reference>
+		<Reference Include="Newtonsoft.Json">
+		  <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\Newtonsoft.Json.dll</HintPath>
+		</Reference>
 		<Reference Include="Unity.Burst.Unsafe">
 		  <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\Unity.Burst.Unsafe.dll</HintPath>
 		  <Private>False</Private>
@@ -145,10 +153,12 @@
 	<ItemGroup>
 		<None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
 		<None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+		<None Include="Settings\LocaleEN.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Folder Include="Components\" />
+	  <Folder Include="lang\" />
 	  <Folder Include="Prefabs\" />
 	  <Folder Include="Properties\Previews\" />
 	  <Folder Include="Utils\" />
