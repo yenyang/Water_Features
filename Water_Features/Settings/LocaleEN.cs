@@ -137,7 +137,7 @@ namespace Water_Features.Settings
                 { "YY_WATER_FEATURES_DESCRIPTION.RadiusChange", "Water Tool will change radius of water sources. Right click to cancel." },
                 { "YY_WATER_FEATURES.ElevationChange", "Elevation Change" },
                 { "YY_WATER_FEATURES.PlaceWaterSource", "Place Water Source" },
-                { "YY_WATER_FEATURES.MoveWaterSource","Move Water Source" },
+                { "YY_WATER_FEATURES.MoveWaterSource", "Move Water Source" },
                 { "YY_WATER_FEATURES.RadiusChange", "Change Radius" },
             };
         }
