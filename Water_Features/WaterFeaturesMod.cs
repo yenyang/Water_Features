@@ -11,13 +11,14 @@ namespace Water_Features
     using Colossal.Logging;
     using Game;
     using Game.Modding;
+    using Game.SceneFlow;
     using HarmonyLib;
     using Water_Features.Settings;
     using Water_Features.Systems;
     using Water_Features.Tools;
 
     /// <summary>
-    ///  A mod that adds Water Tool, Seasonal Streams, and Experimetnal Waves and Tides.
+    ///  A mod that adds Water Tool, Seasonal Streams, and Waves and Tides.
     /// </summary>
     public class WaterFeaturesMod : IMod
     {
@@ -57,8 +58,8 @@ namespace Water_Features
 #endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Initializing settings");
             Settings = new (this);
-            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading localization");
-            Localization.Localization.LoadTranslations(Settings, Log);
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading english localization");
+            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
