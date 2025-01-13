@@ -110,8 +110,9 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>## Patch V1.1.8
 * Localization setup now utilizes I18N Everywhere Mod.
+* I18N Everywhere added as dependency.
 * Updated Localization and now supports European Portuguese with Euorpean Portuguese Localization mod.
-*</ChangeLog>
+* Updated tool actions.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
