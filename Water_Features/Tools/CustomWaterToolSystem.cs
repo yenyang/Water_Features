@@ -29,6 +29,7 @@ namespace Water_Features.Tools
     using Water_Features.Components;
     using Water_Features.Prefabs;
     using Water_Features.Systems;
+    using Water_Features.Utils;
 
     /// <summary>
     /// A custom water tool system for creating and removing water sources.
@@ -62,8 +63,6 @@ namespace Water_Features.Tools
         private float m_PressedMaxHeight;
         private bool m_FetchWaterSources;
         private WaterPanelSystem m_WaterPanelSystem;
-        private ProxyAction m_ApplyMimic;
-        private ProxyAction m_SecondaryApplyMimic;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -350,10 +349,6 @@ namespace Water_Features.Tools
                     },
                 },
             });
-
-            m_ApplyMimic = WaterFeaturesMod.Instance.Settings.GetAction(WaterFeaturesMod.ApplyMimicAction);
-
-            m_SecondaryApplyMimic = WaterFeaturesMod.Instance.Settings.GetAction(WaterFeaturesMod.SecondaryApplyMimicAction);
         }
 
         /// <inheritdoc/>
@@ -367,17 +362,11 @@ namespace Water_Features.Tools
         /// <inheritdoc/>
         protected override void OnStartRunning()
         {
+            base.OnStartRunning();
             m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnStartRunning)}");
-            m_ApplyMimic.shouldBeEnabled = true;
-            m_SecondaryApplyMimic.shouldBeEnabled = true;
+            applyAction.enabled = true;
+            secondaryApplyAction.enabled = true;
             m_RaycastPoint = default;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnStopRunning()
-        {
-            m_ApplyMimic.shouldBeEnabled = false;
-            m_SecondaryApplyMimic.shouldBeEnabled = false;
         }
 
         /// <inheritdoc/>
@@ -436,7 +425,7 @@ namespace Water_Features.Tools
                 return inputDeps;
             }
 
-            if (m_ApplyMimic.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
+            if (applyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 // Checks for valid placement of Seas, and water sources placed within the playable area.
                 if ((m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.River && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Sea && IsPositionWithinBorder(m_RaycastPoint.m_HitPosition)) || (IsPositionNearBorder(m_RaycastPoint.m_HitPosition, m_WaterToolUISystem.Radius, false) && m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Sea))
@@ -480,7 +469,7 @@ namespace Water_Features.Tools
             }
 
             // This section is for removing water sources. The player must have hovered over one in the previous frame.
-            else if (m_SecondaryApplyMimic.WasReleasedThisFrame() && m_HoveredWaterSources.Length > 0 && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
+            else if (secondaryApplyAction.WasReleasedThisFrame() && m_HoveredWaterSources.Length > 0 && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 Entity closestWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
                 if (closestWaterSource != Entity.Null)
@@ -514,7 +503,7 @@ namespace Water_Features.Tools
             }
 
             // This section is for setting the target elevation with sources other than Streams.
-            else if (m_SecondaryApplyMimic.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
+            else if (secondaryApplyAction.WasPressedThisFrame() && m_HoveredWaterSources.IsEmpty && m_ActivePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && m_WaterToolUISystem.ToolMode == ToolModes.PlaceWaterSource)
             {
                 m_WaterToolUISystem.SetElevation(m_RaycastPoint.m_HitPosition.y);
             }
@@ -566,7 +555,7 @@ namespace Water_Features.Tools
             }
 
             // This section is for selecting water source to Move, Change Elevation, or change radius.
-            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyMimic.WasPressedThisFrame())
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && applyAction.WasPressedThisFrame())
             {
                 m_SelectedWaterSource = GetHoveredEntity(m_RaycastPoint.m_HitPosition);
                 if (m_SelectedWaterSource != Entity.Null)
@@ -592,7 +581,7 @@ namespace Water_Features.Tools
             }
 
             // This handles canceling move, elevation change, and radius changes.
-            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_SecondaryApplyMimic.WasPressedThisFrame() && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && secondaryApplyAction.WasPressedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedWaterSource);
                 EntityManager.SetComponentData(m_SelectedWaterSource, m_PressedTransform);
@@ -623,7 +612,7 @@ namespace Water_Features.Tools
 
 
             // This section handles moving water sources.
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && m_ApplyMimic.IsPressed() && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && applyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
                 if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
                 {
@@ -681,7 +670,7 @@ namespace Water_Features.Tools
             }
 
             // This section handles elevation change for existing water source.
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange && m_ApplyMimic.IsPressed() && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange && applyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
                 if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData))
                 {
@@ -739,7 +728,7 @@ namespace Water_Features.Tools
             }
 
             // This section handles changing radius for existing water source.
-            else if (m_WaterToolUISystem.ToolMode == ToolModes.RadiusChange && m_ApplyMimic.IsPressed() && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode == ToolModes.RadiusChange && applyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
                 if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) || !EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Objects.Transform transform))
                 {
@@ -763,7 +752,7 @@ namespace Water_Features.Tools
             }
 
             // This section resets things after finishing moving, changing elevation, or radius of a water source.
-            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && m_ApplyMimic.WasReleasedThisFrame() && m_SelectedWaterSource != Entity.Null)
+            else if (m_WaterToolUISystem.ToolMode != ToolModes.PlaceWaterSource && applyAction.WasReleasedThisFrame() && m_SelectedWaterSource != Entity.Null)
             {
                 // This adds automatic filling lake to vanilla lakes that have moved.
                 if (EntityManager.TryGetComponent(m_SelectedWaterSource, out Game.Simulation.WaterSourceData waterSourceData) && waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.VanillaLake

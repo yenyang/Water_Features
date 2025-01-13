@@ -5,31 +5,26 @@
 namespace Water_Features
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using Colossal;
     using Colossal.IO.AssetDatabase;
     using Colossal.Logging;
     using Game;
     using Game.Modding;
+    using Game.SceneFlow;
     using HarmonyLib;
+    using Newtonsoft.Json;
     using Water_Features.Settings;
     using Water_Features.Systems;
     using Water_Features.Tools;
 
     /// <summary>
-    ///  A mod that adds Water Tool, Seasonal Streams, and Experimetnal Waves and Tides.
+    ///  A mod that adds Water Tool, Seasonal Streams, and Waves and Tides.
     /// </summary>
     public class WaterFeaturesMod : IMod
     {
-        /// <summary>
-        /// Fake keybind action for apply.
-        /// </summary>
-        public const string ApplyMimicAction = "ApplyMimic";
-
-        /// <summary>
-        /// Fake keybind action for secondary apply.
-        /// </summary>
-        public const string SecondaryApplyMimicAction = "SecondaryApplyMimic";
-
         private Harmony m_Harmony;
 
         /// <summary>
@@ -57,19 +52,31 @@ namespace Water_Features
             Instance = this;
             Log = LogManager.GetLogger("Mods_Yenyang_Water_Features").SetShowsErrorsInUI(false);
             Log.Info($"[{nameof(WaterFeaturesMod)}] {nameof(OnLoad)}");
-#if DEBUG
-            Log.effectivenessLevel = Level.Debug;
-#elif VERBOSE
+#if VERBOSE
             Log.effectivenessLevel = Level.Verbose;
+#elif DEBUG
+            Log.effectivenessLevel = Level.Debug;
 #else
             Log.effectivenessLevel = Level.Info;
 #endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Initializing settings");
             Settings = new (this);
-            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading localization");
-            Localization.Localization.LoadTranslations(Settings, Log);
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading english localization");
+            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
+#if DEBUG
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Exporting localization");
+            var localeDict = new LocaleEN(Settings).ReadEntries(new List<IDictionaryEntryError>(), new Dictionary<string, int>()).ToDictionary(pair => pair.Key, pair => pair.Value);
+            var str = JsonConvert.SerializeObject(localeDict, Formatting.Indented);
+            try
+            {
+                File.WriteAllText("C:\\Users\\TJ\\source\\repos\\Water_Features\\Water_Features\\UI\\src\\lang\\en-US.json", str);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+#endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
-            Settings.RegisterKeyBindings();
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
