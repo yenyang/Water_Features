@@ -2,7 +2,6 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-# define  DUMP_VANILLA_LOCALIZATION
 namespace Water_Features.Tools
 {
     using System;

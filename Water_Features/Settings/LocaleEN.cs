@@ -33,7 +33,6 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Stable), "Stable" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Experimental), "Experimental" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SeasonalStreams), "Seasonal Streams" },
-                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SeasonalStreams), "Seasonal Streams" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WaterToolGroup), "Water Tool" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WavesAndTides), "Waves and Tides" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Add Retention Basins (Restart Required)" },

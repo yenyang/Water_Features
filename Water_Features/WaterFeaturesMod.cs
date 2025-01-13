@@ -2,7 +2,6 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-#define VERBOSE
 namespace Water_Features
 {
     using System;

@@ -6,6 +6,8 @@ Sully has made an outstanding demo video covering the new features related to wa
 ## Dependencies
 Unified Icon Library
 
+I18n Everywhere (Soft dependency required for loading most languages other than English.)
+
 ## Donations
 If you want to say thank you with a donation you can do so on Paypal.
 

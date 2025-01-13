@@ -10,44 +10,24 @@
 		
 		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
 		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
-		<AssemblyVersion>1.1.7</AssemblyVersion>
-		<FileVersion>1.1.7</FileVersion>
-		<Version>1.1.7</Version>
+		<AssemblyVersion>1.1.8</AssemblyVersion>
+		<FileVersion>1.1.8</FileVersion>
+		<Version>1.1.8</Version>
 	</PropertyGroup>
 	<!--Imports must be after PropertyGroup block-->
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 	<ItemGroup>
-	  <None Remove="l10n\de-DE.csv" />
-	  <None Remove="l10n\en-US.csv" />
-	  <None Remove="l10n\es-ES.csv" />
-	  <None Remove="l10n\fr-FR.csv" />
-	  <None Remove="l10n\it-IT.csv" />
-	  <None Remove="l10n\ko-KR.csv" />
-	  <None Remove="l10n\pl-PL.csv" />
-	  <None Remove="l10n\pt-BR.csv" />
-	  <None Remove="l10n\pt-PT.csv" />
-	  <None Remove="l10n\ru-RU.csv" />
-	  <None Remove="l10n\zh-HANS.csv" />
-	  <None Remove="l10n\zh-HANT.csv" />
 	  <None Remove="StyleCop\stylecop.json" />
 	</ItemGroup>
 	<ItemGroup>
 	  <AdditionalFiles Include="StyleCop\stylecop.json" />
 	</ItemGroup>
+
 	<ItemGroup>
-	  <EmbeddedResource Include="l10n\de-DE.csv" />
-	  <EmbeddedResource Include="l10n\en-US.csv" />
-	  <EmbeddedResource Include="l10n\es-ES.csv" />
-	  <EmbeddedResource Include="l10n\fr-FR.csv" />
-	  <EmbeddedResource Include="l10n\it-IT.csv" />
-	  <EmbeddedResource Include="l10n\ko-KR.csv" />
-	  <EmbeddedResource Include="l10n\pl-PL.csv" />
-	  <EmbeddedResource Include="l10n\pt-BR.csv" />
-	  <EmbeddedResource Include="l10n\pt-PT.csv" />
-	  <EmbeddedResource Include="l10n\ru-RU.csv" />
-	  <EmbeddedResource Include="l10n\zh-HANS.csv" />
-	  <EmbeddedResource Include="l10n\zh-HANT.csv" />
+		<Content Include="lang\**">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -101,6 +81,7 @@
 		</Reference>
 		<Reference Include="Newtonsoft.Json">
 		  <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\Newtonsoft.Json.dll</HintPath>
+		  <Private>False</Private>
 		</Reference>
 		<Reference Include="Unity.Burst.Unsafe">
 		  <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Cities Skylines II\Cities2_Data\Managed\Unity.Burst.Unsafe.dll</HintPath>
@@ -172,9 +153,6 @@
 	<ItemGroup>
 	  <None Update="images\water_features_icon.svg">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="l10n\l10n.csv">
-	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
 	  </None>
 	  <None Update="LICENSE.txt">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
