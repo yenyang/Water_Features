@@ -5,6 +5,7 @@
 namespace Water_Features.Settings
 {
     using Colossal.IO.AssetDatabase;
+    using Colossal.PSI.Common;
     using Game;
     using Game.Input;
     using Game.Modding;
@@ -14,6 +15,7 @@ namespace Water_Features.Settings
     using Game.UI;
     using Unity.Entities;
     using Water_Features.Systems;
+    using static Game.Prefabs.CompositionFlags;
 
     /// <summary>
     /// The mod settings for the Water Features Mod.
@@ -54,6 +56,11 @@ namespace Water_Features.Settings
         /// This is for reset settings button group.
         /// </summary>
         public const string Reset = "Reset";
+
+        /// <summary>
+        /// This is for about section of settings.
+        /// </summary>
+        public const string About = "About";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaterFeaturesSettings"/> class.
@@ -347,6 +354,12 @@ namespace Water_Features.Settings
         /// </summary>
         /// <returns>Opposite of Enable Waves and Tides.</returns>
         public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides;
+
+        /// <summary>
+        /// Gets a value indicating the version.
+        /// </summary>
+        [SettingsUISection(SeasonalStreams, About)]
+        public string Version => WaterFeaturesMod.Instance.Version;
 
         /// <inheritdoc/>
         public override void SetDefaults()

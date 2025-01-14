@@ -10,9 +10,9 @@
 		
 		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
 		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
-		<AssemblyVersion>1.1.8</AssemblyVersion>
-		<FileVersion>1.1.8</FileVersion>
-		<Version>1.1.8</Version>
+		<AssemblyVersion>1.1.9</AssemblyVersion>
+		<FileVersion>1.1.9</FileVersion>
+		<Version>1.1.9</Version>
 	</PropertyGroup>
 	<!--Imports must be after PropertyGroup block-->
 	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
@@ -28,6 +28,20 @@
 		<Content Include="lang\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="l10n\de-DE.json" />
+	  <EmbeddedResource Include="l10n\es-ES.json" />
+	  <EmbeddedResource Include="l10n\fr-FR.json" />
+	  <EmbeddedResource Include="l10n\it-IT.json" />
+	  <EmbeddedResource Include="l10n\ko-KR.json" />
+	  <EmbeddedResource Include="l10n\pl-PL.json" />
+	  <EmbeddedResource Include="l10n\pt-BR.json" />
+	  <Content Include="lang\pt-PT.json" />
+	  <EmbeddedResource Include="l10n\ru-RU.json" />
+	  <EmbeddedResource Include="l10n\zh-HANS.json" />
+	  <EmbeddedResource Include="l10n\zh-HANT.json" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -135,7 +149,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Components\" />
-	  <Folder Include="lang\" />
 	  <Folder Include="Prefabs\" />
 	  <Folder Include="Properties\Previews\" />
 	  <Folder Include="Utils\" />
