@@ -72,10 +72,6 @@ namespace Water_Features
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading other languages");
             LoadNonEnglishLocalizations();
-#if DEBUG
-            
-#endif
-
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
