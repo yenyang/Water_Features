@@ -25,23 +25,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="l10n\**">
+		<Content Include="lang\**">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Content Remove="l10n\de-DE.json" />
-	  <Content Remove="l10n\es-ES.json" />
-	  <Content Remove="l10n\fr-FR.json" />
-	  <Content Remove="l10n\it-IT.json" />
-	  <Content Remove="l10n\ko-KR.json" />
-	  <Content Remove="l10n\pl-PL.json" />
-	  <Content Remove="l10n\pt-BR.json" />
-	  <Content Remove="l10n\pt-PT.json" />
-	  <Content Remove="l10n\ru-RU.json" />
-	  <Content Remove="l10n\zh-HANS.json" />
-	  <Content Remove="l10n\zh-HANT.json" />
 	</ItemGroup>
 
 	<ItemGroup>
