@@ -8,8 +8,10 @@ namespace Water_Features
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using Colossal;
     using Colossal.IO.AssetDatabase;
+    using Colossal.Localization;
     using Colossal.Logging;
     using Game;
     using Game.Modding;
@@ -42,6 +44,11 @@ namespace Water_Features
         internal ILog Log { get; private set; }
 
         /// <summary>
+        /// Gets the version of the mod.
+        /// </summary>
+        internal string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+
+        /// <summary>
         /// Gets or sets the Settings for the mod.
         /// </summary>
         internal WaterFeaturesSettings Settings { get; set; }
@@ -63,19 +70,12 @@ namespace Water_Features
             Settings = new (this);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading english localization");
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading other languages");
+            LoadNonEnglishLocalizations();
 #if DEBUG
-            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Exporting localization");
-            var localeDict = new LocaleEN(Settings).ReadEntries(new List<IDictionaryEntryError>(), new Dictionary<string, int>()).ToDictionary(pair => pair.Key, pair => pair.Value);
-            var str = JsonConvert.SerializeObject(localeDict, Formatting.Indented);
-            try
-            {
-                File.WriteAllText("C:\\Users\\TJ\\source\\repos\\Water_Features\\Water_Features\\UI\\src\\lang\\en-US.json", str);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.ToString());
-            }
+            
 #endif
+
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
@@ -130,6 +130,52 @@ namespace Water_Features
             {
                 Settings.UnregisterInOptionsUI();
                 Settings = null;
+            }
+        }
+
+        private void LoadNonEnglishLocalizations()
+        {
+            Assembly thisAssembly = Assembly.GetExecutingAssembly();
+            string[] resourceNames = thisAssembly.GetManifestResourceNames();
+
+            try
+            {
+                Log.Debug($"Reading localizations");
+
+                foreach (string localeID in GameManager.instance.localizationManager.GetSupportedLocales())
+                {
+                    string resourceName = $"{thisAssembly.GetName().Name}.l10n.{localeID}.json";
+                    if (resourceNames.Contains(resourceName))
+                    {
+                        Log.Debug($"Found localization file {resourceName}");
+                        try
+                        {
+                            Log.Debug($"Reading embedded translation file {resourceName}");
+
+                            // Read embedded file.
+                            using StreamReader reader = new (thisAssembly.GetManifestResourceStream(resourceName));
+                            {
+                                string entireFile = reader.ReadToEnd();
+                                Colossal.Json.Variant varient = Colossal.Json.JSON.Load(entireFile);
+                                Dictionary<string, string> translations = varient.Make<Dictionary<string, string>>();
+                                GameManager.instance.localizationManager.AddSource(localeID, new MemorySource(translations));
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            // Don't let a single failure stop us.
+                            Log.Error(e, $"Exception reading localization from embedded file {resourceName}");
+                        }
+                    }
+                    else
+                    {
+                        Log.Info($"Did not find localization file {resourceName}");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "Exception reading embedded settings localization files");
             }
         }
     }

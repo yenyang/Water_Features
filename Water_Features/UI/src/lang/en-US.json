@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "Elevation Change",
   "YY_WATER_FEATURES.PlaceWaterSource": "Place Water Source",
   "YY_WATER_FEATURES.MoveWaterSource": "Move Water Source",
-  "YY_WATER_FEATURES.RadiusChange": "Change Radius"
+  "YY_WATER_FEATURES.RadiusChange": "Change Radius",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed."
 }

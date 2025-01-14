@@ -6,6 +6,7 @@ namespace Water_Features.Settings
 {
     using System.Collections.Generic;
     using Colossal;
+    using Colossal.PSI.Common;
 
     /// <summary>
     /// Localization for Water Features Mod in English.
@@ -139,6 +140,8 @@ namespace Water_Features.Settings
                 { "YY_WATER_FEATURES.PlaceWaterSource", "Place Water Source" },
                 { "YY_WATER_FEATURES.MoveWaterSource", "Move Water Source" },
                 { "YY_WATER_FEATURES.RadiusChange", "Change Radius" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Version)), "Version" },
+                { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Version)), $"Version number for the Water Features mod installed." },
             };
         }
 
