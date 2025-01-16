@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Сезонные потоки",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Water Tool",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Волны и приливы",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Стабильные функции",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Экспериментальные функции",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Сезонные потоки",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Water Tool",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Волны и приливы",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "Этот источник воды должен быть помещен внутри игровой карты.",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "Морские источники воды должны касаться границы карты.",
   "Tooltip.LABEL[YY.WT.LockElevation]": "Щелкните правой кнопкой мыши, чтобы указать высоту поверхности воды.",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Экспериментальные функции",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Стабильные функции",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Текучесть",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Alter the Fluidness factor of the water system. It should change the flow characteristics. This can create small waves, cause flooding, or cause instabilities and spikes in the water system.",
   "Editor.TOOL[Yenyang's Water Tool]": "Yenyang's Water Tool",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "Изменение высоты",
   "YY_WATER_FEATURES.PlaceWaterSource": "Разместить источник воды",
   "YY_WATER_FEATURES.MoveWaterSource": "Переместить источник воды",
-  "YY_WATER_FEATURES.RadiusChange": "Изменить радиус"
+  "YY_WATER_FEATURES.RadiusChange": "Изменить радиус",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed."
 }

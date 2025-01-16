@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Strumienie sezonowe",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Narzędzie wody",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Fale i pływy",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabilne",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Eksperymentalne",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Strumienie sezonowe",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Narzędzie wody",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Fale i pływy",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "To źródło wody musi być umieszczone wewnątrz obszaru rozgrywki.",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "Źródła wody morskiej muszą dotykać granicy mapy.",
   "Tooltip.LABEL[YY.WT.LockElevation]": "Kliknij prawym przyciskiem myszy, aby wyznaczyć poziom wody.",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Eksperymentalne",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabilne",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Płynność",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Zmień współczynnik płynności systemu wody. Powinien on zmienić właściwości przepływu wody. Może to wywołać niewielkie fale, spowodować powódź lub spowodować niestabilność i kolce w systemie wody.",
   "Editor.TOOL[Yenyang's Water Tool]": "Narzędzie Yenyanga — woda",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "Zmiana wysokości",
   "YY_WATER_FEATURES.PlaceWaterSource": "Umieścić źródło wody",
   "YY_WATER_FEATURES.MoveWaterSource": "Przesuń źródło wody",
-  "YY_WATER_FEATURES.RadiusChange": "Zmień promień"
+  "YY_WATER_FEATURES.RadiusChange": "Zmień promień",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Wersja",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Numer wersji zainstalowanego moda Water Features."
 }

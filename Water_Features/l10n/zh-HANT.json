@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "季節性溪流",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "水工具",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "波浪與潮汐",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "穩定",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "實驗性",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "季節性溪流",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "水工具",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "波浪與潮汐",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "此水源必須放置在可玩地圖內。",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "海水源必須觸及地圖邊界。",
   "Tooltip.LABEL[YY.WT.LockElevation]": "右鍵點擊指定水面高度。",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "實驗性",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "穩定",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "流體性",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "改變水系統的流體性因子，應該會改變流動特性。這可以產生小波浪、導致洪水或造成水系統中的不穩定性和尖峰。",
   "Editor.TOOL[Yenyang's Water Tool]": "Yenyang的水工具",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "海拔變化",
   "YY_WATER_FEATURES.PlaceWaterSource": "放置水源",
   "YY_WATER_FEATURES.MoveWaterSource": "移動水源",
-  "YY_WATER_FEATURES.RadiusChange": "改變半徑"
+  "YY_WATER_FEATURES.RadiusChange": "改變半徑",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed."
 }
