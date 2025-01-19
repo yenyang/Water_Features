@@ -165,7 +165,7 @@ namespace Water_Features
                     }
                     else
                     {
-                        Log.Info($"Did not find localization file {resourceName}");
+                        Log.Debug($"Did not find localization file {resourceName}");
                     }
                 }
             }
