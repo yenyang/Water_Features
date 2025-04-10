@@ -76,6 +76,8 @@ namespace Water_Features
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
+            Settings.EnableWavesAndTides = false;
+            Settings.EnableSeasonalStreams = false;
             Log.Info("Handling create world");
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting Harmony Patches.");
             m_Harmony = new Harmony("Mods_Yenyang_Water_Features");

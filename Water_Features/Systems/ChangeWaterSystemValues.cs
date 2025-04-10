@@ -67,6 +67,13 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            if (m_ToolSystem.actionMode.IsGame() &&
+                WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed &&
+                m_WaterSystem.WaterSimSpeed < 1)
+            {
+                m_WaterSystem.WaterSimSpeed = 1;
+            }
+
             if ((m_ToolSystem.actionMode.IsEditor() && WaterFeaturesMod.Instance.Settings.WaterToolSettingsAffectEditorSimulation) || m_ToolSystem.actionMode.IsGame())
             {
                 // This is for the water cleanup cycle.

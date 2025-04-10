@@ -142,6 +142,10 @@ namespace Water_Features.Settings
                 { "YY_WATER_FEATURES.RadiusChange", "Change Radius" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Version)), "Version" },
                 { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Version)), $"Version number for the Water Features mod installed." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.SeasonalStreamsSettingsAvailableInGame)), "Seasonal Streams settings available in the Game or Editor." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.WavesAndTidesSettingsAvailableInGame)), "Waves and Tides settings available in the Game or Editor." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Force Water Simulation Speed" },
+                { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Attempts to force a Water Simulation Speed of at least 1x while in Game." },
             };
         }
 

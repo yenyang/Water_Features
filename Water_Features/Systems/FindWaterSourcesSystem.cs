@@ -103,13 +103,6 @@ namespace Water_Features.Systems
             Enabled = false;
         }
 
-        /// <inheritdoc/>
-        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
-        {
-            Enabled = true;
-            base.OnGameLoadingComplete(purpose, mode);
-        }
-
 #if BURST
         [BurstCompile]
 #endif

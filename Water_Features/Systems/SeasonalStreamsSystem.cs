@@ -193,12 +193,17 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-            if (!WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams)
+            if (purpose != Purpose.NewMap &&
+                purpose != Purpose.NewGame &&
+               (mode == GameMode.Game ||
+                mode == GameMode.Editor) &&
+               !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
             {
-                m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnCreate)} Seasonal Streams disabled.");
-                Enabled = false;
-                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                disableSeasonalStreamSystem.Enabled = true;
+                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = false;
             }
         }
 

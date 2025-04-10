@@ -26,7 +26,7 @@ namespace Water_Features.Systems
     {
         private EndFrameBarrier m_EndFrameBarrier;
         private TimeSystem m_TimeSystem;
-        private EntityQuery m_WaterSourceQuery;
+        private EntityQuery m_WavesAndTidesQuery;
         private ILog m_Log;
         private Entity m_DummySeaWaterSource = Entity.Null;
         private float m_PreviousWaveAndTideHeight = 0f;
@@ -47,7 +47,7 @@ namespace Water_Features.Systems
         /// <summary>
         /// Gets the query for waves and tides data water sources.
         /// </summary>
-        public EntityQuery WavesAndTidesDataQuery => m_WaterSourceQuery;
+        public EntityQuery WavesAndTidesDataQuery => m_WavesAndTidesQuery;
 
         /// <summary>
         /// The dummy sea water source should not be saved so this allows it to be removed before saving. This may need to be done in a job with a jobhandle. . .?.
@@ -75,7 +75,7 @@ namespace Water_Features.Systems
             m_FindWaterSourcesSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_TerrainToolCooloff = -1;
-            m_WaterSourceQuery = GetEntityQuery(new EntityQueryDesc[]
+            m_WavesAndTidesQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc
                 {
@@ -92,7 +92,7 @@ namespace Water_Features.Systems
                     },
                 },
             });
-            RequireForUpdate(m_WaterSourceQuery);
+            RequireForUpdate(m_WavesAndTidesQuery);
             m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnCreate)}");
         }
 
@@ -149,11 +149,12 @@ namespace Water_Features.Systems
                 }
             }
 
+
             // This section adds the dummy water source if it does not exist.
             if (m_DummySeaWaterSource == Entity.Null)
             {
                 float seaLevel = float.MaxValue;
-                NativeArray<TidesAndWavesData> seaWaterSources = m_WaterSourceQuery.ToComponentDataArray<TidesAndWavesData>(Allocator.Temp);
+                NativeArray<TidesAndWavesData> seaWaterSources = m_WavesAndTidesQuery.ToComponentDataArray<TidesAndWavesData>(Allocator.Temp);
                 foreach (TidesAndWavesData seaData in seaWaterSources)
                 {
                     if (seaLevel > seaData.m_OriginalAmount)
@@ -202,7 +203,7 @@ namespace Water_Features.Systems
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
                 m_WaveHeight = (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f * Mathf.Sin(2f * Mathf.PI * WaterFeaturesMod.Instance.Settings.WaveFrequency * m_TimeSystem.normalizedTime)) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f * Mathf.Cos(2f * Mathf.PI * (float)WaterFeaturesMod.Instance.Settings.TideClassification * m_TimeSystem.normalizedDate)) + (WaterFeaturesMod.Instance.Settings.WaveHeight / 2f) + (WaterFeaturesMod.Instance.Settings.TideHeight / 2f),
             };
-            JobHandle jobHandle = JobChunkExtensions.Schedule(alterSeaWaterSourcesJob, m_WaterSourceQuery, Dependency);
+            JobHandle jobHandle = JobChunkExtensions.Schedule(alterSeaWaterSourcesJob, m_WavesAndTidesQuery, Dependency);
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
             Dependency = jobHandle;
         }
@@ -211,14 +212,17 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-
-            // This will disable the system if the user has the setting for Waves and Tides disabled.
-            if (!WaterFeaturesMod.Instance.Settings.EnableWavesAndTides)
+            if (purpose != Purpose.NewMap &&
+               purpose != Purpose.NewGame &&
+              (mode == GameMode.Game ||
+               mode == GameMode.Editor) &&
+              !m_WavesAndTidesQuery.IsEmptyIgnoreFilter)
             {
-                m_Log.Info($"[{nameof(TidesAndWavesSystem)}] {nameof(OnGameLoadingComplete)} Waves and Tides disabled.");
-                Enabled = false;
-                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                disableWavesAndTidesSystem.Enabled = true;
+                WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = true;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = false;
             }
 
             // Sometimes the dummy water source does not have the correct sea level at first, so resetting it at game loading fixes it.
