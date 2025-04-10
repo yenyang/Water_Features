@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Flussi Stagionali",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Strumento Dell'Acqua",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Onde e maree",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabile",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Sperimentale",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Flussi Stagionali",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Strumento Dell'Acqua",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Onde e maree",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "Questa sorgente d'acqua deve essere posizionata all'interno della mappa giocabile.",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "Le fonti d'acqua marina devono toccare il confine della carta.",
   "Tooltip.LABEL[YY.WT.LockElevation]": "Fare clic con il tasto destro per designare l'elevazione della superficie dell'acqua.",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Sperimentale",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabile",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Fluidità",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Alter the Fluidness factor of the water system. It should change the flow characteristics. This can create small waves, cause flooding, or cause instabilities and spikes in the water system.",
   "Editor.TOOL[Yenyang's Water Tool]": "Strumento Acqua Di Yenyang",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "Cambio Elevazione",
   "YY_WATER_FEATURES.PlaceWaterSource": "Posiziona sorgente D'Acqua",
   "YY_WATER_FEATURES.MoveWaterSource": "Sposta Sorgente Acqua",
-  "YY_WATER_FEATURES.RadiusChange": "Cambia il Raggio"
+  "YY_WATER_FEATURES.RadiusChange": "Cambia il Raggio",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed."
 }

@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Saisonale Wasserflüsse",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Wasserwerkzeug",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Wellen und Gezeiten",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabil",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Experimentell",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Saisonale Wasserflüsse",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Wasserwerkzeug",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Wellen und Gezeiten",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "Diese Wasserquelle muss auf der spielbaren Karte platziert werden.",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "Meerwasserquellen müssen die Kartengrenze berühren.",
   "Tooltip.LABEL[YY.WT.LockElevation]": "Rechtsklick um die Wasseroberflächenhöhe zu bestimmen.",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Experimentell",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabil",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Fluidität",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "Ändert den Flüssigkeitsfaktor des Wassersystems und sollte die Strömungseigenschaften ändern. Dies kann zu kleinen Wellen führen, Überschwemmungen verursachen oder Instabilitäten und Stacheln im Wassersystem verursachen.",
   "Editor.TOOL[Yenyang's Water Tool]": "Yenyang's Wasserwerkzeug",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "Höhenänderung",
   "YY_WATER_FEATURES.PlaceWaterSource": "Wasserquelle platzieren",
   "YY_WATER_FEATURES.MoveWaterSource": "Wasserquelle verschieben",
-  "YY_WATER_FEATURES.RadiusChange": "Radius ändern"
+  "YY_WATER_FEATURES.RadiusChange": "Radius ändern",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Versionsnummer für die installierte Water Features Mod."
 }

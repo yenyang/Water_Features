@@ -3,6 +3,8 @@
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "계절 하천",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "물 도구",
   "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "파도및 조수",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "일반",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "실험 기능",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "계절 하천",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "물 도구",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "파도및 조수",
@@ -93,8 +95,6 @@
   "Tooltip.LABEL[YY.WT.PlaceInsideBorder]": "이 수원은 플레이 가능한 맵 내부에 배치되어야 합니다.",
   "Tooltip.LABEL[YY.WT.MustTouchBorder]": "바다 해수 공급원은 지도 경계에 닿아야 합니다.",
   "Tooltip.LABEL[YY.WT.LockElevation]": "수면 높이를 지정하려면 우클릭 하십시오.",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "실험 기능",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "일반",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "유동성",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Fluidness]": "물 시스템의 유동성 값을 변경합니다. 흐름 특성을 변경합니다. 이로 인해 작은 파도가 생기거나, 홍수가 발생하거나, 물 시스템이 불안정해지고 급증할 수 있습니다.",
   "Editor.TOOL[Yenyang's Water Tool]": "Yenyang의 물 도구",
@@ -111,5 +111,7 @@
   "YY_WATER_FEATURES.ElevationChange": "높이 변경",
   "YY_WATER_FEATURES.PlaceWaterSource": "수원 배치",
   "YY_WATER_FEATURES.MoveWaterSource": "수원 이동",
-  "YY_WATER_FEATURES.RadiusChange": "반경 변경"
+  "YY_WATER_FEATURES.RadiusChange": "반경 변경",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed."
 }
