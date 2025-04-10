@@ -215,7 +215,8 @@ namespace Water_Features.Systems
             if (purpose != Purpose.NewMap &&
                purpose != Purpose.NewGame &&
               (mode == GameMode.Game ||
-               mode == GameMode.Editor) &&
+              (mode == GameMode.Editor &&
+               WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)) &&
               !m_WavesAndTidesQuery.IsEmptyIgnoreFilter)
             {
                 WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = true;

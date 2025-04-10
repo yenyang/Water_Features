@@ -196,7 +196,8 @@ namespace Water_Features.Systems
             if (purpose != Purpose.NewMap &&
                 purpose != Purpose.NewGame &&
                (mode == GameMode.Game ||
-                mode == GameMode.Editor) &&
+               (mode == GameMode.Editor &&
+                WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)) &&
                !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
             {
                 WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;

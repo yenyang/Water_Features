@@ -25,7 +25,7 @@ namespace Water_Features.Settings
     [SettingsUITabOrder(WaterToolGroup, SeasonalStreams, WavesAndTides)]
     [SettingsUISection(WaterToolGroup, SeasonalStreams, WavesAndTides)]
     [SettingsUIShowGroupName(Stable, Experimental)]
-    [SettingsUIGroupOrder(Warnings, Stable, Experimental, Reset)]
+    [SettingsUIGroupOrder(Editor, Warnings, Stable, Experimental, Reset)]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
@@ -49,9 +49,15 @@ namespace Water_Features.Settings
         public const string Experimental = "Experimental";
 
         /// <summary>
-        /// This is for settings for seasonal streams.
+        /// This is for settings for stable.
         /// </summary>
         public const string Stable = "Stable";
+
+
+        /// <summary>
+        /// This is for settings for Editor.
+        /// </summary>
+        public const string Editor = "Editor";
 
         /// <summary>
         /// This is for reset settings button group.
@@ -117,6 +123,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WaterToolGroup, Stable)]
         [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = Unit.kFloatTwoFractions, scalarMultiplier = 1000f)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
         public float EvaporationRate { get; set; }
 
         /// <summary>
@@ -154,7 +161,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(SeasonalStreams, Stable)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsToggled))]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(HideSeasonalStreamsToggle))]
         public bool EnableSeasonalStreams { get; set; }
 
         /// <summary>
@@ -232,7 +239,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WavesAndTides, Stable)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesToggled))]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(HideWavesAndTidesToggle))]
         public bool EnableWavesAndTides { get; set; }
 
         /// <summary>
@@ -310,19 +317,21 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WaterToolGroup, Experimental)]
         [SettingsUISlider(min = 0.01f, max = 1.0f, step = 0.01f, unit = Unit.kFloatTwoFractions)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
         public float Fluidness { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Evaporation and Fluidness can be altered in Editor.
         /// </summary>
         [SettingsUISection(WaterToolGroup, Experimental)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsEditor), invert: true)]
         public bool WaterToolSettingsAffectEditorSimulation { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether seasonal streams affects the editor simulation.
         /// </summary>
         [SettingsUISection(SeasonalStreams, Experimental)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsEditor), invert: true)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsAffectsEditorToggled))]
         public bool SeasonalStreamsAffectEditorSimulation { get; set; }
 
@@ -330,7 +339,7 @@ namespace Water_Features.Settings
         /// Gets or sets a value indicating whether waves and tides affects the editor simulation.
         /// </summary>
         [SettingsUISection(WavesAndTides, Experimental)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsEditor), invert: true)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesAffectsEditorSimulationToggled))]
         public bool WavesAndTidesAffectEditorSimulation { get; set; }
 
@@ -380,13 +389,13 @@ namespace Water_Features.Settings
         /// Checks if seasonal streams feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Seasonal Streams.</returns>
-        public bool IsSeasonalStreamsDisabled() => !EnableSeasonalStreams || !IsGameOrEditor();
+        public bool IsSeasonalStreamsDisabled() => !EnableSeasonalStreams || !IsGameOrEditor() || (IsEditor() && !SeasonalStreamsAffectEditorSimulation);
 
         /// <summary>
         /// Checks if waves and tides feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Waves and Tides.</returns>
-        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditor();
+        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditor() || (IsEditor() && !WavesAndTidesAffectEditorSimulation);
 
         /// <summary>
         /// Gets a value indicating the version.
@@ -540,13 +549,75 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
-        /// Checks whether it is game.
+        /// Checks whether it is game or editor.
         /// </summary>
         /// <returns>True if in game or editor. false if not.</returns>
         public bool IsGameOrEditor()
         {
             ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             return toolsystem.actionMode.IsGameOrEditor();
+        }
+
+        /// <summary>
+        /// Checks whether it is editor.
+        /// </summary>
+        /// <returns>True if in editor. false if not.</returns>
+        public bool IsEditor()
+        {
+            ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            return toolsystem.actionMode.IsEditor();
+        }
+
+        /// <summary>
+        /// Checks whether to hide seasonal streams toggle.
+        /// </summary>
+        /// <returns>True if hide, false if not.</returns>
+        public bool HideSeasonalStreamsToggle()
+        {
+            if (!IsGameOrEditor())
+            {
+                return true;
+            }
+
+            if (IsEditor() && !SeasonalStreamsAffectEditorSimulation)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks whether to hide waves and tides toggle.
+        /// </summary>
+        /// <returns>True if hide, false if not.</returns>
+        public bool HideWavesAndTidesToggle()
+        {
+            if (!IsGameOrEditor())
+            {
+                return true;
+            }
+
+            if (IsEditor() && !WavesAndTidesAffectEditorSimulation)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Checks whether to hide a water tool setting.
+        /// </summary>
+        /// <returns>True if hide, false if not.</returns>
+        public bool DisableWaterToolSetting()
+        {
+            if (IsEditor() && !WaterToolSettingsAffectEditorSimulation)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

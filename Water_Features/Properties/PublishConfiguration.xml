@@ -7,8 +7,8 @@
   <ShortDescription Value="In-Game Water Tool, Optional Seasonal Streams, and Optional Waves and Tides" />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
   <LongDescription>In-Game Water Tool - Place, remove, and edit water sources. Lakes, Streams, Rivers, and Seas.
-Optional Opt-out: Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
-Optional Opt-in: Waves and Tides - Sea level rises and falls.
+Optional Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
+Optional Waves and Tides - Sea level rises and falls.
 
 Sully has made an outstanding demo video covering the new features related to water. Available on Youtube.
 ## Dependencies
@@ -47,14 +47,15 @@ Elevation Change will change target elevations of existing water sources by hove
 Move Water Source will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel.
 Radius Change will change radius of water sources. Right click to cancel.
 
-## Seasonal Streams - Optional Opt-out
+## Seasonal Streams - Optional
 Seasonal Streams takes Streams (Modified Constant Rate Water Source): and ties them to the climate and weather for the map. 
 For example, if your map features a dry summer, then these water sources will decrease during the summer. 
 Seasonal streams by it-self should not cause flooding since it treats the map's default water source amount as a maximum unless you change it. 
-All aspects are optional and adjustable in the mod's settings.
+All aspects are optional and adjustable in the mod's settings while in game or the editor. These settings are enabled or disabled per save file.
 
-## Waves and Tides - Optional Opt-in
+## Waves and Tides - Optional
 This feature is dependent on map design. Maps with a sea water source and a single shoreline work best. 
+All aspects are optional and adjustable in the mod's settings while in game or the editor. These settings are enabled or disabled per save file.
 The point of the waves feature is to make the shore move in and out and make sand along the shoreline. A better way to make beaches is to just paint them with surface painter instead. 
 Waves are generated at the map boundary where there is a Sea water source. Once generated they head towards shore. Maps were not necessarily designed for these waves, but the waves will always be lower than the sea level from the original map.
 Tides are the biggest waves and they cause the sea to rise and fall along the shore. Tides can add sandy graphics along shorelines but the sand may not persist the entire time between low tide and high tide. 
@@ -108,10 +109,10 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.12" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
   <ChangeLog>## Patch V1.1.11
-* Added a setting to force water simulation in game to be at least 1x.
+* Added a setting to attempt to force water simulation in game to be at least 1x.
 * Seasonal streams is by default off.
 * Seasonal Streams and Waves and Tides settings are only available in game or in the editor. Whether those options were last enabled or not in a save file determines whether the settings are enabled or disabled after loading. Valid water sources are required or it will default to disabled.
-* Reorganized settings tabs with Water Tool tab as initial tab.</ChangeLog>
+* Reorganized settings including making Water Tool tab as initial tab.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
