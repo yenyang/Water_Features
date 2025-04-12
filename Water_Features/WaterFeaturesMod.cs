@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+#define DUMP_VANILLA_LOCALIZATION
 namespace Water_Features
 {
     using System;
@@ -18,6 +19,7 @@ namespace Water_Features
     using Game.SceneFlow;
     using HarmonyLib;
     using Newtonsoft.Json;
+    using UnityEngine;
     using Water_Features.Settings;
     using Water_Features.Systems;
     using Water_Features.Tools;
@@ -65,6 +67,17 @@ namespace Water_Features
             Log.effectivenessLevel = Level.Debug;
 #else
             Log.effectivenessLevel = Level.Info;
+#endif
+#if DUMP_VANILLA_LOCALIZATION
+            var strings = GameManager.instance.localizationManager.activeDictionary.entries
+                .OrderBy(kv => kv.Key)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            var json = Colossal.Json.JSON.Dump(strings);
+
+            var filePath = Path.Combine(Application.persistentDataPath, "locale-dictionary.json");
+
+            File.WriteAllText(filePath, json);
 #endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Initializing settings");
             Settings = new (this);

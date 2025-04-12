@@ -24,13 +24,14 @@ namespace Water_Features.Systems
     using Unity.Mathematics;
     using UnityEngine;
     using Water_Features.Components;
+    using Water_Features.Settings;
     using Water_Features.Utils;
     using static Game.Simulation.ClimateSystem;
 
     /// <summary>
     /// A system for handing stream seasonality and runoff.
     /// </summary>
-    public partial class SeasonalStreamsSystem : GameSystemBase
+    public partial class SeasonalStreamsSystem : GameSystemBase, IDefaultSerializable, ISerializable
     {
         public static readonly int kUpdatesPerDay = 128;
 
@@ -63,6 +64,48 @@ namespace Water_Features.Systems
             return 262144 / kUpdatesPerDay;
         }
 
+        /// <inheritdoc/>
+        public void SetDefaults(Context context)
+        {
+            if (context.purpose == Purpose.NewMap || context.purpose == Purpose.NewGame)
+            {
+                WaterFeaturesMod.Instance.Settings.ResetSeasonalStreamsSettings();
+            }
+        }
+
+
+        /// <inheritdoc/>
+        public void Serialize<TWriter>(TWriter writer)
+            where TWriter : IWriter
+        {
+            writer.Write(1);
+            writer.Write(WaterFeaturesMod.Instance.Settings.SimulateSnowMelt);
+            writer.Write(WaterFeaturesMod.Instance.Settings.ConstantFlowRate);
+            writer.Write(WaterFeaturesMod.Instance.Settings.StreamSeasonality);
+            writer.Write(WaterFeaturesMod.Instance.Settings.MinimumMultiplier);
+            writer.Write(WaterFeaturesMod.Instance.Settings.MaximumMultiplier);
+            writer.Write(WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects);
+        }
+
+        /// <inheritdoc/>
+        public void Deserialize<TReader>(TReader reader)
+            where TReader : IReader
+        {
+            reader.Read(out int _);
+            reader.Read(out bool simulateSnowMelt);
+            reader.Read(out float constantFlowRate);
+            reader.Read(out float streamSeasonality);
+            reader.Read(out float minimumMultiplier);
+            reader.Read(out float maximumMultiplier);
+            reader.Read(out float stormwaterEffects);
+
+            WaterFeaturesMod.Instance.Settings.SimulateSnowMelt = simulateSnowMelt;
+            WaterFeaturesMod.Instance.Settings.ConstantFlowRate = constantFlowRate;
+            WaterFeaturesMod.Instance.Settings.StreamSeasonality = streamSeasonality;
+            WaterFeaturesMod.Instance.Settings.MinimumMultiplier = minimumMultiplier;
+            WaterFeaturesMod.Instance.Settings.MaximumMultiplier = maximumMultiplier;
+            WaterFeaturesMod.Instance.Settings.StreamStormwaterEffects = stormwaterEffects;
+        }
 
         /// <inheritdoc/>
         protected override void OnCreate()
@@ -196,15 +239,16 @@ namespace Water_Features.Systems
             if (purpose != Purpose.NewMap &&
                 purpose != Purpose.NewGame &&
                (mode == GameMode.Game ||
-               (mode == GameMode.Editor &&
-                WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)) &&
+               mode == GameMode.Editor) &&
                !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
             {
                 WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;
+                Enabled = true;
             }
             else
             {
                 WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = false;
+                Enabled = false;
             }
         }
 
@@ -268,6 +312,10 @@ namespace Water_Features.Systems
             float normalizedClimateDate = float.Parse(climateDate.ToString(), CultureInfo.InvariantCulture.NumberFormat); // This is a dumb solution but climateDate.value is coming up as 0.
             return normalizedClimateDate;
         }
+
+        
+
+
 
         /// <summary>
         /// This job sets the stream flow amount based on all the various factors calculated during the onUpdate.

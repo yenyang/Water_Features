@@ -18,11 +18,12 @@ namespace Water_Features.Systems
     using Unity.Jobs;
     using UnityEngine;
     using Water_Features.Components;
+    using Water_Features.Settings;
 
     /// <summary>
     /// A system for handing waves and tides.
     /// </summary>
-    public partial class TidesAndWavesSystem : GameSystemBase
+    public partial class TidesAndWavesSystem : GameSystemBase, IDefaultSerializable, ISerializable
     {
         private EndFrameBarrier m_EndFrameBarrier;
         private TimeSystem m_TimeSystem;
@@ -59,6 +60,45 @@ namespace Water_Features.Systems
                 EntityManager.DestroyEntity(m_DummySeaWaterSource);
                 m_DummySeaWaterSource = Entity.Null;
             }
+        }
+
+        /// <inheritdoc/>
+        public void SetDefaults(Context context)
+        {
+            if (context.purpose == Purpose.NewMap || context.purpose == Purpose.NewGame)
+            {
+                WaterFeaturesMod.Instance.Settings.ResetWavesAndTidesSettings();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Serialize<TWriter>(TWriter writer)
+            where TWriter : IWriter
+        {
+            writer.Write(1);
+            writer.Write(WaterFeaturesMod.Instance.Settings.WaveHeight);
+            writer.Write(WaterFeaturesMod.Instance.Settings.WaveFrequency);
+            writer.Write(WaterFeaturesMod.Instance.Settings.TideHeight);
+            writer.Write((int)WaterFeaturesMod.Instance.Settings.TideClassification);
+            writer.Write(WaterFeaturesMod.Instance.Settings.Damping);
+        }
+
+        /// <inheritdoc/>
+        public void Deserialize<TReader>(TReader reader)
+            where TReader : IReader
+        {
+            reader.Read(out int _);
+            reader.Read(out float waveHeight);
+            reader.Read(out float waveFrequency);
+            reader.Read(out float tideHeight);
+            reader.Read(out int tideClassification);
+            reader.Read(out float damping);
+
+            WaterFeaturesMod.Instance.Settings.WaveHeight = waveHeight;
+            WaterFeaturesMod.Instance.Settings.WaveFrequency = waveFrequency;
+            WaterFeaturesMod.Instance.Settings.TideHeight = tideHeight;
+            WaterFeaturesMod.Instance.Settings.TideClassification = (WaterFeaturesSettings.TideClassificationYYTAW)tideClassification;
+            WaterFeaturesMod.Instance.Settings.Damping = damping;
         }
 
         /// <inheritdoc/>
@@ -215,15 +255,16 @@ namespace Water_Features.Systems
             if (purpose != Purpose.NewMap &&
                purpose != Purpose.NewGame &&
               (mode == GameMode.Game ||
-              (mode == GameMode.Editor &&
-               WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)) &&
+              mode == GameMode.Editor) &&
               !m_WavesAndTidesQuery.IsEmptyIgnoreFilter)
             {
                 WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = true;
+                Enabled = true;
             }
             else
             {
                 WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = false;
+                Enabled = false;
             }
 
             // Sometimes the dummy water source does not have the correct sea level at first, so resetting it at game loading fixes it.

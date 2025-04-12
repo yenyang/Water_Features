@@ -102,7 +102,7 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.1.11" />
+  <ModVersion Value="1.2.0" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.2.*" />
   <!--Dependency for the mod, can be set multiple-->
@@ -111,8 +111,9 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <ChangeLog>## Patch V1.1.11
 * Added a setting to attempt to force water simulation in game to be at least 1x.
 * Seasonal streams is by default off.
-* Seasonal Streams and Waves and Tides settings are only available in game or in the editor. Whether those options were last enabled or not in a save file determines whether the settings are enabled or disabled after loading. Valid water sources are required or it will default to disabled.
-* Reorganized settings including making Water Tool tab as initial tab.</ChangeLog>
+* Seasonal Streams and Waves and Tides settings are only available in game or in the editor. All aspects of those settings are saved into save games now. Valid water sources are required or it will default to disabled.
+* Reorganized settings including making Water Tool tab as initial tab.
+* Additional settings to make waves and tides / seasonal streams work in the editor have been removed.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

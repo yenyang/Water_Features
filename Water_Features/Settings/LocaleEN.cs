@@ -128,10 +128,6 @@ namespace Water_Features.Settings
                 { "Editor.TOOL[Yenyang's Water Tool]", "Yenyang's Water Tool" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation)), "Water Tool Settings Affect Editor Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation)), "Allows the settings in the Water Tool tab to affect the editor simulation such as evaporation, fluidness, and Water Clean Up Cycle." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation)), "Seasonal Streams Settings Affect Editor Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation)), "Allows the settings in the Seasonal Streams tab to affect the editor simulation and alter stream flowrates." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation)), "Waves and Tides Settings Affect Editor Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation)), "Allows the settings in the Waves and Tides tab to affect the editor simulation by oscillating sea level and altering damping value." },
                 { "YY_WATER_FEATURES_DESCRIPTION.ElevationChange", "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability. Right click to cancel." },
                 { "YY_WATER_FEATURES_DESCRIPTION.PlaceWaterSource", "Water Tool will place water sources with left click, and remove water sources with right click." },
                 { "YY_WATER_FEATURES_DESCRIPTION.MoveWaterSource", "Water Tool will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel." },
@@ -146,6 +142,9 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.WavesAndTidesSettingsAvailableInGame)), "Waves and Tides settings available in the Game or Editor." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Force Water Simulation Speed" },
                 { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Attempts to force a Water Simulation Speed of at least 1x while in Game." },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Editor), "Editor" },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SaveGame), "Individual Save File" },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.General), "General" },
             };
         }
 
