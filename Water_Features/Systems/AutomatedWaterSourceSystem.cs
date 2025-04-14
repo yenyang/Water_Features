@@ -25,11 +25,19 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class AutomatedWaterSourceSystem : GameSystemBase
     {
+        public static readonly int kUpdatesPerDay = 1024;
         private EndFrameBarrier m_EndFrameBarrier;
         private WaterSystem m_WaterSystem;
         private TerrainSystem m_TerrainSystem;
         private EntityQuery m_AutomatedWaterSources;
         private ILog m_Log;
+
+
+        /// <inheritdoc/>
+        public override int GetUpdateInterval(SystemUpdatePhase phase)
+        {
+            return 262144 / kUpdatesPerDay;
+        }
 
         /// <inheritdoc/>
         protected override void OnCreate()
@@ -146,7 +154,7 @@ namespace Water_Features.Systems
                     float fillDepth = maxDepth - waterDepth;
 
                     // When it reaches 100% full or higher the water source is converted to a lake.
-                    if (averagePreviousWaterHeight > currentAutomatedWaterSource.m_MaximumWaterHeight - 0.1f)
+                    if (averagePreviousWaterHeight > currentAutomatedWaterSource.m_MaximumWaterHeight)
                     {
                         currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.VanillaLake;
                         currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_MaximumWaterHeight;
@@ -156,20 +164,30 @@ namespace Water_Features.Systems
                     // When it reaches 75% full then the amount is throttled.
                     else
                     {
-                        currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        if (rateOfChange > 0 && fillDepth / rateOfChange < 40f)
+                        if (currentWaterSourceData.m_ConstantDepth != 0)
                         {
-                            currentWaterSourceData.m_Amount *= rateOfChange / fillDepth;
-                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, 0);
+                            currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_PreviousFlowRate;
+                            currentAutomatedWaterSource.m_PreviousFlowRate = 0f;
+                            currentWaterSourceData.m_ConstantDepth = 0; // Stream
+                        }
+
+                        // recording previous flow rate happening too early which causes a jump.
+
+                        if (rateOfChange > 0f &&
+                            fillDepth / rateOfChange < 5f &&
+                            currentAutomatedWaterSource.m_PreviousFlowRate == 0f)
+                        {
+                            currentAutomatedWaterSource.m_PreviousFlowRate = currentWaterSourceData.m_Amount;
                         }
                         else
                         {
-                            currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f;
+                            currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f * Mathf.Pow(10f, Mathf.Max(Mathf.Round(Mathf.Log10(currentWaterSourceData.m_Amount)), 1));
                         }
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
 
+                    buffer.SetComponent(currentEntity, currentAutomatedWaterSource);
                 }
             }
         }

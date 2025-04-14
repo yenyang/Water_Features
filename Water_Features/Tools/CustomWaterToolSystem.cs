@@ -826,6 +826,10 @@ namespace Water_Features.Tools
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, autofillingLake.m_MaximumWaterHeight);
                     }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSource, out AutomatedWaterSource automatedWaterSource))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, automatedWaterSource.m_MaximumWaterHeight);
+                    }
                 }
             }
 

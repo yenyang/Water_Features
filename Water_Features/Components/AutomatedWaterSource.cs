@@ -24,6 +24,11 @@ namespace Water_Features.Components
         public float4 m_PreviousWaterHeights;
 
         /// <summary>
+        /// A record of previous flow rate.
+        /// </summary>
+        public float m_PreviousFlowRate;
+
+        /// <summary>
         /// Saves the custom component onto the save file. First item written is the version number.
         /// </summary>
         /// <typeparam name="TWriter">Used by game.</typeparam>
@@ -34,6 +39,7 @@ namespace Water_Features.Components
             writer.Write(1); // Version Number for Component.
             writer.Write(m_MaximumWaterHeight);
             writer.Write(m_PreviousWaterHeights);
+            writer.Write(m_PreviousFlowRate);
         }
 
         /// <summary>
@@ -47,6 +53,7 @@ namespace Water_Features.Components
             reader.Read(out int version);
             reader.Read(out m_MaximumWaterHeight);
             reader.Read(out m_PreviousWaterHeights);
+            reader.Read(out m_PreviousFlowRate);
         }
 
     }
