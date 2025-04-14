@@ -1,4 +1,4 @@
-﻿// <copyright file="AutofillingLakesSystem.cs" company="Yenyang's Mods. MIT License">
+﻿// <copyright file="AutomatedWaterSourceSystem.cs" company="Yenyang's Mods. MIT License">
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
@@ -21,21 +21,14 @@ namespace Water_Features.Systems
     using Water_Features.Tools;
 
     /// <summary>
-    /// A system for handing autofilling lakes custom water sources.
+    /// A system for handing automated water source.
     /// </summary>
-    public partial class AutofillingLakesSystem : GameSystemBase
+    public partial class AutomatedWaterSourceSystem : GameSystemBase
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AutofillingLakesSystem"/> class.
-        /// </summary>
-        public AutofillingLakesSystem()
-        {
-        }
-
         private EndFrameBarrier m_EndFrameBarrier;
         private WaterSystem m_WaterSystem;
         private TerrainSystem m_TerrainSystem;
-        private EntityQuery m_AutofillingLakesQuery;
+        private EntityQuery m_AutomatedWaterSources;
         private ILog m_Log;
 
         /// <inheritdoc/>
@@ -45,14 +38,14 @@ namespace Water_Features.Systems
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_AutofillingLakesQuery = GetEntityQuery(new EntityQueryDesc[] {
+            m_AutomatedWaterSources = GetEntityQuery(new EntityQueryDesc[] {
                 new EntityQueryDesc
                 {
                     All = new ComponentType[]
                     {
                         ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(),
                         ComponentType.ReadOnly<Game.Objects.Transform>(),
-                        ComponentType.ReadWrite<AutofillingLake>(),
+                        ComponentType.ReadWrite<AutomatedWaterSource>(),
                     },
                     None = new ComponentType[]
                     {
@@ -62,8 +55,8 @@ namespace Water_Features.Systems
                     },
                 },
             });
-            m_Log.Info($"[{nameof(AutofillingLakesSystem)}] {nameof(OnCreate)}");
-            RequireForUpdate(m_AutofillingLakesQuery);
+            m_Log.Info($"[{nameof(AutomatedWaterSourceSystem)}] {nameof(OnCreate)}");
+            RequireForUpdate(m_AutomatedWaterSources);
             base.OnCreate();
         }
 
@@ -75,10 +68,10 @@ namespace Water_Features.Systems
                 return;
             }
 
-            AutofillingLakesJob autofillingLakesJob = new()
+            AutomatedWaterSourcesJob automatedWaterSourcesJob = new ()
             {
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
-                m_AutofillingLakeType = SystemAPI.GetComponentTypeHandle<AutofillingLake>(),
+                m_AutomatedWaterSourceType = SystemAPI.GetComponentTypeHandle<AutomatedWaterSource>(),
                 m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 m_SourceType = SystemAPI.GetComponentTypeHandle<WaterSourceData>(),
                 m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
@@ -86,7 +79,7 @@ namespace Water_Features.Systems
                 m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
             };
 
-            JobHandle jobHandle = JobChunkExtensions.Schedule(autofillingLakesJob, m_AutofillingLakesQuery, JobHandle.CombineDependencies(Dependency, waterSurfaceDataJob));
+            JobHandle jobHandle = JobChunkExtensions.Schedule(automatedWaterSourcesJob, m_AutomatedWaterSources, JobHandle.CombineDependencies(Dependency, waterSurfaceDataJob));
             m_EndFrameBarrier.AddJobHandleForProducer(jobHandle);
             m_TerrainSystem.AddCPUHeightReader(jobHandle);
             m_WaterSystem.AddSurfaceReader(jobHandle);
@@ -103,9 +96,9 @@ namespace Water_Features.Systems
 #if BURST
         [BurstCompile]
 #endif
-        private struct AutofillingLakesJob : IJobChunk
+        private struct AutomatedWaterSourcesJob : IJobChunk
         {
-            public ComponentTypeHandle<AutofillingLake> m_AutofillingLakeType;
+            public ComponentTypeHandle<AutomatedWaterSource> m_AutomatedWaterSourceType;
             [ReadOnly]
             public EntityTypeHandle m_EntityType;
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
@@ -118,55 +111,60 @@ namespace Water_Features.Systems
             {
                 NativeArray<Game.Simulation.WaterSourceData> waterSourceDataNativeArray = chunk.GetNativeArray(ref m_SourceType);
                 NativeArray<Game.Objects.Transform> transformNativeArray = chunk.GetNativeArray(ref m_TransformType);
-                NativeArray<AutofillingLake> autofillingLakesNativeArray = chunk.GetNativeArray(ref m_AutofillingLakeType);
+                NativeArray<AutomatedWaterSource> automatedWaterSourceNativeArray = chunk.GetNativeArray(ref m_AutomatedWaterSourceType);
                 NativeArray<Entity> entityNativeArray = chunk.GetNativeArray(m_EntityType);
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
                     Game.Objects.Transform currentTransform = transformNativeArray[i];
-                    AutofillingLake currentAutofillingLake = autofillingLakesNativeArray[i];
+                    AutomatedWaterSource currentAutomatedWaterSource = automatedWaterSourceNativeArray[i];
                     Entity currentEntity = entityNativeArray[i];
                     float3 terrainPosition = new (currentTransform.m_Position.x, TerrainUtils.SampleHeight(ref m_TerrainHeightData, currentTransform.m_Position), currentTransform.m_Position.z);
                     float3 waterPosition = new (currentTransform.m_Position.x, WaterUtils.SampleHeight(ref m_WaterSurfaceData, ref m_TerrainHeightData, currentTransform.m_Position), currentTransform.m_Position.z);
                     float waterHeight = waterPosition.y;
                     float waterDepth = waterPosition.y - terrainPosition.y;
-                    float maxDepth = currentAutofillingLake.m_MaximumWaterHeight - terrainPosition.y;
+                    float maxDepth = currentAutomatedWaterSource.m_MaximumWaterHeight - terrainPosition.y;
+
+                    float4 previousWaterHeights = currentAutomatedWaterSource.m_PreviousWaterHeights;
+                    float totalPreviousWaterHeight = 0;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        if (j < 3)
+                        {
+                            currentAutomatedWaterSource.m_PreviousWaterHeights[j] = currentAutomatedWaterSource.m_PreviousWaterHeights[j + 1];
+                        }
+                        else
+                        {
+                            currentAutomatedWaterSource.m_PreviousWaterHeights[j] = waterHeight;
+                        }
+
+                        totalPreviousWaterHeight += previousWaterHeights[j];
+                    }
+
+                    float averagePreviousWaterHeight = totalPreviousWaterHeight / 4f;
+                    float rateOfChange = (previousWaterHeights.w - previousWaterHeights.x) / 4f;
+                    float fillDepth = maxDepth - waterDepth;
 
                     // When it reaches 100% full or higher the water source is converted to a lake.
-                    if (waterHeight > currentAutofillingLake.m_MaximumWaterHeight)
+                    if (averagePreviousWaterHeight > currentAutomatedWaterSource.m_MaximumWaterHeight - 0.1f)
                     {
                         currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.VanillaLake;
-                        currentWaterSourceData.m_Amount = currentAutofillingLake.m_MaximumWaterHeight;
+                        currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_MaximumWaterHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
-                        buffer.RemoveComponent<AutofillingLake>(currentEntity);
                     }
 
                     // When it reaches 75% full then the amount is throttled.
-                    else if (waterDepth >= 0.75f * maxDepth)
+                    else
                     {
                         currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        currentWaterSourceData.m_Amount = maxDepth * 0.1f;
-                        if (currentWaterSourceData.m_Radius < 20f)
+                        if (rateOfChange > 0 && fillDepth / rateOfChange < 40f)
                         {
-                            currentWaterSourceData.m_Amount *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
+                            currentWaterSourceData.m_Amount *= rateOfChange / fillDepth;
+                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, 0);
                         }
-
-                        if (currentWaterSourceData.m_ConstantDepth != 0) // Stream
+                        else
                         {
-                            currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        }
-
-                        buffer.SetComponent(currentEntity, currentWaterSourceData);
-                    }
-
-                    // If an automatic filling lake was saved and converted to a vanilla lake, then this converts it back into a stream to continue filling.
-                    else if (currentWaterSourceData.m_ConstantDepth != 0 || currentWaterSourceData.m_Amount == 0f) // Stream
-                    {
-                        currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        currentWaterSourceData.m_Amount = maxDepth * 0.4f;
-                        if (currentWaterSourceData.m_Radius < 20f)
-                        {
-                            currentWaterSourceData.m_Amount *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
+                            currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f;
                         }
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);

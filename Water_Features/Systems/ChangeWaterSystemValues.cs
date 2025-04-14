@@ -12,6 +12,7 @@ namespace Water_Features.Systems
     using Unity.Entities;
     using UnityEngine;
     using Water_Features.Settings;
+    using Water_Features.Tools;
 
     /// <summary>
     /// Changes the various rates of the vanilla water system. Some or all of this could be incorporated into the Settings Apply method.
@@ -29,6 +30,7 @@ namespace Water_Features.Systems
         private float m_OriginalDamping = 0.995f;
         private bool m_TemporarilyUseOriginalDamping = false;
         private ToolSystem m_ToolSystem;
+        private CustomWaterToolSystem m_CustomWaterToolSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeWaterSystemValues"/> class.
@@ -94,6 +96,7 @@ namespace Water_Features.Systems
             m_Log = WaterFeaturesMod.Instance.Log;
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
@@ -106,7 +109,8 @@ namespace Water_Features.Systems
         {
             if (m_ToolSystem.actionMode.IsGame() &&
                 WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed &&
-                m_WaterSystem.WaterSimSpeed < 1)
+                m_WaterSystem.WaterSimSpeed < 1 &&
+                m_ToolSystem.activeTool != m_CustomWaterToolSystem)
             {
                 m_WaterSystem.WaterSimSpeed = 1;
             }
