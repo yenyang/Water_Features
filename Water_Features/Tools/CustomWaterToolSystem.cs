@@ -32,7 +32,10 @@ namespace Water_Features.Tools
     /// </summary>
     public partial class CustomWaterToolSystem : ToolBaseSystem
     {
-        private const float MapExtents = 7168f;
+        /// <summary>
+        /// Value for vanilla map edges.
+        /// </summary>
+        public const float MapExtents = 7168f;
         private EntityArchetype m_WaterSourceArchetype;
         private EntityArchetype m_AutoFillingLakeArchetype;
         private EntityArchetype m_DetentionBasinArchetype;
@@ -722,6 +725,12 @@ namespace Water_Features.Tools
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         autofillingLake.m_MaximumWaterHeight = m_RaycastPoint.m_HitPosition.y;
                         buffer.SetComponent(m_SelectedWaterSource, autofillingLake);
+                    }
+                    else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out AutomatedWaterSource automatedWaterSource))
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
+                        automatedWaterSource.m_MaximumWaterHeight = m_RaycastPoint.m_HitPosition.y;
+                        buffer.SetComponent(m_SelectedWaterSource, automatedWaterSource);
                     }
                 }
             }

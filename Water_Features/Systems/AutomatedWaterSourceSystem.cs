@@ -156,33 +156,38 @@ namespace Water_Features.Systems
                     // When it reaches 100% full or higher the water source is converted to a lake.
                     if (averagePreviousWaterHeight > currentAutomatedWaterSource.m_MaximumWaterHeight)
                     {
-                        currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.VanillaLake;
+                        if (currentAutomatedWaterSource.m_PreviousFlowRate == 0)
+                        {
+                            currentAutomatedWaterSource.m_PreviousFlowRate = currentWaterSourceData.m_Amount;
+                        }
+
+                        if (currentWaterSourceData.m_Radius >= 500f &&
+                            IsPositionNearBorder(currentTransform.m_Position, currentWaterSourceData.m_Radius, false))
+                        {
+                            currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.Sea;
+                        }
+                        else if (IsPositionNearBorder(currentTransform.m_Position, currentWaterSourceData.m_Radius, true))
+                        {
+                            currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.River;
+                        }
+                        else
+                        {
+                            currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.Lake;
+                        }
+
                         currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_MaximumWaterHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
-
-                    // When it reaches 75% full then the amount is throttled.
                     else
                     {
                         if (currentWaterSourceData.m_ConstantDepth != 0)
                         {
-                            currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_PreviousFlowRate;
+                            currentWaterSourceData.m_Amount = 0.975f * currentAutomatedWaterSource.m_PreviousFlowRate;
                             currentAutomatedWaterSource.m_PreviousFlowRate = 0f;
                             currentWaterSourceData.m_ConstantDepth = 0; // Stream
                         }
 
-                        // recording previous flow rate happening too early which causes a jump.
-
-                        if (rateOfChange > 0f &&
-                            fillDepth / rateOfChange < 5f &&
-                            currentAutomatedWaterSource.m_PreviousFlowRate == 0f)
-                        {
-                            currentAutomatedWaterSource.m_PreviousFlowRate = currentWaterSourceData.m_Amount;
-                        }
-                        else
-                        {
-                            currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f * Mathf.Pow(10f, Mathf.Max(Mathf.Round(Mathf.Log10(currentWaterSourceData.m_Amount)), 1));
-                        }
+                        currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f * Mathf.Pow(10f, Mathf.Max(Mathf.Round(Mathf.Log10(currentWaterSourceData.m_Amount)), 1));
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
@@ -190,6 +195,44 @@ namespace Water_Features.Systems
                     buffer.SetComponent(currentEntity, currentAutomatedWaterSource);
                 }
             }
+
+            /// <summary>
+            /// A method for determining if a position is close to the border.
+            /// </summary>
+            /// <param name="pos">Position to be checked.</param>
+            /// <param name="radius">Tolerance for acceptable position.</param>
+            /// <param name="fixedMaxDistance">Should the radius be checked for a maximum.</param>
+            /// <returns>True if within proximity of border.</returns>
+            private bool IsPositionNearBorder(float3 pos, float radius, bool fixedMaxDistance)
+            {
+                if (fixedMaxDistance)
+                {
+                    radius = Mathf.Max(150f, radius * 2f / 3f);
+                }
+
+                if (Mathf.Abs(CustomWaterToolSystem.MapExtents - Mathf.Abs(pos.x)) < radius || Mathf.Abs(CustomWaterToolSystem.MapExtents - Mathf.Abs(pos.z)) < radius)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            /// <summary>
+            /// A method for determining if a position is within the border.
+            /// </summary>
+            /// <param name="pos">Position to be checked.</param>
+            /// <returns>True if within the border. False if not.</returns>
+            private bool IsPositionWithinBorder(float3 pos)
+            {
+                if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < CustomWaterToolSystem.MapExtents)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
         }
     }
 }
