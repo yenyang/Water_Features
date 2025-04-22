@@ -2,7 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
-#define DUMP_VANILLA_LOCALIZATION
+// #define DUMP_VANILLA_LOCALIZATION
 namespace Water_Features
 {
     using System;
@@ -68,7 +68,7 @@ namespace Water_Features
 #else
             Log.effectivenessLevel = Level.Info;
 #endif
-#if DUMP_VANILLA_LOCALIZATION
+#if DUMP_VANILLA_LOCALIZATION && DEBUG
             var strings = GameManager.instance.localizationManager.activeDictionary.entries
                 .OrderBy(kv => kv.Key)
                 .ToDictionary(kv => kv.Key, kv => kv.Value);

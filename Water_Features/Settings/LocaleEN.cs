@@ -118,7 +118,7 @@ namespace Water_Features.Settings
                 { "Assets.NAME[WaterSource RetentionBasin]", "Retention Basin" },
                 { "Assets.DESCRIPTION[WaterSource RetentionBasin]", "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove." },
                 { "Assets.NAME[WaterSource Automated]", "Automated Water Source" },
-                { "Assets.DESCRIPTION[WaterSource Automated]", "A custom modded water source fully managed by Water Features. " },
+                { "Assets.DESCRIPTION[WaterSource Automated]", "Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove." },
                 { "Tooltip.LABEL[YY.WT.PlaceNearBorder]", "Rivers must be placed near map border." },
                 { "Tooltip.LABEL[YY.WT.RadiusTooSmall]", "The radius is too small and has been automatically increased." },
                 { "Tooltip.LABEL[YY.WT.RemoveWaterSource]", "Right click to remove water source." },

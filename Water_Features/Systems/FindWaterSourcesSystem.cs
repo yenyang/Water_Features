@@ -60,6 +60,7 @@ namespace Water_Features.Systems
                         ComponentType.ReadOnly<AutofillingLake>(),
                         ComponentType.ReadOnly<RetentionBasin>(),
                         ComponentType.ReadOnly<DetentionBasin>(),
+                        ComponentType.ReadOnly<AutomatedWaterSource>(),
                         ComponentType.ReadOnly<Owner>(),
                     },
                 },

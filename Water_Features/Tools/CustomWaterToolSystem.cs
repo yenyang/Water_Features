@@ -7,6 +7,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Colossal.Mathematics;
     using Colossal.Serialization.Entities;
     using Game;
     using Game.Common;
@@ -32,10 +33,6 @@ namespace Water_Features.Tools
     /// </summary>
     public partial class CustomWaterToolSystem : ToolBaseSystem
     {
-        /// <summary>
-        /// Value for vanilla map edges.
-        /// </summary>
-        public const float MapExtents = 7168f;
         private EntityArchetype m_WaterSourceArchetype;
         private EntityArchetype m_AutoFillingLakeArchetype;
         private EntityArchetype m_DetentionBasinArchetype;
@@ -104,12 +101,15 @@ namespace Water_Features.Tools
         /// <returns>True if within proximity of border.</returns>
         public bool IsPositionNearBorder(float3 pos, float radius, bool fixedMaxDistance)
         {
+            TerrainHeightData terrainHeightData = m_TerrainSystem.GetHeightData();
+            Bounds3 terrainBounds = TerrainUtils.GetBounds(ref terrainHeightData);
+
             if (fixedMaxDistance)
             {
                 radius = Mathf.Max(150f, radius * 2f / 3f);
             }
 
-            if (Mathf.Abs(MapExtents - Mathf.Abs(pos.x)) < radius || Mathf.Abs(MapExtents - Mathf.Abs(pos.z)) < radius)
+            if (Mathf.Abs(terrainBounds.max.x - Mathf.Abs(pos.x)) < radius || Mathf.Abs(terrainBounds.max.z - Mathf.Abs(pos.z)) < radius)
             {
                 return true;
             }
@@ -124,7 +124,10 @@ namespace Water_Features.Tools
         /// <returns>True if within the border. False if not.</returns>
         public bool IsPositionWithinBorder(float3 pos)
         {
-            if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < MapExtents)
+            TerrainHeightData terrainHeightData = m_TerrainSystem.GetHeightData();
+            Bounds3 terrainBounds = TerrainUtils.GetBounds(ref terrainHeightData);
+
+            if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < terrainBounds.max.x)
             {
                 return true;
             }
@@ -149,7 +152,7 @@ namespace Water_Features.Tools
             Entity entity = Entity.Null;
             foreach (Entity e in m_HoveredWaterSources)
             {
-                if (EntityManager.TryGetComponent(e, out Game.Objects.Transform transform)) 
+                if (EntityManager.TryGetComponent(e, out Game.Objects.Transform transform))
                 {
                     transform.m_Position.y = 0f;
                     if (math.distance(transform.m_Position, position) < distance)
@@ -406,7 +409,7 @@ namespace Water_Features.Tools
             }
 
             TerrainHeightData terrainHeightData = m_TerrainSystem.GetHeightData();
-
+            Bounds3 terrainBounds = TerrainUtils.GetBounds(ref terrainHeightData);
             WaterSourceCirclesRenderJob waterSourceCirclesRenderJob = new ()
             {
                 m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outJobHandle),
@@ -457,22 +460,22 @@ namespace Water_Features.Tools
                     {
                         if (m_RaycastPoint.m_HitPosition.x > 0f)
                         {
-                            borderPosition.x = MapExtents;
+                            borderPosition.x = terrainBounds.max.x;
                         }
                         else
                         {
-                            borderPosition.x = MapExtents * -1f;
+                            borderPosition.x = terrainBounds.min.x;
                         }
                     }
                     else
                     {
                         if (m_RaycastPoint.m_HitPosition.z > 0f)
                         {
-                            borderPosition.z = MapExtents;
+                            borderPosition.z = terrainBounds.max.z;
                         }
                         else
                         {
-                            borderPosition.z = MapExtents * -1f;
+                            borderPosition.z = terrainBounds.min.z;
                         }
                     }
 
@@ -504,7 +507,7 @@ namespace Water_Features.Tools
                         m_Position = m_RaycastPoint.m_HitPosition,
                         m_TransformType = SystemAPI.GetComponentTypeHandle<Game.Objects.Transform>(),
                         buffer = m_ToolOutputBarrier.CreateCommandBuffer(),
-                        m_MapExtents = MapExtents,
+                        m_MapExtents = terrainBounds.max.x,
                     };
                     JobHandle jobHandle = JobChunkExtensions.Schedule(removeWaterSourcesJob, m_WaterSourcesQuery, inputDeps);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
@@ -654,7 +657,8 @@ namespace Water_Features.Tools
                     }
 
                     // This section handles projected water surface elevation.
-                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream &&
+                       !EntityManager.HasComponent<AutomatedWaterSource>(m_SelectedWaterSource))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
                     }
@@ -702,7 +706,8 @@ namespace Water_Features.Tools
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
 
                     // This section handles projected water surface elevation.
-                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
+                    if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream &&
+                       !EntityManager.HasComponent<AutomatedWaterSource>(m_SelectedWaterSource))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         waterSourceData.m_Amount = m_RaycastPoint.m_HitPosition.y;
@@ -751,7 +756,7 @@ namespace Water_Features.Tools
                     float minimumRadius = 5f;
                     if (waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.Sea || waterSourceData.m_ConstantDepth == (int)WaterToolUISystem.SourceType.River)
                     {
-                        minimumRadius = Mathf.Max(5, Mathf.Min(Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.x)), Mathf.Abs(MapExtents - Mathf.Abs(transform.m_Position.z))));
+                        minimumRadius = Mathf.Max(5, Mathf.Min(Mathf.Abs(terrainBounds.max.x - Mathf.Abs(transform.m_Position.x)), Mathf.Abs(terrainBounds.max.z - Mathf.Abs(transform.m_Position.z))));
                     }
 
                     waterSourceData.m_Radius = Mathf.Clamp(Vector3.Distance(hitPositionXZ, waterSourcePositionXZ), minimumRadius, 10000f);
@@ -850,7 +855,7 @@ namespace Water_Features.Tools
                 m_EntityType = SystemAPI.GetEntityTypeHandle(),
                 m_Position = m_RaycastPoint.m_HitPosition,
                 m_Entities = m_HoveredWaterSources,
-                m_MapExtents = MapExtents,
+                m_MapExtents = terrainBounds.max.x,
             };
             inputDeps = JobChunkExtensions.Schedule(hoverOverWaterSourceJob, m_WaterSourcesQuery, inputDeps);
 
@@ -872,27 +877,28 @@ namespace Water_Features.Tools
         /// <returns>border position.</returns>
         private float3 GetBorderPosition(ref float terrainHeight, ref TerrainHeightData terrainHeightData)
         {
+            Bounds3 terrainBounds = TerrainUtils.GetBounds(ref terrainHeightData);
             float3 borderPosition = m_RaycastPoint.m_HitPosition;
             if (Mathf.Abs(m_RaycastPoint.m_HitPosition.x) >= Mathf.Abs(m_RaycastPoint.m_HitPosition.z))
             {
                 if (m_RaycastPoint.m_HitPosition.x > 0f)
                 {
-                    borderPosition.x = MapExtents;
+                    borderPosition.x = terrainBounds.max.x;
                 }
                 else
                 {
-                    borderPosition.x = MapExtents * -1f;
+                    borderPosition.x = terrainBounds.min.x;
                 }
             }
             else
             {
                 if (m_RaycastPoint.m_HitPosition.z > 0f)
                 {
-                    borderPosition.z = MapExtents;
+                    borderPosition.z = terrainBounds.max.z;
                 }
                 else
                 {
-                    borderPosition.z = MapExtents * -1f;
+                    borderPosition.z = terrainBounds.min.z;
                 }
             }
 

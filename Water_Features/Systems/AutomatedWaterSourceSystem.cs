@@ -6,6 +6,7 @@
 namespace Water_Features.Systems
 {
     using Colossal.Logging;
+    using Colossal.Mathematics;
     using Game;
     using Game.Common;
     using Game.Simulation;
@@ -205,12 +206,13 @@ namespace Water_Features.Systems
             /// <returns>True if within proximity of border.</returns>
             private bool IsPositionNearBorder(float3 pos, float radius, bool fixedMaxDistance)
             {
+                Bounds3 terrainBounds = TerrainUtils.GetBounds(ref m_TerrainHeightData);
                 if (fixedMaxDistance)
                 {
                     radius = Mathf.Max(150f, radius * 2f / 3f);
                 }
 
-                if (Mathf.Abs(CustomWaterToolSystem.MapExtents - Mathf.Abs(pos.x)) < radius || Mathf.Abs(CustomWaterToolSystem.MapExtents - Mathf.Abs(pos.z)) < radius)
+                if (Mathf.Abs(terrainBounds.max.x - Mathf.Abs(pos.x)) < radius || Mathf.Abs(terrainBounds.max.z - Mathf.Abs(pos.z)) < radius)
                 {
                     return true;
                 }
@@ -225,7 +227,8 @@ namespace Water_Features.Systems
             /// <returns>True if within the border. False if not.</returns>
             private bool IsPositionWithinBorder(float3 pos)
             {
-                if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < CustomWaterToolSystem.MapExtents)
+                Bounds3 terrainBounds = TerrainUtils.GetBounds(ref m_TerrainHeightData);
+                if (Mathf.Max(Mathf.Abs(pos.x), Mathf.Abs(pos.z)) < terrainBounds.max.x)
                 {
                     return true;
                 }
