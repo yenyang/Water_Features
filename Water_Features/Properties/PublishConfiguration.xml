@@ -114,7 +114,7 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * Seasonal Streams and Waves and Tides settings are only available in game or in the editor. All aspects of those settings are saved into save games now. Valid water sources are required or it will default to disabled.
 * Reorganized settings including making Water Tool tab as initial tab.
 * Additional settings to make waves and tides / seasonal streams work in the editor have been removed.
-* New! Automated Water Source: A custom modded water source fully managed by Water Features. Automatically fills and stabilizes by converting between different water source types with the goal of maintaining the desired water surface elevation. These water sources do not change due to Seasonal Streams or Waves and Tides settings.
+* New! Automated Water Source: Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings.
 * Map extents determined dynamically for compatibility with other mods.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />

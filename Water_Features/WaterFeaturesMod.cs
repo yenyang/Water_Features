@@ -85,6 +85,19 @@ namespace Water_Features
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading other languages");
             LoadNonEnglishLocalizations();
+#if DEBUG
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Exporting localization");
+            var localeDict = new LocaleEN(Settings).ReadEntries(new List<IDictionaryEntryError>(), new Dictionary<string, int>()).ToDictionary(pair => pair.Key, pair => pair.Value);
+            var str = JsonConvert.SerializeObject(localeDict, Formatting.Indented);
+            try
+            {
+                File.WriteAllText($"C:\\Users\\TJ\\source\\repos\\{nameof(Water_Features)}\\{nameof(Water_Features)}\\UI\\src\\lang\\en-US.json", str);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+#endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
