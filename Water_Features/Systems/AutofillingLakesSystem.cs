@@ -160,7 +160,7 @@ namespace Water_Features.Systems
                     }
 
                     // If an automatic filling lake was saved and converted to a vanilla lake, then this converts it back into a stream to continue filling.
-                    else if (currentWaterSourceData.m_ConstantDepth != 0) // Stream
+                    else if (currentWaterSourceData.m_ConstantDepth != 0 || currentWaterSourceData.m_Amount == 0f) // Stream
                     {
                         currentWaterSourceData.m_ConstantDepth = 0; // Stream
                         currentWaterSourceData.m_Amount = maxDepth * 0.4f;

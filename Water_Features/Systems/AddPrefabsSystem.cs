@@ -33,6 +33,7 @@ namespace Water_Features.Systems
             { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = $"{CouiPathPrefix}WaterSourceRiver{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultAmount = 20f, } },
             { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = $"{CouiPathPrefix}WaterSourceSea{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultAmount = 25f, } },
             { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Automated, m_Icon = $"{CouiPathPrefix}WaterSourceAutomaticFill{FileType}", m_AmountLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 60, m_DefaultRadius = 20f, m_DefaultAmount = 15f, } },
         };
 
         private PrefabSystem m_PrefabSystem;

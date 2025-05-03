@@ -60,6 +60,7 @@ namespace Water_Features.Systems
                         ComponentType.ReadOnly<AutofillingLake>(),
                         ComponentType.ReadOnly<RetentionBasin>(),
                         ComponentType.ReadOnly<DetentionBasin>(),
+                        ComponentType.ReadOnly<AutomatedWaterSource>(),
                         ComponentType.ReadOnly<Owner>(),
                     },
                 },
@@ -71,21 +72,14 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            bool seasonalStreamsEnabled = WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams;
-            bool wavesAndTidesEnabled = WaterFeaturesMod.Instance.Settings.EnableWavesAndTides;
-            if (m_ToolSystem.actionMode.IsEditor())
+            if (!m_ToolSystem.actionMode.IsGameOrEditor())
             {
-                if (!WaterFeaturesMod.Instance.Settings.SeasonalStreamsAffectEditorSimulation)
-                {
-                    seasonalStreamsEnabled = false;
-                }
-
-                if (!WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation)
-                {
-                    wavesAndTidesEnabled = false;
-                }
+                Enabled = false;
+                return;
             }
 
+            bool seasonalStreamsEnabled = WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams;
+            bool wavesAndTidesEnabled = WaterFeaturesMod.Instance.Settings.EnableWavesAndTides;
 
             m_Log.Debug($"{nameof(FindWaterSourcesSystem)}.{nameof(OnUpdate)} WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = {WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams} &  WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = {WaterFeaturesMod.Instance.Settings.EnableWavesAndTides}");
             FindWaterSourcesJob findWaterSourcesJob = new ()
@@ -101,13 +95,6 @@ namespace Water_Features.Systems
             Dependency = jobHandle;
 
             Enabled = false;
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
-        {
-            Enabled = true;
-            base.OnGameLoadingComplete(purpose, mode);
         }
 
 #if BURST

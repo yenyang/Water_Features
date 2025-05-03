@@ -5,16 +5,19 @@
 namespace Water_Features.Systems
 {
     using Colossal.Logging;
+    using Colossal.Serialization.Entities;
     using Game;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Entities;
     using UnityEngine;
+    using Water_Features.Settings;
+    using Water_Features.Tools;
 
     /// <summary>
     /// Changes the various rates of the vanilla water system. Some or all of this could be incorporated into the Settings Apply method.
     /// </summary>
-    public partial class ChangeWaterSystemValues : GameSystemBase
+    public partial class ChangeWaterSystemValues : GameSystemBase, IDefaultSerializable, ISerializable
     {
         private readonly float m_ResetTimeLimit = 0.005f;
         private readonly float m_TemporaryEvaporation = 0.1f;
@@ -27,12 +30,48 @@ namespace Water_Features.Systems
         private float m_OriginalDamping = 0.995f;
         private bool m_TemporarilyUseOriginalDamping = false;
         private ToolSystem m_ToolSystem;
+        private CustomWaterToolSystem m_CustomWaterToolSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeWaterSystemValues"/> class.
         /// </summary>
         public ChangeWaterSystemValues()
         {
+        }
+
+        /// <inheritdoc/>
+        public void SetDefaults(Context context)
+        {
+            if (context.purpose == Purpose.NewMap || context.purpose == Purpose.NewGame)
+            {
+                WaterFeaturesMod.Instance.Settings.Fluidness = 0.1f;
+                WaterFeaturesMod.Instance.Settings.EvaporationRate = 0.0001f;
+                WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = false;
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Serialize<TWriter>(TWriter writer)
+            where TWriter : IWriter
+        {
+            writer.Write(1);
+            writer.Write(WaterFeaturesMod.Instance.Settings.EvaporationRate);
+            writer.Write(WaterFeaturesMod.Instance.Settings.Fluidness);
+            writer.Write(WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed);
+        }
+
+        /// <inheritdoc/>
+        public void Deserialize<TReader>(TReader reader)
+            where TReader : IReader
+        {
+            reader.Read(out int _);
+            reader.Read(out float evaporationRate);
+            reader.Read(out float fluidness);
+            reader.Read(out bool forceWaterSimulationSpeed);
+
+            WaterFeaturesMod.Instance.Settings.EvaporationRate = evaporationRate;
+            WaterFeaturesMod.Instance.Settings.Fluidness = fluidness;
+            WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = forceWaterSimulationSpeed;
         }
 
         /// <summary>
@@ -57,6 +96,7 @@ namespace Water_Features.Systems
             m_Log = WaterFeaturesMod.Instance.Log;
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
@@ -67,6 +107,14 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
+            if (m_ToolSystem.actionMode.IsGame() &&
+                WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed &&
+                m_WaterSystem.WaterSimSpeed < 1 &&
+                m_ToolSystem.activeTool != m_CustomWaterToolSystem)
+            {
+                m_WaterSystem.WaterSimSpeed = 1;
+            }
+
             if ((m_ToolSystem.actionMode.IsEditor() && WaterFeaturesMod.Instance.Settings.WaterToolSettingsAffectEditorSimulation) || m_ToolSystem.actionMode.IsGame())
             {
                 // This is for the water cleanup cycle.
@@ -96,7 +144,7 @@ namespace Water_Features.Systems
                 }
             }
 
-            if ((m_ToolSystem.actionMode.IsEditor() && WaterFeaturesMod.Instance.Settings.WavesAndTidesAffectEditorSimulation) || m_ToolSystem.actionMode.IsGame())
+            if (m_ToolSystem.actionMode.IsGameOrEditor())
             {
                 // This is for changing the damping constant with the settings.
                 if (!Mathf.Approximately(m_WaterSystem.m_Damping, WaterFeaturesMod.Instance.Settings.Damping) && WaterFeaturesMod.Instance.Settings.EnableWavesAndTides && !m_TemporarilyUseOriginalDamping)

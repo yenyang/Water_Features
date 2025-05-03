@@ -5,26 +5,22 @@
 namespace Water_Features.Settings
 {
     using Colossal.IO.AssetDatabase;
-    using Colossal.PSI.Common;
     using Game;
-    using Game.Input;
     using Game.Modding;
     using Game.Settings;
-    using Game.Simulation;
     using Game.Tools;
     using Game.UI;
     using Unity.Entities;
     using Water_Features.Systems;
-    using static Game.Prefabs.CompositionFlags;
 
     /// <summary>
     /// The mod settings for the Water Features Mod.
     /// </summary>
     [FileLocation("Mods_Yenyang_Water_Features")]
-    [SettingsUITabOrder(SeasonalStreams, WaterToolGroup, WavesAndTides)]
-    [SettingsUISection(SeasonalStreams, WaterToolGroup, WavesAndTides)]
-    [SettingsUIShowGroupName(Stable, Experimental)]
-    [SettingsUIGroupOrder(Stable, Experimental, Reset)]
+    [SettingsUITabOrder(WaterToolGroup, SeasonalStreams, WavesAndTides)]
+    [SettingsUISection(WaterToolGroup, SeasonalStreams, WavesAndTides)]
+    [SettingsUIShowGroupName(General, Editor, SaveGame, Stable, Experimental)]
+    [SettingsUIGroupOrder(Warnings, General, Editor, SaveGame, Stable, Experimental, Reset)]
     public class WaterFeaturesSettings : ModSetting
     {
         /// <summary>
@@ -48,9 +44,24 @@ namespace Water_Features.Settings
         public const string Experimental = "Experimental";
 
         /// <summary>
-        /// This is for settings for seasonal streams.
+        /// This is for stable settings for.
         /// </summary>
         public const string Stable = "Stable";
+
+        /// <summary>
+        /// This is for general settings.
+        /// </summary>
+        public const string General = "General";
+
+        /// <summary>
+        /// This is for save game settings.
+        /// </summary>
+        public const string SaveGame = "SaveGame";
+
+        /// <summary>
+        /// This is for settings for Editor.
+        /// </summary>
+        public const string Editor = "Editor";
 
         /// <summary>
         /// This is for reset settings button group.
@@ -61,6 +72,11 @@ namespace Water_Features.Settings
         /// This is for about section of settings.
         /// </summary>
         public const string About = "About";
+
+        /// <summary>
+        /// This is for about section of settings.
+        /// </summary>
+        public const string Warnings = "Warnings";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaterFeaturesSettings"/> class.
@@ -91,26 +107,27 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value indicating whether to Try Smaller Radii.
         /// </summary>
-        [SettingsUISection(WaterToolGroup, Stable)]
+        [SettingsUISection(WaterToolGroup, General)]
         public bool TrySmallerRadii { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to Include Detention Basins.
         /// </summary>
-        [SettingsUISection(WaterToolGroup, Stable)]
+        [SettingsUISection(WaterToolGroup, General)]
         public bool IncludeDetentionBasins { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to Include Retention Basins.
         /// </summary>
-        [SettingsUISection(WaterToolGroup, Stable)]
+        [SettingsUISection(WaterToolGroup, General)]
         public bool IncludeRetentionBasins { get; set; }
 
         /// <summary>
         /// Gets or sets the evaporatin rate for the whole map.
         /// </summary>
-        [SettingsUISection(WaterToolGroup, Stable)]
+        [SettingsUISection(WaterToolGroup, SaveGame)]
         [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = Unit.kFloatTwoFractions, scalarMultiplier = 1000f)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
         public float EvaporationRate { get; set; }
 
         /// <summary>
@@ -118,7 +135,8 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIButton]
         [SettingsUIConfirmation]
-        [SettingsUISection(WaterToolGroup, Stable)]
+        [SettingsUISection(WaterToolGroup, SaveGame)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
         public bool WaterCleanUpCycleButton
         {
             set
@@ -145,14 +163,23 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value indicating whether to have Seasonal Streams.
         /// </summary>
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsToggled))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
         public bool EnableSeasonalStreams { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating that seasonal streams settings are only available in game.
+        /// </summary>
+        [SettingsUIMultilineText]
+        [SettingsUISection(SeasonalStreams, Warnings)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor))]
+        public string SeasonalStreamsSettingsAvailableInGame { get; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to simulate snow melt with streams.
         /// </summary>
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public bool SimulateSnowMelt { get; set; }
 
@@ -160,7 +187,7 @@ namespace Water_Features.Settings
         /// Gets or sets a value with a slider indicating the multiplier for water always emitted from a stream.
         /// </summary>
         [SettingsUISlider(min = 0f, max = 100f, step = 1f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float ConstantFlowRate { get; set; }
 
@@ -168,7 +195,7 @@ namespace Water_Features.Settings
         /// Gets or sets a value with a slider indicating the multiplier for water seaonally emitted from a stream.
         /// </summary>
         [SettingsUISlider(min = 0f, max = 100f, step = 5f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float StreamSeasonality { get; set; }
 
@@ -176,14 +203,14 @@ namespace Water_Features.Settings
         /// Gets or sets a value with a slider indicating the multiplier for water emitted from a stream due to rain.
         /// </summary>
         [SettingsUISlider(min = 0f, max = 100f, step = 5f, unit = "percentageSingleFraction", scalarMultiplier = 100f)]
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float StreamStormwaterEffects { get; set; }
 
         /// <summary>
         /// Gets or sets a value with a slider indicating the minimum multiplier to apply to streams.
         /// </summary>
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         [SettingsUISlider(min = 0f, max = 1f, step = 0.1f, unit = "floatSingleFraction")]
         public float MinimumMultiplier { get; set; }
@@ -192,7 +219,7 @@ namespace Water_Features.Settings
         /// Gets or sets a value with a slider indicating the maximum multiplier to apply to streams.
         /// </summary>
         [SettingsUISlider(min = 1f, max = 10f, step = 0.1f, unit = "floatSingleFraction")]
-        [SettingsUISection(SeasonalStreams, Stable)]
+        [SettingsUISection(SeasonalStreams, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
         public float MaximumMultiplier { get; set; }
 
@@ -202,6 +229,7 @@ namespace Water_Features.Settings
         [SettingsUIButton]
         [SettingsUIConfirmation]
         [SettingsUISection(SeasonalStreams, Reset)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
         public bool ResetSeasonalStreamsSettingsButton
         {
             set
@@ -213,14 +241,23 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value indicating whether to have Waves and Tides.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesToggled))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
         public bool EnableWavesAndTides { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating that waves and tides settings are only available in game.
+        /// </summary>
+        [SettingsUIMultilineText]
+        [SettingsUISection(WavesAndTides, Warnings)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor))]
+        public string WavesAndTidesSettingsAvailableInGame { get; }
 
         /// <summary>
         /// Gets or sets a value with a slider indicating the height of waves generated.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISlider(min = 0f, max = 20f, step = 0.5f, unit = "floatSingleFraction")]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(ResetDummyWaterSource))]
@@ -229,7 +266,7 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value with a slider indicating the frequency of waves generated.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISlider(min = 10f, max = 250f, step = 10f)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         public float WaveFrequency { get; set; }
@@ -237,7 +274,7 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets a value with a slider indicating the height of tides generated.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISlider(min = 0f, max = 15f, step = 0.5f, unit = "floatSingleFraction")]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(ResetDummyWaterSource))]
@@ -246,14 +283,14 @@ namespace Water_Features.Settings
         /// <summary>
         /// Gets or sets an enum value indicating the tide classification.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         public TideClassificationYYTAW TideClassification { get; set; }
 
         /// <summary>
         /// Gets or sets a value with a slider indicating the damping factor of the water system.
         /// </summary>
-        [SettingsUISection(WavesAndTides, Stable)]
+        [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISlider(min = 9950f, max = 9999f, step = 1f, unit = "floatSingleFraction", scalarMultiplier = 10000f)]
         [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
         public float Damping { get; set; }
@@ -264,6 +301,7 @@ namespace Water_Features.Settings
         [SettingsUIButton]
         [SettingsUIConfirmation]
         [SettingsUISection(WavesAndTides, Reset)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
         public bool ResetWavesAndTidesSettingsButton
         {
             set
@@ -273,33 +311,32 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to force water simulation.
+        /// </summary>
+        [SettingsUISection(WaterToolGroup, SaveGame)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
+        public bool ForceWaterSimulationSpeed { get; set; }
+
+        /// <summary>
         /// Gets or sets a value with a slider indicating the fluidness factor of the water system.
         /// </summary>
         [SettingsUISection(WaterToolGroup, Experimental)]
         [SettingsUISlider(min = 0.01f, max = 1.0f, step = 0.01f, unit = Unit.kFloatTwoFractions)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
         public float Fluidness { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether Evaporation and Fluidness can be altered in Editor.
         /// </summary>
-        [SettingsUISection(WaterToolGroup, Experimental)]
+        [SettingsUISection(WaterToolGroup, Editor)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsEditor), invert: true)]
         public bool WaterToolSettingsAffectEditorSimulation { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether seasonal streams affects the editor simulation.
+        /// Gets a value indicating the version.
         /// </summary>
-        [SettingsUISection(SeasonalStreams, Experimental)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsSeasonalStreamsDisabled))]
-        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(SeasonalStreamsAffectsEditorToggled))]
-        public bool SeasonalStreamsAffectEditorSimulation { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether waves and tides affects the editor simulation.
-        /// </summary>
-        [SettingsUISection(WavesAndTides, Experimental)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsWavesAndTidesDisabled))]
-        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesAffectsEditorSimulationToggled))]
-        public bool WavesAndTidesAffectEditorSimulation { get; set; }
+        [SettingsUISection(WaterToolGroup, About)]
+        public string Version => WaterFeaturesMod.Instance.Version;
 
         /// <summary>
         /// Resets only the water tool settings.
@@ -312,6 +349,7 @@ namespace Water_Features.Settings
             IncludeRetentionBasins = false;
             Fluidness = 0.1f;
             WaterToolSettingsAffectEditorSimulation = false;
+            ForceWaterSimulationSpeed = false;
         }
 
         /// <summary>
@@ -325,8 +363,8 @@ namespace Water_Features.Settings
             MinimumMultiplier = 0f;
             MaximumMultiplier = 1.0f;
             SimulateSnowMelt = true;
-            SeasonalStreamsAffectEditorSimulation = false;
-            SeasonalStreamsAffectsEditorToggled(false);
+            EnableSeasonalStreams = false;
+            SeasonalStreamsToggled(false);
         }
 
         /// <summary>
@@ -339,7 +377,7 @@ namespace Water_Features.Settings
             WaveFrequency = 200f;
             TideClassification = TideClassificationYYTAW.Semidiurnal;
             Damping = 0.9999f;
-            WavesAndTidesAffectEditorSimulation = false;
+            EnableWavesAndTides = false;
             WavesAndTidesToggled(false);
         }
 
@@ -347,19 +385,13 @@ namespace Water_Features.Settings
         /// Checks if seasonal streams feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Seasonal Streams.</returns>
-        public bool IsSeasonalStreamsDisabled() => !EnableSeasonalStreams;
+        public bool IsSeasonalStreamsDisabled() => !EnableSeasonalStreams || !IsGameOrEditor();
 
         /// <summary>
         /// Checks if waves and tides feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Waves and Tides.</returns>
-        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides;
-
-        /// <summary>
-        /// Gets a value indicating the version.
-        /// </summary>
-        [SettingsUISection(SeasonalStreams, About)]
-        public string Version => WaterFeaturesMod.Instance.Version;
+        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditor();
 
         /// <inheritdoc/>
         public override void SetDefaults()
@@ -379,12 +411,11 @@ namespace Water_Features.Settings
             WaveFrequency = 200f;
             TideClassification = TideClassificationYYTAW.Semidiurnal;
             Damping = 0.9999f;
-            EnableSeasonalStreams = true;
+            EnableSeasonalStreams = false;
             EnableWavesAndTides = false;
             Fluidness = 0.1f;
+            ForceWaterSimulationSpeed = false;
             WaterToolSettingsAffectEditorSimulation = false;
-            SeasonalStreamsAffectEditorSimulation = false;
-            WavesAndTidesAffectEditorSimulation = false;
         }
 
         /// <summary>
@@ -406,7 +437,7 @@ namespace Water_Features.Settings
             WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)}");
             SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
             ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            if (value && (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && SeasonalStreamsAffectEditorSimulation)))
+            if (value && toolSystem.actionMode.IsGameOrEditor())
             {
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Enabled");
                 seasonalStreamsSystem.Enabled = true;
@@ -425,33 +456,6 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
-        /// Handles toggling seasonal streams affects editor simulation.
-        /// </summary>
-        /// <param name="value">true if enabled, false if not.</param>
-        public void SeasonalStreamsAffectsEditorToggled(bool value)
-        {
-            WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)}");
-            SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
-            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            if (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && value))
-            {
-                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)} Enabled");
-                seasonalStreamsSystem.Enabled = true;
-                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
-                disableSeasonalStreamSystem.Enabled = false;
-            }
-            else
-            {
-                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsAffectsEditorToggled)} Disabled");
-                seasonalStreamsSystem.Enabled = false;
-                DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                disableSeasonalStreamSystem.Enabled = true;
-            }
-        }
-
-        /// <summary>
         /// Handles toggling waves and tides either in game or editor.
         /// </summary>
         /// <param name="value">true if enabled, false if not.</param>
@@ -460,7 +464,7 @@ namespace Water_Features.Settings
             WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)}");
             TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
             ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            if (value && (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && WavesAndTidesAffectEditorSimulation)))
+            if (value && toolSystem.actionMode.IsGameOrEditor())
             {
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)} Enabled");
                 tidesAndWavesSystem.Enabled = true;
@@ -479,30 +483,42 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
-        /// Handles toggling waves and tides either in game or editor.
+        /// Checks whether it is game or editor.
         /// </summary>
-        /// <param name="value">true if enabled, false if not.</param>
-        public void WavesAndTidesAffectsEditorSimulationToggled(bool value)
+        /// <returns>True if in game or editor. false if not.</returns>
+        public bool IsGameOrEditor()
         {
-            WaterFeaturesMod.Instance.Log.Debug($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)}");
-            TidesAndWavesSystem tidesAndWavesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
-            ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
-            if (toolSystem.actionMode.IsGame() || (toolSystem.actionMode.IsEditor() && value))
+            ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            return toolsystem.actionMode.IsGameOrEditor();
+        }
+
+        /// <summary>
+        /// Checks whether it is editor.
+        /// </summary>
+        /// <returns>True if in editor. false if not.</returns>
+        public bool IsEditor()
+        {
+            ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            return toolsystem.actionMode.IsEditor();
+        }
+
+        /// <summary>
+        /// Checks whether to hide a water tool setting.
+        /// </summary>
+        /// <returns>True if hide, false if not.</returns>
+        public bool DisableWaterToolSetting()
+        {
+            if (IsEditor() && !WaterToolSettingsAffectEditorSimulation)
             {
-                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)} Enabled");
-                tidesAndWavesSystem.Enabled = true;
-                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
-                disableWavesAndTidesSystem.Enabled = false;
+                return true;
             }
-            else
+
+            if (!IsGameOrEditor())
             {
-                WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesAffectsEditorSimulationToggled)} Disabled");
-                tidesAndWavesSystem.Enabled = false;
-                DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                disableWavesAndTidesSystem.Enabled = true;
+                return true;
             }
+
+            return false;
         }
     }
 }

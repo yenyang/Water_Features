@@ -117,6 +117,8 @@ namespace Water_Features.Settings
                 { "Assets.DESCRIPTION[WaterSource DetentionBasin]", "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove." },
                 { "Assets.NAME[WaterSource RetentionBasin]", "Retention Basin" },
                 { "Assets.DESCRIPTION[WaterSource RetentionBasin]", "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove." },
+                { "Assets.NAME[WaterSource Automated]", "Automated Water Source" },
+                { "Assets.DESCRIPTION[WaterSource Automated]", "Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove." },
                 { "Tooltip.LABEL[YY.WT.PlaceNearBorder]", "Rivers must be placed near map border." },
                 { "Tooltip.LABEL[YY.WT.RadiusTooSmall]", "The radius is too small and has been automatically increased." },
                 { "Tooltip.LABEL[YY.WT.RemoveWaterSource]", "Right click to remove water source." },
@@ -128,10 +130,6 @@ namespace Water_Features.Settings
                 { "Editor.TOOL[Yenyang's Water Tool]", "Yenyang's Water Tool" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation)), "Water Tool Settings Affect Editor Simulation" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation)), "Allows the settings in the Water Tool tab to affect the editor simulation such as evaporation, fluidness, and Water Clean Up Cycle." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation)), "Seasonal Streams Settings Affect Editor Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation)), "Allows the settings in the Seasonal Streams tab to affect the editor simulation and alter stream flowrates." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation)), "Waves and Tides Settings Affect Editor Simulation" },
-                { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation)), "Allows the settings in the Waves and Tides tab to affect the editor simulation by oscillating sea level and altering damping value." },
                 { "YY_WATER_FEATURES_DESCRIPTION.ElevationChange", "Water Tool will change target elevations of existing water sources by hovering over existing water source, left clicking, holding, dragging and releasing at new elevation. Usually dragging out raises, and dragging in lowers, but it's really just releasing at the desired elevation. Keep the cursor within playable area for reliability. Right click to cancel." },
                 { "YY_WATER_FEATURES_DESCRIPTION.PlaceWaterSource", "Water Tool will place water sources with left click, and remove water sources with right click." },
                 { "YY_WATER_FEATURES_DESCRIPTION.MoveWaterSource", "Water Tool will move existing water sources. Target elevations of existing water sources will not change. Right click to cancel." },
@@ -142,6 +140,13 @@ namespace Water_Features.Settings
                 { "YY_WATER_FEATURES.RadiusChange", "Change Radius" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Version)), "Version" },
                 { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Version)), $"Version number for the Water Features mod installed." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.SeasonalStreamsSettingsAvailableInGame)), "Seasonal Streams settings available in the Game or Editor." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.WavesAndTidesSettingsAvailableInGame)), "Waves and Tides settings available in the Game or Editor." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Force Water Simulation Speed" },
+                { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Attempts to force a Water Simulation Speed of at least 1x while in Game." },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Editor), "Editor" },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SaveGame), "Individual Save File" },
+                { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.General), "General" },
             };
         }
 

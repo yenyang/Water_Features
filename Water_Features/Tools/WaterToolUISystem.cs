@@ -99,6 +99,11 @@ namespace Water_Features.Tools
             /// Pond that fills when its raining and has a minimum water level.
             /// </summary>
             RetentionBasin,
+
+            /// <summary>
+            /// All in one water source.
+            /// </summary>
+            Automated,
         }
 
         /// <summary>

@@ -266,6 +266,17 @@ namespace Water_Features.Tools
                         };
                         AddMouseTooltip(maxElevationTooptip);
                     }
+                    else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out AutomatedWaterSource automatedWaterSource))
+                    {
+                        FloatTooltip maxElevationTooptip = new FloatTooltip
+                        {
+                            value = automatedWaterSource.m_MaximumWaterHeight,
+                            unit = "floatSingleFraction",
+                            path = "YY_WATER_FEATURES.MaxElevation",
+                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                        };
+                        AddMouseTooltip(maxElevationTooptip);
+                    }
                     else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out RetentionBasin retentionBasin))
                     {
                         FloatTooltip maxElevationTooptip = new FloatTooltip

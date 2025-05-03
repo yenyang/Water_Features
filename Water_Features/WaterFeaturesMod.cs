@@ -2,6 +2,7 @@
 // Copyright (c) Yenyang's Mods. MIT License. All rights reserved.
 // </copyright>
 
+// #define DUMP_VANILLA_LOCALIZATION
 namespace Water_Features
 {
     using System;
@@ -18,6 +19,7 @@ namespace Water_Features
     using Game.SceneFlow;
     using HarmonyLib;
     using Newtonsoft.Json;
+    using UnityEngine;
     using Water_Features.Settings;
     using Water_Features.Systems;
     using Water_Features.Tools;
@@ -66,16 +68,42 @@ namespace Water_Features
 #else
             Log.effectivenessLevel = Level.Info;
 #endif
+#if DUMP_VANILLA_LOCALIZATION && DEBUG
+            var strings = GameManager.instance.localizationManager.activeDictionary.entries
+                .OrderBy(kv => kv.Key)
+                .ToDictionary(kv => kv.Key, kv => kv.Value);
+
+            var json = Colossal.Json.JSON.Dump(strings);
+
+            var filePath = Path.Combine(Application.persistentDataPath, "locale-dictionary.json");
+
+            File.WriteAllText(filePath, json);
+#endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Initializing settings");
             Settings = new (this);
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading english localization");
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading other languages");
             LoadNonEnglishLocalizations();
+#if DEBUG
+            Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Exporting localization");
+            var localeDict = new LocaleEN(Settings).ReadEntries(new List<IDictionaryEntryError>(), new Dictionary<string, int>()).ToDictionary(pair => pair.Key, pair => pair.Value);
+            var str = JsonConvert.SerializeObject(localeDict, Formatting.Indented);
+            try
+            {
+                File.WriteAllText($"C:\\Users\\TJ\\source\\repos\\{nameof(Water_Features)}\\{nameof(Water_Features)}\\UI\\src\\lang\\en-US.json", str);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.ToString());
+            }
+#endif
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Registering settings");
             Settings.RegisterInOptionsUI();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Loading settings");
             AssetDatabase.global.LoadSettings("Mods_Yenyang_Water_Features", Settings, new WaterFeaturesSettings(this));
+            Settings.EnableWavesAndTides = false;
+            Settings.EnableSeasonalStreams = false;
             Log.Info("Handling create world");
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting Harmony Patches.");
             m_Harmony = new Harmony("Mods_Yenyang_Water_Features");
@@ -96,6 +124,7 @@ namespace Water_Features
             updateSystem.UpdateAt<SeasonalStreamsSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<DisableSeasonalStreamSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<DisableWavesAndTidesSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<AutomatedWaterSourceSystem>(SystemUpdatePhase.GameSimulation);
 
             updateSystem.UpdateBefore<BeforeSerializeSystem>(SystemUpdatePhase.Serialize);
             updateSystem.UpdateAfter<TidesAndWavesSystem>(SystemUpdatePhase.Serialize);

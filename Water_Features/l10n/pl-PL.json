@@ -89,6 +89,8 @@
   "Assets.DESCRIPTION[WaterSource DetentionBasin]": "Niestandardowe źródło wody, które zwiększa się wraz z ilością opadów i topnieniem śniegu oraz powoli opada przy suchej pogodzie. Mają maksymalny poziom wody, ale nie mają minimalnego poziomu wody. Kliknij prawym przyciskiem myszy, aby wyznaczyć maksymalną wysokość źródła. Kliknij lewym przyciskiem myszy, aby umieścić w obszarze rozgrywki. Usuń, klikając prawym przyciskiem myszy nad źródłem.",
   "Assets.NAME[WaterSource RetentionBasin]": "Zbiornik retencyjny",
   "Assets.DESCRIPTION[WaterSource RetentionBasin]": "Niestandardowe źródło wody, które zwiększa się wraz z ilością opadów i topnieniem śniegu oraz powoli opada przy suchej pogodzie. Mają maksymalny i minimalny poziomu wody. Kliknij prawym przyciskiem myszy, aby wyznaczyć maksymalną wysokość źródła. Kliknij lewym przyciskiem myszy, aby umieścić w obszarze rozgrywki. Usuń, klikając prawym przyciskiem myszy nad źródłem.",
+  "Assets.NAME[WaterSource Automated]": "Zautomatyzowane źródło wody",
+  "Assets.DESCRIPTION[WaterSource Automated]": "Niestandardowe źródło wody, które dynamicznie dostosowuje sie, aby automatycznie uzupełnić i ustabilizować się do pożądanej wysokości. Nie wpływają na nie ustawienia Sezonowych Strumieni oraz Fal i pływów. Kliknij prawym przyciskiem myszy, aby wyznaczyć maksymalną wysokość źródła. Kliknij lewym przyciskiem myszy, aby umieścić w obszarze rozgrywki. Usuń, klikając prawym przyciskiem myszy nad źródłem.",
   "Tooltip.LABEL[YY.WT.PlaceNearBorder]": "Rzeki muszą być umieszczone na granicy mapy.",
   "Tooltip.LABEL[YY.WT.RadiusTooSmall]": "Promień jest zbyt mały i został automatycznie zwiększony.",
   "Tooltip.LABEL[YY.WT.RemoveWaterSource]": "Kliknij prawym przyciskiem myszy, aby usunąć źródło wody.",
@@ -100,10 +102,6 @@
   "Editor.TOOL[Yenyang's Water Tool]": "Narzędzie Yenyanga — woda",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation]": "Ustawienia narzędzia wody wpływają na symulację w edytorze",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation]": "Pozwala na działanie ustawień z zakładki narzędzie wody w symulacji edytora, takich jak parowanie, płynność i usuwanie rozlewisk wody.",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation]": "Ustawienia strumieni sezonowych wpływają na symulację w edytorze",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation]": "Pozwala na działanie ustawień z zakładki strumienie sezonowe w symulacji edytora i zmieniać przepływ wody strumieni.",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation]": "Ustawienia fal i pływów wpływają na symulację w edytorze",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation]": "Pozwala na działanie ustawień z zakładki fale i pływy w symulacji edytora zmieniając oscylacje poziomu morza i wartość tłumienia.",
   "YY_WATER_FEATURES_DESCRIPTION.ElevationChange": "Narzędzie wody zmieni wysokość docelową istniejących źródeł wody przez najechanie na nie, kliknięcie lewego przycisku myszy, przytrzymanie, przeciąganie i puszczenie na nowej wysokości. Zwykle przeciąganie od źródeł podnosi, a przeciąganie w głąb źródeł opuszcza. Trzymaj kursor w obszarze rozgrywki dla niezawodności. Kliknij prawym przyciskiem myszy, aby anulować.",
   "YY_WATER_FEATURES_DESCRIPTION.PlaceWaterSource": "Narzędzie wody umieści źródła wody przez kliknięcie lewym przyciskiem myszy, a usunie źródła wody przez kliknięcie prawym przyciskiem myszy.",
   "YY_WATER_FEATURES_DESCRIPTION.MoveWaterSource": "Narzędzie wody przesunie istniejące źródła wody. Docelowo wysokość istniejących źródeł wody nie ulegnie zmiany. Kliknij prawym przyciskiem myszy, aby anulować.",
@@ -113,5 +111,12 @@
   "YY_WATER_FEATURES.MoveWaterSource": "Przesuń źródło wody",
   "YY_WATER_FEATURES.RadiusChange": "Zmień promień",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Wersja",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Numer wersji zainstalowanego moda Water Features."
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Numer wersji zainstalowanego moda Water Features.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsSettingsAvailableInGame]": "Zmiany ustawień Sezonowych strumieni dostępne są dopiero w grze lub edytorze.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesSettingsAvailableInGame]": "Zmiany ustawień Fal i pływów dostępne są dopiero w grze lub edytorze.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "Wymuś prędkość symulacji wody",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "Próbuje wymusić prędkość symulacji wody na poziomie co najmniej 1x w grze.",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Editor]": "Edytor",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.SaveGame]": "Tylko na zapis",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "Ogólne"
 }
