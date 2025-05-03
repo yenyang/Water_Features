@@ -89,6 +89,8 @@
   "Assets.DESCRIPTION[WaterSource DetentionBasin]": "修改后的自定义的水源，在降水和融雪时水面会上升，在天气干燥时会缓慢下降。该水源有最高水位，但没有最低水位。右键单击可指定最高水位。左键单击将其置于可放置区域内。悬停并右键单击可将其移除",
   "Assets.NAME[WaterSource RetentionBasin]": "蓄水池",
   "Assets.DESCRIPTION[WaterSource RetentionBasin]": "修改后的自定义水源，在降水和融雪时会上升，在天气干燥时会缓慢排出。其有一个最高水位和一个最低水位。右键单击可指定最高水位。左键单击将其置于可游玩区域内。悬停并右键单击可移除",
+  "Assets.NAME[WaterSource Automated]": "自动水源",
+  "Assets.DESCRIPTION[WaterSource Automated]": "自定义型式的水源，能够动态地改变水源类型，自动填充并稳定到所需的水平面。 不受季节或海浪和潮汐设置的影响。右键单击以指定最大水平面。 左键单击放置在可放置区域内，鼠标悬停，右键单击可删除。",
   "Tooltip.LABEL[YY.WT.PlaceNearBorder]": "河流必须放置在地图边界附近",
   "Tooltip.LABEL[YY.WT.RadiusTooSmall]": "由于半径太小，已自动增大。",
   "Tooltip.LABEL[YY.WT.RemoveWaterSource]": "右键移除水源",
@@ -100,10 +102,6 @@
   "Editor.TOOL[Yenyang's Water Tool]": "Yenyang 的水源工具",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation]": "水源工具设置影响编辑器模拟",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterToolSettingsAffectEditorSimulation]": "允许水源工具选项中的设置影响编辑器中的模拟，例如蒸发率，流动性和清水周期。",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation]": "季节性溪流设置影响编辑器模拟",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsAffectEditorSimulation]": "允许季节性溪流设置影响编辑器模拟，例如流量影响。",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation]": "海浪与潮汐设置影响编辑器模拟",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesAffectEditorSimulation]": "允许海浪与潮汐设置影响编辑器模拟，例如海平面高度与海浪阻尼。",
   "YY_WATER_FEATURES_DESCRIPTION.ElevationChange": "改变现有水源的目标水位。将鼠标悬停在现有水源上，左键单击，按住不放，拖动并在新的水位处松开。通常拖出的高度会升高，拖入的高度会降低，但实际上只是在所需的水位处松开。为确保可靠性，请将光标保持在可游玩区域内。右击取消",
   "YY_WATER_FEATURES_DESCRIPTION.PlaceWaterSource": "左键放置水源，右键移除水源",
   "YY_WATER_FEATURES_DESCRIPTION.MoveWaterSource": "移动现有水源，现有水源的目标水位不会改变。右击取消",
@@ -113,5 +111,12 @@
   "YY_WATER_FEATURES.MoveWaterSource": "移动水源",
   "YY_WATER_FEATURES.RadiusChange": "更改半径",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "版本",
-  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "已安装的 Water Features 版本号。"
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "已安装的 Water Features 版本号。",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsSettingsAvailableInGame]": "在游戏或编辑器中可用的季节性溪流设置。",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesSettingsAvailableInGame]": "在游戏或编辑器中可用的海浪与潮汐设置。",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "强制固定水模拟速度",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "尝试在游戏中将水模拟速度强制固定为1倍。",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Editor]": "编辑器",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.SaveGame]": "单独保存文件",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "常规"
 }
