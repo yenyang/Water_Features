@@ -22,6 +22,7 @@ Stream - Constant or Variable Rate Water Source: Emits water depending on the se
 River - Border River Water Source: Has a constant level and controls water flowing into or out of the border. While near the border, the source will snap to the border. Right click to designate the target elevation. Left click to place. Hover over and right click to remove.
 Lake - Constant Level Water Source: Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove.
 Sea - Border Sea Water Source: Controls water flowing into or out of the border and the lowest sea controls sea level. With Waves and Tides disabled, it will maintain constant level. With Waves and Tides enabled the sea level rises and falls below the original sea level. Right click to designate the elevation. Left click to place if the radius touches a border. Hover over and right click to remove.
+Automated - New! Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
 
 Optional Opt-In Custom Water Sources: (Enabling/Disabling these in the settings requires restarting the game)
 Detention Basin: Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
@@ -56,6 +57,7 @@ Maps such as San Francisco with shallow seas will need waves and tides with smal
 
 ## Saving
 Before saving, the mod always resets all water sources including the custom ones in a manner that can be loaded safely without the mod, so that the mod can be removed at any time.
+Automated water sources with the mod removed will revert to some fixed vanilla configuration.
 
 ## Additional Features in the Settings
 Adjust the global evaporation rate which can be helpful with Detention and Retention basins.
@@ -63,10 +65,9 @@ Water Clean Up Cycle is an emergency solution for removing water in developed ar
 Experimental: Adjust fluidness.
 
 ## In the Editor
-All features of this mod within the editor are considered experimental.
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
-Seasonal Streams, evaporation, water cleanup cycle, fluidness, and waves and tides settings will not affect the editor simulation unless you opt-in with the settings.
-You may need to untoggle and retoggle seasonal streams and waves and tides to get them to start in the editor.
+Evaporation, water cleanup cycle, and fluidness will not affect the editor simulation unless you opt-in with the settings.
+Seasonal streams and waves and tides must be inidvidually enabled per save file in the editor. In theory, they should be appropriately enabled/disabled when users of the mod start to use the map.
 
 ## Planned Features
 Option to add polluted water sources...?
