@@ -91,7 +91,7 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * Chameleon TBN - Testing, Feedback, Icons, and Logo
 * Klyte45, Algernon, Triton Supreme - Help with UI, Cooperative Development and Code Sharing
 * T.D.W., krzychu124, and Quboid - Cooperative Development and Code Sharing
-* Localization: Hendrix and Fuchs23 (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st and Hinanchovo (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo (Chinese Traditional), T14goc (European Portuguese), Nullpinter and RilkeXS (Chinese Simplified)
+* Localization: Hendrix and Fuchs23 (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st and Hinanchovo (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo (Chinese Traditional), T14goc and Obelix (European Portuguese), Nullpinter and RilkeXS (Chinese Simplified)
 * ST-Apps - Help with UI and Code Sharing
 * Tigon Ologdring, Chair, Dante  - Testing, Feedback</LongDescription>
   <!--Thumbnail-->
@@ -103,20 +103,15 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.2.0" />
+  <ModVersion Value="1.2.1" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.2.*" />
+  <GameVersion Value="1.3.*" />
   <!--Dependency for the mod, can be set multiple-->
-  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.12" />
+  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Update V1.2.0
-* Added a setting to attempt to force water simulation in game to be at least 1x.
-* Seasonal streams is by default off.
-* Seasonal Streams and Waves and Tides settings are only available in game or in the editor. All aspects of those settings are saved into save games now. Valid water sources are required or it will default to disabled.
-* Reorganized settings including making Water Tool tab as initial tab.
-* Additional settings to make waves and tides / seasonal streams work in the editor have been removed.
-* New! Automated Water Source: Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings.
-* Map extents determined dynamically for compatibility with other mods.</ChangeLog>
+  <ChangeLog>## Patch v1.2.1
+* Updated Localization
+* Rebuilt for v1.3.3f1 game update.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
