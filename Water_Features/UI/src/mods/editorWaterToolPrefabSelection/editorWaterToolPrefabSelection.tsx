@@ -90,7 +90,7 @@ enum WaterToolModes
 }
 
 const descriptionToolTipStyle = getModule("game-ui/common/tooltip/description-tooltip/description-tooltip.module.scss", "classes");
-    
+const assetItem = getModule("game-ui/game/components/item-grid/item-grid.module.scss", "classes");
 
 // This is working, but it's possible a better solution is possible.
 export function descriptionTooltip(tooltipTitle: string | null, tooltipDescription: string | null) : JSX.Element {
@@ -175,23 +175,23 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
                         )}>
                         <div className={styles.panelSection}>
                             <Tooltip tooltip={descriptionTooltip(streamTooltipTitle, streamTooltipDescription)}>
-                                <Button className={VanillaComponentResolver.instance.assetGridTheme.item} selected={ActivePrefabName === streamPrefab} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={StreamSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
+                                <Button className={assetItem.item} selected={ActivePrefabName === streamPrefab} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
+                                    <img src={StreamSrc} className={assetItem.thumbnail}></img>
                                 </Button>
                             </Tooltip>
                             <Tooltip tooltip={descriptionTooltip(riverTooltipTitle, riverTooltipDescription)}>
-                                <Button className={VanillaComponentResolver.instance.assetGridTheme.item} selected={ActivePrefabName === riverPrefab} variant="icon" onSelect={() => changePrefab(riverPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={RiverSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
+                                <Button className={assetItem.item} selected={ActivePrefabName === riverPrefab} variant="icon" onSelect={() => changePrefab(riverPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
+                                    <img src={RiverSrc} className={assetItem.thumbnail}></img>
                                 </Button>
                             </Tooltip>
                             <Tooltip tooltip={descriptionTooltip(lakeTooltipTitle, lakeTooltipDescription)}>
-                                <Button className={VanillaComponentResolver.instance.assetGridTheme.item} selected={ActivePrefabName === lakePrefab} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={LakeSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
+                                <Button className={assetItem.item} selected={ActivePrefabName === lakePrefab} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
+                                    <img src={LakeSrc} className={assetItem.thumbnail}></img>
                                 </Button>
                             </Tooltip>
                             <Tooltip tooltip={descriptionTooltip(seaTooltipTitle, seaTooltipDescription)}>
-                                <Button className={VanillaComponentResolver.instance.assetGridTheme.item} selected={ActivePrefabName === seaPrefab} variant="icon" onSelect={() => changePrefab(seaPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={SeaSrc} className={VanillaComponentResolver.instance.assetGridTheme.thumbnail}></img>
+                                <Button className={assetItem.item} selected={ActivePrefabName === seaPrefab} variant="icon" onSelect={() => changePrefab(seaPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
+                                    <img src={SeaSrc} className={assetItem.thumbnail}></img>
                                 </Button>
                             </Tooltip>
                         </div>
