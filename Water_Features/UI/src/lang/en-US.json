@@ -56,6 +56,8 @@
   "Options.WARNING[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ResetWavesAndTidesSettingsButton]": "Reset Waves and Tides Settings?",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Diurnal]": "Diurnal",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Semidiurnal]": "Semidiurnal",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Water Causes Damage",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Enables or disables the Vanilla Water Damage System. This is saved per save game. When toggled off, removes all flooding from buildings that are not yet destroyed.",
   "YY_WATER_FEATURES.Flow": "Flow",
   "YY_WATER_FEATURES.Depth": "Depth",
   "YY_WATER_FEATURES.MaxDepth": "Max Depth",

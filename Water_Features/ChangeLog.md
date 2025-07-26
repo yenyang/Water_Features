@@ -1,2 +1,2 @@
-﻿## Patch v1.2.2
-* Fix UI crash in editor when activating custom water tool.
+﻿## Update v1.3.0
+* New toggle for Water Causes Damage. When toggled off, existing damange and flooding notifications are removed for anything that is not already destroyed. While off, water does not cause flooding nor damage.

@@ -6,6 +6,7 @@ namespace Water_Features.Settings
 {
     using Colossal.IO.AssetDatabase;
     using Game;
+    using Game.Events;
     using Game.Modding;
     using Game.Settings;
     using Game.Simulation;
@@ -540,6 +541,14 @@ namespace Water_Features.Settings
         {
             WaterDamageSystem waterDamageSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterDamageSystem>();
             waterDamageSystem.Enabled = value;
+            SubmergeSystem submergeSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<SubmergeSystem>();
+            submergeSystem.Enabled = value;
+
+            if (value == false)
+            {
+                RemoveFloodedSystem removeFloodedSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<RemoveFloodedSystem>();
+                removeFloodedSystem.Enabled = true;
+            }
         }
     }
 }

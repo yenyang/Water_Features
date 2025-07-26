@@ -43,13 +43,10 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         public void SetDefaults(Context context)
         {
-            if (context.purpose == Purpose.NewMap || context.purpose == Purpose.NewGame)
-            {
-                WaterFeaturesMod.Instance.Settings.Fluidness = 0.1f;
-                WaterFeaturesMod.Instance.Settings.EvaporationRate = 0.0001f;
-                WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = false;
-                WaterFeaturesMod.Instance.Settings.WaterCausesDamage = true;
-            }
+            WaterFeaturesMod.Instance.Settings.Fluidness = 0.1f;
+            WaterFeaturesMod.Instance.Settings.EvaporationRate = 0.0001f;
+            WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = false;
+            WaterFeaturesMod.Instance.Settings.WaterCausesDamage = true;
         }
 
         /// <inheritdoc/>
@@ -80,6 +77,10 @@ namespace Water_Features.Systems
             {
                 reader.Read(out bool waterCausesDamage);
                 WaterFeaturesMod.Instance.Settings.WaterCausesDamage = waterCausesDamage;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Settings.WaterCausesDamage = true;
             }
         }
 

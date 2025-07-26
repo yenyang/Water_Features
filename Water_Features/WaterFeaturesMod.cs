@@ -125,6 +125,7 @@ namespace Water_Features
             updateSystem.UpdateAt<DisableSeasonalStreamSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<DisableWavesAndTidesSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<AutomatedWaterSourceSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<RemoveFloodedSystem>(SystemUpdatePhase.GameSimulation);
 
             updateSystem.UpdateBefore<BeforeSerializeSystem>(SystemUpdatePhase.Serialize);
             updateSystem.UpdateAfter<TidesAndWavesSystem>(SystemUpdatePhase.Serialize);
