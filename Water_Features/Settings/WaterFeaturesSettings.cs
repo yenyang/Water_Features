@@ -8,6 +8,7 @@ namespace Water_Features.Settings
     using Game;
     using Game.Modding;
     using Game.Settings;
+    using Game.Simulation;
     using Game.Tools;
     using Game.UI;
     using Unity.Entities;
@@ -129,6 +130,14 @@ namespace Water_Features.Settings
         [SettingsUISlider(min = 0.01f, max = 1f, step = 0.01f, unit = Unit.kFloatTwoFractions, scalarMultiplier = 1000f)]
         [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
         public float EvaporationRate { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether water causes damage.
+        /// </summary>
+        [SettingsUISection(WaterToolGroup, SaveGame)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableWaterToolSetting))]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WaterCausesDamageToggled))]
+        public bool WaterCausesDamage { get; set; }
 
         /// <summary>
         /// Sets a value indicating whether the toggle for applying a new evaporation rate is on.
@@ -350,6 +359,7 @@ namespace Water_Features.Settings
             Fluidness = 0.1f;
             WaterToolSettingsAffectEditorSimulation = false;
             ForceWaterSimulationSpeed = false;
+            WaterCausesDamage = true;
         }
 
         /// <summary>
@@ -416,6 +426,7 @@ namespace Water_Features.Settings
             Fluidness = 0.1f;
             ForceWaterSimulationSpeed = false;
             WaterToolSettingsAffectEditorSimulation = false;
+            WaterCausesDamage = true;
         }
 
         /// <summary>
@@ -519,6 +530,16 @@ namespace Water_Features.Settings
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Enables or disables water damage system based on toggle value.
+        /// </summary>
+        /// <param name="value">True to enable, false to disable.</param>
+        public void WaterCausesDamageToggled(bool value)
+        {
+            WaterDamageSystem waterDamageSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterDamageSystem>();
+            waterDamageSystem.Enabled = value;
         }
     }
 }
