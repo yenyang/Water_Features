@@ -78,7 +78,8 @@ namespace Water_Features.Systems
                 for (int i = 0; i < entities.Length;   i++)
                 {
                     if (EntityManager.TryGetBuffer(entities[i], isReadOnly: true, out DynamicBuffer<IconElement> originalIconElements) &&
-                        originalIconElements.Length > 0)
+                        originalIconElements.Length > 0 &&
+                        entities[i] != Entity.Null)
                     {
                         if (originalIconElements[0].m_Icon == waterDamagePrefabEntity)
                         {
@@ -111,7 +112,8 @@ namespace Water_Features.Systems
                 for (int i = 0; i < entities.Length; i++)
                 {
                     if (EntityManager.TryGetComponent(entities[i], out PrefabRef prefabRef) &&
-                        prefabRef.m_Prefab == waterDamagePrefabEntity)
+                        prefabRef.m_Prefab == waterDamagePrefabEntity &&
+                        entities[i] != Entity.Null)
                     {
                         buffer.AddComponent<Deleted>(entities[i]);
 
