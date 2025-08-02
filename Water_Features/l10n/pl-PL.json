@@ -56,6 +56,8 @@
   "Options.WARNING[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ResetWavesAndTidesSettingsButton]": "Zresetować ustawienia fal i pływów?",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Diurnal]": "Dobowy",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Semidiurnal]": "Półdobowy",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Woda powoduje powódź i uszkodzenia",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Włącz lub wyłącz system uszkodzeń spowodowanych wodą i zalaniem. To ustawienie jest osobne dla każdego zapisu. Po wyłączeniu usuwa podtopienie i uszkodzenia z zalanych budynków, które nie zostały jeszcze zniszczone.",
   "YY_WATER_FEATURES.Flow": "Przepływ",
   "YY_WATER_FEATURES.Depth": "Głębokość",
   "YY_WATER_FEATURES.MaxDepth": "Maks. głębokość",

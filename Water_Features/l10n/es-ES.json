@@ -56,6 +56,8 @@
   "Options.WARNING[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ResetWavesAndTidesSettingsButton]": "¿Restablecer ajustes de olas y mareas?",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Diurnal]": "Diurna",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Semidiurnal]": "Semidiurno",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Daño por Agua e Inundación",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Habilita o deshabilita el daño por agua y por inundación. La opción se guarda con cada partida guardada. Al deshabilitar, elimina toda inundación y daños a los edificios inundados que aún no fueron destruidos.",
   "YY_WATER_FEATURES.Flow": "Fluidez",
   "YY_WATER_FEATURES.Depth": "Profundidad",
   "YY_WATER_FEATURES.MaxDepth": "Profundidad máxima",
