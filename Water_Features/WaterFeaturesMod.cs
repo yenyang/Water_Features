@@ -143,6 +143,7 @@ namespace Water_Features
             updateSystem.UpdateAt<SeasonalStreamsSystem>(SystemUpdatePhase.EditorSimulation);
             updateSystem.UpdateAt<DisableSeasonalStreamSystem>(SystemUpdatePhase.EditorSimulation);
             updateSystem.UpdateAt<DisableWavesAndTidesSystem>(SystemUpdatePhase.EditorSimulation);
+            updateSystem.UpdateAt<RemoveFloodedSystem>(SystemUpdatePhase.EditorSimulation);
 
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Completed.");
         }
