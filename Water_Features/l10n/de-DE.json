@@ -56,6 +56,8 @@
   "Options.WARNING[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ResetWavesAndTidesSettingsButton]": "Einstellungen für Wellen und Gezeiten zurücksetzen?",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Diurnal]": "Täglich",
   "Options.Water_Features.Water_Features.WaterFeaturesMod.TIDECLASSIFICATIONYYTAW[Semidiurnal]": "Halbtäglich",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Wasser verursacht Überschwemmungen und Schäden",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WaterCausesDamage]": "Aktiviert oder deaktiviert die Vanilla-Wasserschaden- und Überschwemmungssysteme. Diese Einstellung wird pro Spielstand gespeichert. Wenn diese Option deaktiviert ist, werden alle Überschwemmungen und Schäden aus noch nicht zerstörten, überfluteten Gebäuden entfernt.",
   "YY_WATER_FEATURES.Flow": "Wasserrate",
   "YY_WATER_FEATURES.Depth": "Tiefe",
   "YY_WATER_FEATURES.MaxDepth": "Maximale Tiefe",

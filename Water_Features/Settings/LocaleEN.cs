@@ -84,6 +84,8 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionWarningLocaleID(nameof(WaterFeaturesSettings.ResetWavesAndTidesSettingsButton)), "Reset Waves and Tides Settings?" },
                 { m_Setting.GetEnumValueLocaleID(WaterFeaturesSettings.TideClassificationYYTAW.Diurnal), "Diurnal" },
                 { m_Setting.GetEnumValueLocaleID(WaterFeaturesSettings.TideClassificationYYTAW.Semidiurnal), "Semidiurnal" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.WaterCausesDamage)), "Water Causes Flooding and Damage" },
+                { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.WaterCausesDamage)), "Enables or disables the Vanilla Water Damage and Submerge Systems. This is saved per save game. When toggled off, removes all flooding and damage from flooded buildings that are not yet destroyed." },
                 { "YY_WATER_FEATURES.Flow", "Flow" },
                 { "YY_WATER_FEATURES.Depth", "Depth" },
                 { "YY_WATER_FEATURES.MaxDepth", "Max Depth" },

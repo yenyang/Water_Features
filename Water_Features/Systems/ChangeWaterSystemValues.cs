@@ -7,6 +7,7 @@ namespace Water_Features.Systems
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
+    using Game.Events;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Entities;
@@ -31,6 +32,8 @@ namespace Water_Features.Systems
         private bool m_TemporarilyUseOriginalDamping = false;
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
+        private WaterDamageSystem m_WaterDamageSystem;
+        private SubmergeSystem m_SubmergeSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeWaterSystemValues"/> class.
@@ -42,29 +45,28 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         public void SetDefaults(Context context)
         {
-            if (context.purpose == Purpose.NewMap || context.purpose == Purpose.NewGame)
-            {
-                WaterFeaturesMod.Instance.Settings.Fluidness = 0.1f;
-                WaterFeaturesMod.Instance.Settings.EvaporationRate = 0.0001f;
-                WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = false;
-            }
+            WaterFeaturesMod.Instance.Settings.Fluidness = 0.1f;
+            WaterFeaturesMod.Instance.Settings.EvaporationRate = 0.0001f;
+            WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = false;
+            WaterFeaturesMod.Instance.Settings.WaterCausesDamage = true;
         }
 
         /// <inheritdoc/>
         public void Serialize<TWriter>(TWriter writer)
             where TWriter : IWriter
         {
-            writer.Write(1);
+            writer.Write(2);
             writer.Write(WaterFeaturesMod.Instance.Settings.EvaporationRate);
             writer.Write(WaterFeaturesMod.Instance.Settings.Fluidness);
             writer.Write(WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed);
+            writer.Write(WaterFeaturesMod.Instance.Settings.WaterCausesDamage);
         }
 
         /// <inheritdoc/>
         public void Deserialize<TReader>(TReader reader)
             where TReader : IReader
         {
-            reader.Read(out int _);
+            reader.Read(out int version);
             reader.Read(out float evaporationRate);
             reader.Read(out float fluidness);
             reader.Read(out bool forceWaterSimulationSpeed);
@@ -72,6 +74,16 @@ namespace Water_Features.Systems
             WaterFeaturesMod.Instance.Settings.EvaporationRate = evaporationRate;
             WaterFeaturesMod.Instance.Settings.Fluidness = fluidness;
             WaterFeaturesMod.Instance.Settings.ForceWaterSimulationSpeed = forceWaterSimulationSpeed;
+
+            if (version >= 2)
+            {
+                reader.Read(out bool waterCausesDamage);
+                WaterFeaturesMod.Instance.Settings.WaterCausesDamage = waterCausesDamage;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Settings.WaterCausesDamage = true;
+            }
         }
 
         /// <summary>
@@ -97,11 +109,22 @@ namespace Water_Features.Systems
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
+            m_WaterDamageSystem = World.GetOrCreateSystemManaged<WaterDamageSystem>();
+            m_SubmergeSystem = World.GetOrCreateSystemManaged<SubmergeSystem>();
+
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Fluidness {m_WaterSystem.m_Fluidness}");
             m_TimeSystem = World.GetOrCreateSystemManaged<TimeSystem>();
             m_Log.Info($"[{nameof(ChangeWaterSystemValues)}] {nameof(OnCreate)}");
+        }
+
+        /// <inheritdoc/>
+        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
+        {
+            base.OnGameLoadingComplete(purpose, mode);
+            m_WaterDamageSystem.Enabled = WaterFeaturesMod.Instance.Settings.WaterCausesDamage;
+            m_SubmergeSystem.Enabled = WaterFeaturesMod.Instance.Settings.WaterCausesDamage;
         }
 
         /// <inheritdoc/>

@@ -125,6 +125,7 @@ namespace Water_Features
             updateSystem.UpdateAt<DisableSeasonalStreamSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<DisableWavesAndTidesSystem>(SystemUpdatePhase.GameSimulation);
             updateSystem.UpdateAt<AutomatedWaterSourceSystem>(SystemUpdatePhase.GameSimulation);
+            updateSystem.UpdateAt<RemoveFloodedSystem>(SystemUpdatePhase.GameSimulation);
 
             updateSystem.UpdateBefore<BeforeSerializeSystem>(SystemUpdatePhase.Serialize);
             updateSystem.UpdateAfter<TidesAndWavesSystem>(SystemUpdatePhase.Serialize);
@@ -142,6 +143,7 @@ namespace Water_Features
             updateSystem.UpdateAt<SeasonalStreamsSystem>(SystemUpdatePhase.EditorSimulation);
             updateSystem.UpdateAt<DisableSeasonalStreamSystem>(SystemUpdatePhase.EditorSimulation);
             updateSystem.UpdateAt<DisableWavesAndTidesSystem>(SystemUpdatePhase.EditorSimulation);
+            updateSystem.UpdateAt<RemoveFloodedSystem>(SystemUpdatePhase.EditorSimulation);
 
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Completed.");
         }
