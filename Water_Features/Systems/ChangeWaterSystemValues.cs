@@ -7,6 +7,7 @@ namespace Water_Features.Systems
     using Colossal.Logging;
     using Colossal.Serialization.Entities;
     using Game;
+    using Game.Events;
     using Game.Simulation;
     using Game.Tools;
     using Unity.Entities;
@@ -32,6 +33,7 @@ namespace Water_Features.Systems
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
         private WaterDamageSystem m_WaterDamageSystem;
+        private SubmergeSystem m_SubmergeSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChangeWaterSystemValues"/> class.
@@ -108,6 +110,7 @@ namespace Water_Features.Systems
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_WaterDamageSystem = World.GetOrCreateSystemManaged<WaterDamageSystem>();
+            m_SubmergeSystem = World.GetOrCreateSystemManaged<SubmergeSystem>();
 
             m_OriginalDamping = m_WaterSystem.m_Damping;
             m_Log.Info($"{nameof(ChangeWaterSystemValues)}.{nameof(OnCreate)} m_WaterSystem.m_Evaporation {m_WaterSystem.m_Evaporation}");
@@ -121,6 +124,7 @@ namespace Water_Features.Systems
         {
             base.OnGameLoadingComplete(purpose, mode);
             m_WaterDamageSystem.Enabled = WaterFeaturesMod.Instance.Settings.WaterCausesDamage;
+            m_SubmergeSystem.Enabled = WaterFeaturesMod.Instance.Settings.WaterCausesDamage;
         }
 
         /// <inheritdoc/>
