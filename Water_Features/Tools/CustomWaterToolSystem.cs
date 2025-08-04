@@ -375,9 +375,9 @@ namespace Water_Features.Tools
         {
             base.OnStartRunning();
             m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnStartRunning)}");
-            applyAction.enabled = true;
-            secondaryApplyAction.enabled = true;
             m_RaycastPoint = default;
+            applyAction.shouldBeEnabled = true;
+            secondaryApplyAction.shouldBeEnabled = true;
         }
 
         /// <inheritdoc/>
@@ -660,7 +660,7 @@ namespace Water_Features.Tools
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream &&
                        !EntityManager.HasComponent<AutomatedWaterSource>(m_SelectedWaterSource))
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Height);
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out DetentionBasin detentionBasin))
                     {
@@ -710,7 +710,7 @@ namespace Water_Features.Tools
                        !EntityManager.HasComponent<AutomatedWaterSource>(m_SelectedWaterSource))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
-                        waterSourceData.m_Amount = m_RaycastPoint.m_HitPosition.y;
+                        waterSourceData.m_Height = m_RaycastPoint.m_HitPosition.y;
                         buffer.SetComponent(m_SelectedWaterSource, waterSourceData);
                     }
                     else if (EntityManager.TryGetComponent(m_SelectedWaterSource, out RetentionBasin retentionBasin))
@@ -779,10 +779,10 @@ namespace Water_Features.Tools
                     float targetElevation = m_RaycastPoint.m_HitPosition.y;
                     if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource)
                     {
-                        targetElevation = waterSourceData.m_Amount;
+                        targetElevation = waterSourceData.m_Height;
                     }
 
-                    waterSourceData.m_Amount = 0;
+                    waterSourceData.m_Height = 0;
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
 
                     buffer.AddComponent<AutofillingLake>(m_SelectedWaterSource);
@@ -826,7 +826,7 @@ namespace Water_Features.Tools
                 {
                     if (waterSourceData.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream)
                     {
-                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Amount);
+                        inputDeps = RenderTargetWaterElevation(inputDeps, transform.m_Position, waterSourceData.m_Radius, waterSourceData.m_Height);
                     }
                     else if (EntityManager.TryGetComponent(hoveredWaterSource, out DetentionBasin detentionBasin))
                     {
@@ -973,13 +973,15 @@ namespace Water_Features.Tools
                 constantDepth = 0;
             }
 
-            Game.Simulation.WaterSourceData waterSourceDataComponent = new ()
+            Game.Simulation.WaterSourceData waterSourceDataComponent = new()
             {
-                m_Amount = amount,
+                m_Height = amount,
                 m_ConstantDepth = constantDepth,
                 m_Radius = radius,
                 m_Polluted = pollution,
                 m_Multiplier = 30f,
+                m_id = m_WaterSystem.GetNextSourceId(),
+                m_modifier = 1,
             };
             Game.Objects.Transform transformComponent = new ()
             {
@@ -1039,7 +1041,7 @@ namespace Water_Features.Tools
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Lake)
                 {
                     // Let autofilling lake system handle amount.
-                    waterSourceDataComponent.m_Amount = 0f;
+                    waterSourceDataComponent.m_Height = 0f;
 
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     Entity currentEntity = buffer.CreateEntity(m_AutoFillingLakeArchetype);
@@ -1052,7 +1054,7 @@ namespace Water_Features.Tools
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.DetentionBasin)
                 {
-                    waterSourceDataComponent.m_Amount = 0f;
+                    waterSourceDataComponent.m_Height = 0f;
 
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     Entity currentEntity = buffer.CreateEntity(m_DetentionBasinArchetype);
@@ -1065,7 +1067,7 @@ namespace Water_Features.Tools
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.RetentionBasin)
                 {
-                    waterSourceDataComponent.m_Amount = m_WaterToolUISystem.MinDepth;
+                    waterSourceDataComponent.m_Height = m_WaterToolUISystem.MinDepth;
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     Entity currentEntity = buffer.CreateEntity(m_RetentionBasinArchetype);
                     buffer.SetComponent(currentEntity, waterSourceDataComponent);
@@ -1076,7 +1078,7 @@ namespace Water_Features.Tools
                 }
                 else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Automated)
                 {
-                    waterSourceDataComponent.m_Amount = 0;
+                    waterSourceDataComponent.m_Height = 0;
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     Entity currentEntity = buffer.CreateEntity(m_AutomatedWaterSourceArchetype);
                     buffer.SetComponent(currentEntity, waterSourceDataComponent);

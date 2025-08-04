@@ -167,9 +167,9 @@ namespace Water_Features.Systems
                     }
 
                     // When it reaches 100% full or higher the amount is set to 0.
-                    if (waterHeight > currentDetentionBasin.m_MaximumWaterHeight && currentWaterSourceData.m_Amount >= 0f)
+                    if (waterHeight > currentDetentionBasin.m_MaximumWaterHeight && currentWaterSourceData.m_Height >= 0f)
                     {
-                        currentWaterSourceData.m_Amount = 0f;
+                        currentWaterSourceData.m_Height = 0f;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                     else if (m_Precipiation > 0f && !m_Snowing) // If it's not full and it's raining add water.
@@ -177,20 +177,20 @@ namespace Water_Features.Systems
                         // If there is no snow to melt than just simulate rain.
                         if (Mathf.Approximately(currentDetentionBasin.m_SnowAccumulation, 0f) && temperatureDifferentialAtWaterSource > 0f)
                         {
-                            currentWaterSourceData.m_Amount = m_Precipiation * maximumDepth * maxDepthToRunoffCoefficient;
+                            currentWaterSourceData.m_Height = m_Precipiation * maximumDepth * maxDepthToRunoffCoefficient;
                         }
 
                         // If there is snow that is melting add that to the amount.
                         else
                         {
-                            currentWaterSourceData.m_Amount = (m_Precipiation * maximumDepth * maxDepthToRunoffCoefficient) + TryMeltSnow(ref currentDetentionBasin, temperatureDifferentialAtWaterSource, maximumDepth);
+                            currentWaterSourceData.m_Height = (m_Precipiation * maximumDepth * maxDepthToRunoffCoefficient) + TryMeltSnow(ref currentDetentionBasin, temperatureDifferentialAtWaterSource, maximumDepth);
                             buffer.SetComponent(currentEntity, currentDetentionBasin);
                         }
 
                         // When it reaches 95% full then the amount is throttled.
                         if (waterDepth > 0.95f * maximumDepth)
                         {
-                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, maximumDepth * .05f);
+                            currentWaterSourceData.m_Height = Mathf.Min(currentWaterSourceData.m_Height, maximumDepth * .05f);
                         }
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
@@ -199,18 +199,18 @@ namespace Water_Features.Systems
                     // If it is not raining, but their is snow that can melt.
                     else if (m_Precipiation == 0f && temperatureDifferentialAtWaterSource > 0f && currentDetentionBasin.m_SnowAccumulation > 0f)
                     {
-                        currentWaterSourceData.m_Amount = TryMeltSnow(ref currentDetentionBasin, temperatureDifferentialAtWaterSource, maximumDepth); // If there is snow that is melting add that to the amount.
+                        currentWaterSourceData.m_Height = TryMeltSnow(ref currentDetentionBasin, temperatureDifferentialAtWaterSource, maximumDepth); // If there is snow that is melting add that to the amount.
 
                         if (waterDepth > 0.95f * maximumDepth) // When it reaches 95% full then the amount is throttled.
                         {
-                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, maximumDepth * .05f);
+                            currentWaterSourceData.m_Height = Mathf.Min(currentWaterSourceData.m_Height, maximumDepth * .05f);
                         }
 
                         buffer.SetComponent(currentEntity, currentDetentionBasin);
                     }
                     else
                     {
-                        currentWaterSourceData.m_Amount = 0f;
+                        currentWaterSourceData.m_Height = 0f;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                 }

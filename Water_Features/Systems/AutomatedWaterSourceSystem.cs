@@ -149,7 +149,7 @@ namespace Water_Features.Systems
 
                         totalPreviousWaterHeight += previousWaterHeights[j];
                     }
-
+                        
                     float averagePreviousWaterHeight = totalPreviousWaterHeight / 4f;
                     float rateOfChange = (previousWaterHeights.w - previousWaterHeights.x) / 4f;
                     float fillDepth = maxDepth - waterDepth;
@@ -159,7 +159,7 @@ namespace Water_Features.Systems
                     {
                         if (currentAutomatedWaterSource.m_PreviousFlowRate == 0)
                         {
-                            currentAutomatedWaterSource.m_PreviousFlowRate = currentWaterSourceData.m_Amount;
+                            currentAutomatedWaterSource.m_PreviousFlowRate = currentWaterSourceData.m_Height;
                         }
 
                         if (currentWaterSourceData.m_Radius >= 500f &&
@@ -176,19 +176,19 @@ namespace Water_Features.Systems
                             currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.Lake;
                         }
 
-                        currentWaterSourceData.m_Amount = currentAutomatedWaterSource.m_MaximumWaterHeight;
+                        currentWaterSourceData.m_Height = currentAutomatedWaterSource.m_MaximumWaterHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                     else
                     {
                         if (currentWaterSourceData.m_ConstantDepth != 0)
                         {
-                            currentWaterSourceData.m_Amount = 0.975f * currentAutomatedWaterSource.m_PreviousFlowRate;
+                            currentWaterSourceData.m_Height = 0.975f * currentAutomatedWaterSource.m_PreviousFlowRate;
                             currentAutomatedWaterSource.m_PreviousFlowRate = 0f;
                             currentWaterSourceData.m_ConstantDepth = 0; // Stream
                         }
 
-                        currentWaterSourceData.m_Amount += fillDepth * currentWaterSourceData.m_Radius * 0.00001f * Mathf.Pow(10f, Mathf.Max(Mathf.Round(Mathf.Log10(currentWaterSourceData.m_Amount)), 1));
+                        currentWaterSourceData.m_Height += fillDepth * currentWaterSourceData.m_Radius * 0.00001f * Mathf.Pow(10f, Mathf.Max(Mathf.Round(Mathf.Log10(currentWaterSourceData.m_Height)), 1));
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }

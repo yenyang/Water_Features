@@ -381,7 +381,7 @@ namespace Water_Features.Systems
                     }
 
                     // Set the amount.
-                    currentWaterSourceData.m_Amount = (seasonalStreamDataNativeArray[i].m_OriginalAmount * m_WaterSourceMultiplier) + snowMelt;
+                    currentWaterSourceData.m_Height = (seasonalStreamDataNativeArray[i].m_OriginalAmount * m_WaterSourceMultiplier) + snowMelt;
                     buffer.SetComponent(entityNativeArray[i], currentWaterSourceData);
                 }
             }

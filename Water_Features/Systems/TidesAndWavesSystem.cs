@@ -159,7 +159,7 @@ namespace Water_Features.Systems
                 }
 
                 m_ChangeWaterSystemValues.TemporarilyUseOriginalDamping = true;
-                m_WaterSystem.m_Damping = m_ChangeWaterSystemValues.OriginalDamping;
+                m_WaterSystem.WaterSimulation.Damping = m_ChangeWaterSystemValues.OriginalDamping;
                 m_TerrainToolCooloff = 300;
             }
 
@@ -184,7 +184,7 @@ namespace Water_Features.Systems
                     }
 
                     m_ChangeWaterSystemValues.TemporarilyUseOriginalDamping = true;
-                    m_WaterSystem.m_Damping = m_ChangeWaterSystemValues.OriginalDamping;
+                    m_WaterSystem.WaterSimulation.Damping = m_ChangeWaterSystemValues.OriginalDamping;
                     m_TerrainToolCooloff -= 1;
                 }
             }
@@ -208,7 +208,7 @@ namespace Water_Features.Systems
                 seaLevel -= WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
                 WaterSourceData waterSourceData = new WaterSourceData()
                 {
-                    m_Amount = seaLevel,
+                    m_Height = seaLevel,
                     m_ConstantDepth = 3,
                     m_Multiplier = 30f,
                     m_Polluted = 0f,
@@ -296,9 +296,9 @@ namespace Water_Features.Systems
                     Entity currentEntity = entityNativeArray[i];
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
                     TidesAndWavesData currentTidesAndWavesData = wavesAndTidesDataNativeArray[i];
-                    if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Amount > 0f)
+                    if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Height > 0f)
                     {
-                        currentWaterSourceData.m_Amount = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
+                        currentWaterSourceData.m_Height = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                     else if (currentWaterSourceData.m_ConstantDepth != 3)

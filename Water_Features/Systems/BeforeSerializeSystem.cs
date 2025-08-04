@@ -181,7 +181,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = originalAmountNativeArray[i].m_OriginalAmount;
+                    currentWaterSourceData.m_Height = originalAmountNativeArray[i].m_OriginalAmount;
                     waterSourceDataNativeArray[i] = currentWaterSourceData;
                 }
             }
@@ -206,7 +206,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = originalAmountNativeArray[i].m_OriginalAmount;
+                    currentWaterSourceData.m_Height = originalAmountNativeArray[i].m_OriginalAmount;
                     waterSourceDataNativeArray[i] = currentWaterSourceData;
                 }
             }
@@ -231,7 +231,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = autofillingLakeNativeArray[i].m_MaximumWaterHeight;
+                    currentWaterSourceData.m_Height = autofillingLakeNativeArray[i].m_MaximumWaterHeight;
                     currentWaterSourceData.m_ConstantDepth = 1; // Vanilla Lake
                     waterSourceDataNativeArray[i] = currentWaterSourceData;
                 }
@@ -257,7 +257,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = detentionBasinNativeArray[i].m_MaximumWaterHeight;
+                    currentWaterSourceData.m_Height = detentionBasinNativeArray[i].m_MaximumWaterHeight;
                     currentWaterSourceData.m_ConstantDepth = 1; // Vanilla Lake
                     waterSourceDataNativeArray[i] = currentWaterSourceData;
                 }
@@ -283,7 +283,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = retentionBasinNativeArray[i].m_MaximumWaterHeight;
+                    currentWaterSourceData.m_Height = retentionBasinNativeArray[i].m_MaximumWaterHeight;
                     currentWaterSourceData.m_ConstantDepth = 1; // Vanilla Lake
                     waterSourceDataNativeArray[i] = currentWaterSourceData;
                 }

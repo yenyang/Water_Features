@@ -216,7 +216,7 @@ namespace Water_Features.Tools
 
                         FloatTooltip amountTooltip = new FloatTooltip
                         {
-                            value = waterSourceData.m_Amount,
+                            value = waterSourceData.m_Height,
                             unit = "floatSingleFraction",
                             path = amountLocaleKey,
                             label = LocalizedString.IdWithFallback(amountLocaleKey, fallback),

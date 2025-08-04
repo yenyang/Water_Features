@@ -101,7 +101,7 @@ namespace Water_Features.Systems
                 for (int i = 0; i < chunk.Count; i++)
                 {
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    currentWaterSourceData.m_Amount = originalAmountNativeArray[i].m_OriginalAmount;
+                    currentWaterSourceData.m_Height = originalAmountNativeArray[i].m_OriginalAmount;
                     buffer.SetComponent(entityNativeArray[i], currentWaterSourceData);
                     buffer.RemoveComponent<TidesAndWavesData>(entityNativeArray[i]);
                 }

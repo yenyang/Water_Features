@@ -121,21 +121,21 @@ namespace Water_Features.Systems
                 {
                     Entity currentEntity = entityNativeArray[i];
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
-                    if (currentWaterSourceData.m_ConstantDepth == 0 && currentWaterSourceData.m_Amount > 0f && m_SeasonalStreamsEnabled)
+                    if (currentWaterSourceData.m_ConstantDepth == 0 && currentWaterSourceData.m_Height > 0f && m_SeasonalStreamsEnabled)
                     {
                         SeasonalStreamsData waterSourceRecordComponent = new ()
                         {
-                            m_OriginalAmount = currentWaterSourceData.m_Amount,
+                            m_OriginalAmount = currentWaterSourceData.m_Height,
                         };
                         buffer.AddComponent<SeasonalStreamsData>(currentEntity);
                         buffer.SetComponent(currentEntity, waterSourceRecordComponent);
                     }
-                    else if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Amount > 0f && currentWaterSourceData.m_Radius > 0f && m_WavesAndTidesEnabled)
+                    else if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Height > 0f && currentWaterSourceData.m_Radius > 0f && m_WavesAndTidesEnabled)
                     {
                         buffer.AddComponent<TidesAndWavesData>(currentEntity);
                         TidesAndWavesData wavesAndTidesData = new ()
                         {
-                            m_OriginalAmount = currentWaterSourceData.m_Amount,
+                            m_OriginalAmount = currentWaterSourceData.m_Height,
                         };
                         buffer.SetComponent(currentEntity, wavesAndTidesData);
                     }

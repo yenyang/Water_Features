@@ -38,7 +38,7 @@ namespace Water_Features.Patches
 
                     if (waterSourceData.m_ConstantDepth == 0)
                     {
-                        waterSourceData.m_Amount = seasonalStreamsData.m_OriginalAmount;
+                        waterSourceData.m_Height = seasonalStreamsData.m_OriginalAmount;
                         seasonalStreamsSystem.EntityManager.SetComponentData(entity, waterSourceData);
                     }
                     else
@@ -60,7 +60,7 @@ namespace Water_Features.Patches
 
                     if (waterSourceData.m_ConstantDepth == 3)
                     {
-                        waterSourceData.m_Amount = tidesAndWavesData.m_OriginalAmount;
+                        waterSourceData.m_Height = tidesAndWavesData.m_OriginalAmount;
                         wavesAndTidesSystem.EntityManager.SetComponentData(entity, waterSourceData);
                     }
                     else
