@@ -454,8 +454,13 @@ namespace Water_Features.Settings
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Enabled");
                 seasonalStreamsSystem.Enabled = true;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
+                WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+                if (waterSystem.UseLegacyWaterSources)
+                {
+                    FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                    findWaterSourcesSystem.Enabled = true;
+                }
+
                 disableSeasonalStreamSystem.Enabled = false;
             }
             else
@@ -481,8 +486,13 @@ namespace Water_Features.Settings
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)} Enabled");
                 tidesAndWavesSystem.Enabled = true;
                 DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
+                WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+                if (waterSystem.UseLegacyWaterSources)
+                {
+                    FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                    findWaterSourcesSystem.Enabled = true;
+                }
+
                 disableWavesAndTidesSystem.Enabled = false;
             }
             else

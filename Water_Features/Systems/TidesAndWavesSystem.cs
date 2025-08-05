@@ -139,15 +139,11 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            if (m_ToolSystem.actionMode.IsEditor() &&
+                m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed &&
+                m_WaterSystem.UseLegacyWaterSources)
             {
                 m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
-                m_FindWaterSourcesSystem.Enabled = true;
-            }
-
-
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
-            {
                 m_FindWaterSourcesSystem.Enabled = true;
             }
 

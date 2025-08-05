@@ -5,6 +5,7 @@
 namespace Water_Features.Patches
 {
     using Colossal.Entities;
+    using Game.Simulation;
     using Game.UI.Editor;
     using HarmonyLib;
     using Unity.Collections;
@@ -76,8 +77,12 @@ namespace Water_Features.Patches
         /// </summary>
         public static void Postfix()
         {
-            FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-            findWaterSourcesSystem.Enabled = true;
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<WaterSystem>();
+            if (waterSystem.UseLegacyWaterSources)
+            {
+                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                findWaterSourcesSystem.Enabled = true;
+            }
         }
     }
 }

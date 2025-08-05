@@ -10,6 +10,7 @@ namespace Water_Features.Systems
     using Game;
     using Game.Common;
     using Game.Prefabs;
+    using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
@@ -28,6 +29,7 @@ namespace Water_Features.Systems
         private ILog m_Log;
         private ToolSystem m_ToolSystem;
         private PrefabSystem m_PrefabSystem;
+        private WaterSystem m_WaterSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FindWaterSourcesSystem"/> class.
@@ -43,7 +45,9 @@ namespace Water_Features.Systems
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
-            m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[] {
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
+            m_WaterSourcesQuery = GetEntityQuery(new EntityQueryDesc[]
+            {
                 new EntityQueryDesc
                 {
                     All = new ComponentType[]
@@ -72,7 +76,8 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (!m_ToolSystem.actionMode.IsGameOrEditor())
+            if (!m_ToolSystem.actionMode.IsGameOrEditor() ||
+                !m_WaterSystem.UseLegacyWaterSources)
             {
                 Enabled = false;
                 return;
