@@ -104,6 +104,11 @@ namespace Water_Features.Tools
             /// All in one water source.
             /// </summary>
             Automated,
+
+            /// <summary>
+            /// Vanilla water source for v2.0.
+            /// </summary>
+            Generic,
         }
 
         /// <summary>
@@ -114,7 +119,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets the amount.
         /// </summary>
-        public float Amount { get => m_Amount.value; }
+        public float Height { get => m_Amount.value; }
 
         /// <summary>
         /// Gets the min depth.
@@ -129,7 +134,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets a value indicating whether the amount is an elevation.
         /// </summary>
-        public bool AmountIsAnElevation { get => m_AmountIsElevation; }
+        public bool HeightIsAnElevation { get => m_AmountIsElevation; }
 
         /// <summary>
         /// Sets the amount value equal to elevation parameter. And sets the label for that row to Elevation.
@@ -718,14 +723,14 @@ namespace Water_Features.Tools
                 WaterSourcePrefab waterSourcePrefab = prefabBase as WaterSourcePrefab;
 
                 float tempRadius = waterSourcePrefab.m_DefaultRadius;
-                float tempAmount = waterSourcePrefab.m_DefaultAmount;
+                float tempAmount = waterSourcePrefab.m_DefaultHeight;
                 TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref tempAmount, ref tempRadius);
                 m_AmountIsElevation = false;
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
                 m_AmountScale.Update(Math.Max(0, CalculateScale(tempAmount)));
                 m_RadiusScale.Update(Math.Max(0, CalculateScale(tempRadius)));
-                m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
+                m_AmountLocaleKey.Update(waterSourcePrefab.m_HeightLocaleKey);
                 bool flag = waterSourcePrefab.m_SourceType == SourceType.RetentionBasin;
                 if (m_ShowMinDepth.value != flag)
                 {

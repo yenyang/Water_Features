@@ -22,9 +22,9 @@ namespace Water_Features.Prefabs
         public WaterToolUISystem.SourceType m_SourceType;
 
         /// <summary>
-        /// The locale key for this type of water source for the amount row.
+        /// The locale key for this type of water source for the height row. Previouly this was amount row.
         /// </summary>
-        public string m_AmountLocaleKey;
+        public string m_HeightLocaleKey;
 
         /// <summary>
         /// The default value for the radius field.
@@ -32,9 +32,9 @@ namespace Water_Features.Prefabs
         public float m_DefaultRadius;
 
         /// <summary>
-        /// The default value for the amount field.
+        /// The default value for the height field. Previously this was amount.
         /// </summary>
-        public float m_DefaultAmount;
+        public float m_DefaultHeight;
 
         /// <inheritdoc/>
         public override void GetPrefabComponents(HashSet<ComponentType> components)
