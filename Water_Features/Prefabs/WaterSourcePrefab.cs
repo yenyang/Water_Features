@@ -6,6 +6,7 @@ namespace Water_Features.Prefabs
 {
     using System;
     using System.Collections.Generic;
+    using Game;
     using Game.Prefabs;
     using Unity.Entities;
     using Water_Features.Tools;
@@ -35,6 +36,16 @@ namespace Water_Features.Prefabs
         /// The default value for the height field. Previously this was amount.
         /// </summary>
         public float m_DefaultHeight;
+
+        /// <summary>
+        /// Defines is it's a legacy water source of modern.
+        /// </summary>
+        public bool m_LegacyWaterSource;
+
+        /// <summary>
+        /// Defines game mode to use this prefab in.
+        /// </summary>
+        public GameMode m_GameMode;
 
         /// <inheritdoc/>
         public override void GetPrefabComponents(HashSet<ComponentType> components)

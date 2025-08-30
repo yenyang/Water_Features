@@ -24,6 +24,7 @@ namespace Water_Features.Tools
     using Unity.Entities;
     using UnityEngine;
     using Water_Features;
+    using Water_Features.Domain;
     using Water_Features.Prefabs;
     using Water_Features.Settings;
     using Water_Features.Utils;
@@ -56,6 +57,7 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_RadiusScale;
         private ValueBinding<bool> m_ShowMinDepth;
         private ValueBinding<string> m_ActivePrefabName;
+        private ValueBinding<WaterSourcePrefabList> m_WaterSourcePrefabList;
         private EditorToolUISystem m_EditorToolUISystem;
         private ValueBinding<int> m_ToolMode;
         private PrefabSystem m_PrefabSystem;
@@ -207,6 +209,16 @@ namespace Water_Features.Tools
             return false;
         }
 
+        /// <summary>
+        /// Sets the list of water source prefabs for the editor.
+        /// </summary>
+        /// <param name="waterSourcePrefabList">List of prefab names.</param>
+        public void SetPrefabList(WaterSourcePrefabList waterSourcePrefabList)
+        {
+            m_WaterSourcePrefabList.Update(waterSourcePrefabList);
+            m_WaterSourcePrefabList.TriggerUpdate();
+        }
+
         /// <inheritdoc/>
         protected override void OnCreate()
         {
@@ -221,7 +233,7 @@ namespace Water_Features.Tools
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_EditorToolUISystem = World.GetOrCreateSystemManaged<EditorToolUISystem>();
             IEditorTool[] existingTools = m_EditorToolUISystem.tools;
-            IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
+            IEditorTool[] newTools = new IEditorTool[existingTools.Length + 1];
             int i = 0;
             foreach (IEditorTool currentTool in existingTools)
             {
@@ -269,6 +281,9 @@ namespace Water_Features.Tools
 
             // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
             AddBinding(m_ToolMode = new ValueBinding<int>(ModId, "ToolMode", (int)CustomWaterToolSystem.ToolModes.PlaceWaterSource));
+
+            // This binding communicates a list of water source prefab names to be used in the editor.
+            AddBinding(m_WaterSourcePrefabList = new ValueBinding<WaterSourcePrefabList>(ModId, "WaterSourcePrefabList", new WaterSourcePrefabList() { waterSourcePrefabUIDatas = new List<WaterSourcePrefabUIData>() }));
 
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));

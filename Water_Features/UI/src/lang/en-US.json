@@ -120,5 +120,7 @@
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "Attempts to force a Water Simulation Speed of at least 1x while in Game.",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Editor]": "Editor",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.SaveGame]": "Individual Save File",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "General"
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "General",
+  "Assets.NAME[WaterSource Generic]": "Generic Water Source",
+  "Assets.DESCRIPTION[WaterSource Generic]": "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Can be placed inside the map boundary, at the map boundary, or outside the playable area. The water source behavior and color will change depending those placement areas. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove."
 }

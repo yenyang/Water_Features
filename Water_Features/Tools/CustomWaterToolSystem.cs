@@ -373,6 +373,7 @@ namespace Water_Features.Tools
             base.OnGameLoadingComplete(purpose, mode);
             m_ToolSystem.tools.Remove(this);
             m_ToolSystem.tools.Insert(0, this);
+            m_ActivePrefab = null;
         }
 
         /// <inheritdoc/>
@@ -402,7 +403,8 @@ namespace Water_Features.Tools
 
             if (m_ActivePrefab == null)
             {
-                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.Stream}"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
+                WaterToolUISystem.SourceType defaultSource = m_WaterSystem.UseLegacyWaterSources ? WaterToolUISystem.SourceType.Stream : WaterToolUISystem.SourceType.Generic;
+                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{defaultSource}"), out PrefabBase prefabBase) && prefabBase is WaterSourcePrefab)
                 {
                     m_ActivePrefab = prefabBase as WaterSourcePrefab;
                 }

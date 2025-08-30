@@ -5,14 +5,18 @@
 namespace Water_Features.Systems
 {
     using System.Collections.Generic;
+    using System.Security.Policy;
     using Colossal.Entities;
     using Colossal.Logging;
     using Game;
     using Game.Prefabs;
     using Game.Simulation;
+    using Game.UI;
     using Unity.Entities;
     using UnityEngine;
+    using Water_Features.Domain;
     using Water_Features.Prefabs;
+    using Water_Features.Tools;
     using static Water_Features.Tools.WaterToolUISystem;
 
     /// <summary>
@@ -20,29 +24,38 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class AddPrefabsSystem : GameSystemBase
     {
-        private const string PrefabPrefix = "WaterSource ";
+        /// <summary>
+        ///  Prefab for name of water source prefabs.
+        /// </summary>
+        public const string PrefabPrefix = "WaterSource ";
+
         private const string TabName = "WaterTool";
         private const string CouiPathPrefix = "coui://uil/Colored/";
         private const string FileType = ".svg";
+
         /// <summary>
         /// Defined the data for the prefabs here.
         /// </summary>
         private List<WaterSourcePrefabData> m_SourcePrefabDataList = new List<WaterSourcePrefabData>()
         {
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = $"{CouiPathPrefix}WaterSourceCreek{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultHeight = 1f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = $"{CouiPathPrefix}WaterSourceRiver{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultHeight = 20f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = $"{CouiPathPrefix}WaterSourceSea{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultHeight = 25f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultHeight = 15f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Automated, m_Icon = $"{CouiPathPrefix}WaterSourceAutomaticFill{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 60, m_DefaultRadius = 20f, m_DefaultHeight = 15f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceDetentionBasin{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultHeight = 15f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceRetentionBasin{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultHeight = 20f, } },
-            { new WaterSourcePrefabData { m_SourceType = SourceType.Generic, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 10, m_DefaultRadius = 20f, m_DefaultHeight = 15f, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Stream, m_Icon = $"{CouiPathPrefix}WaterSourceCreek{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Flow", m_Priority = 10, m_DefaultRadius = 5f, m_DefaultHeight = 1f, m_GameMode = GameMode.GameOrEditor, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.River, m_Icon = $"{CouiPathPrefix}WaterSourceRiver{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 20, m_DefaultRadius = 50f, m_DefaultHeight = 20f, m_GameMode = GameMode.GameOrEditor, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Sea, m_Icon = $"{CouiPathPrefix}WaterSourceSea{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 70, m_DefaultRadius = 2500f, m_DefaultHeight = 25f, m_GameMode = GameMode.GameOrEditor, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Lake, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultHeight = 15f, m_GameMode = GameMode.Game, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Automated, m_Icon = $"{CouiPathPrefix}WaterSourceAutomaticFill{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 60, m_DefaultRadius = 20f, m_DefaultHeight = 15f, m_GameMode = GameMode.Game, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.DetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceDetentionBasin{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 30, m_DefaultRadius = 20f, m_DefaultHeight = 15f, m_GameMode = GameMode.Game, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.RetentionBasin, m_Icon = $"{CouiPathPrefix}WaterSourceRetentionBasin{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.MaxDepth", m_Priority = 40, m_DefaultRadius = 25f, m_DefaultHeight = 20f, m_GameMode = GameMode.Game, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.VanillaLake, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 50, m_DefaultRadius = 20f, m_DefaultHeight = 15f, m_GameMode = GameMode.Editor, m_LegacyWaterSource = true, } },
+            { new WaterSourcePrefabData { m_SourceType = SourceType.Generic, m_Icon = $"{CouiPathPrefix}WaterSourceLake{FileType}", m_HeightLocaleKey = "YY_WATER_FEATURES.Depth", m_Priority = 10, m_DefaultRadius = 20f, m_DefaultHeight = 15f, m_GameMode = GameMode.GameOrEditor, m_LegacyWaterSource = false, } },
         };
 
         private PrefabSystem m_PrefabSystem;
         private ILog m_Log;
         private WaterSystem m_WaterSystem;
         private List<PrefabBase> m_Prefabs;
+        private WaterSourcePrefabList m_PrefabList;
+        private WaterToolUISystem m_UISystem;
+        private ImageSystem m_ImageSystem;
 
         /// <summary>
         /// Gets the prefix for prefabs.
@@ -55,7 +68,10 @@ namespace Water_Features.Systems
             m_Log = WaterFeaturesMod.Instance.Log;
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            m_UISystem = World.GetOrCreateSystemManaged<WaterToolUISystem>();
             m_Prefabs = new List<PrefabBase>();
+            m_PrefabList = new WaterSourcePrefabList() { waterSourcePrefabUIDatas = new List<WaterSourcePrefabUIData>() };
+            m_ImageSystem = World.GetOrCreateSystemManaged<ImageSystem>();
             base.OnCreate();
         }
 
@@ -72,6 +88,8 @@ namespace Water_Features.Systems
                 sourcePrefabBase.m_HeightLocaleKey = source.m_HeightLocaleKey;
                 sourcePrefabBase.m_DefaultHeight = source.m_DefaultHeight;
                 sourcePrefabBase.name = $"{PrefabPrefix}{source.m_SourceType}";
+                sourcePrefabBase.m_GameMode = source.m_GameMode;
+                sourcePrefabBase.m_LegacyWaterSource = source.m_LegacyWaterSource;
                 UIObject uiObject = ScriptableObject.CreateInstance<UIObject>();
                 uiObject.m_Group = GetOrCreateNewToolCategory(TabName, "Landscaping", "coui://ui-mods/images/water_features_icon.svg") ?? uiObject.m_Group;
                 uiObject.m_Priority = source.m_Priority;
@@ -82,20 +100,11 @@ namespace Water_Features.Systems
                 if (m_PrefabSystem.AddPrefab(sourcePrefabBase))
                 {
                     m_Prefabs.Add(sourcePrefabBase);
+                    m_PrefabList.Add(sourcePrefabBase, source.m_Icon);
                     m_Log.Info($"{nameof(AddPrefabsSystem)}.{nameof(OnUpdate)} Added prefab for Water Source {source.m_SourceType}");
                 }
             }
 
-            // This adds vanilla lake prefab without ui information so it can be used in editor.
-            WaterSourcePrefab vanillaLakePrefabBase = ScriptableObject.CreateInstance<WaterSourcePrefab>();
-            vanillaLakePrefabBase.active = true;
-            vanillaLakePrefabBase.m_SourceType = SourceType.VanillaLake;
-            vanillaLakePrefabBase.m_DefaultRadius = 20f;
-            vanillaLakePrefabBase.m_HeightLocaleKey = "YY_WATER_FEATURES.Depth";
-            vanillaLakePrefabBase.m_DefaultHeight = 15f;
-            vanillaLakePrefabBase.name = $"{PrefabPrefix}{SourceType.VanillaLake}";
-            m_PrefabSystem.AddPrefab(vanillaLakePrefabBase);
-            m_Prefabs.Add(vanillaLakePrefabBase);
             Enabled = false;
         }
 
@@ -148,7 +157,8 @@ namespace Water_Features.Systems
                 }
                 else
                 {
-                    if (currentMenu.m_Menu == Entity.Null) {
+                    if (currentMenu.m_Menu == Entity.Null)
+                    {
                         m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find Landscaping tab.");
                     }
                 }
@@ -156,60 +166,74 @@ namespace Water_Features.Systems
 
             foreach (WaterSourcePrefab waterSource in m_Prefabs)
             {
-                if (m_WaterSystem.UseLegacyWaterSources &&
+                m_Log.Debug($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} reviewing water sources prefabs.");
+                m_Log.Debug($"waterSource.m_SourceType: {waterSource.m_SourceType}");
+                m_Log.Debug($"m_WaterSystem.UseLegacyWaterSources: {m_WaterSystem.UseLegacyWaterSources} waterSource.m_LegacyWaterSource {waterSource.m_LegacyWaterSource} ");
+                m_Log.Debug($"mode: {mode} waterSource.m_GameMode {waterSource.m_GameMode} ValidGameMode: {ValidGameMode(mode, waterSource)}");
+                m_Log.Debug($"found prefab: {m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), waterSource.name), out _)}");
+                if (m_WaterSystem.UseLegacyWaterSources == waterSource.m_LegacyWaterSource &&
+                    ValidGameMode(mode, waterSource) &&
                    !m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), waterSource.name), out _) &&
                    (waterSource.m_SourceType != SourceType.DetentionBasin || WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins) &&
                    (waterSource.m_SourceType != SourceType.RetentionBasin || WaterFeaturesMod.Instance.Settings.IncludeRetentionBasins))
                 {
                     m_PrefabSystem.AddPrefab(waterSource);
+                    m_PrefabList.Add(waterSource, GetSource(waterSource));
                 }
 
                 if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), waterSource.name), out _) &&
-                  ((!m_WaterSystem.UseLegacyWaterSources && waterSource.m_SourceType != SourceType.Generic) ||
+                   (m_WaterSystem.UseLegacyWaterSources != waterSource.m_LegacyWaterSource ||
+                    !ValidGameMode(mode, waterSource) ||
                    (waterSource.m_SourceType == SourceType.DetentionBasin && !WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins) ||
                    (waterSource.m_SourceType == SourceType.RetentionBasin && !WaterFeaturesMod.Instance.Settings.IncludeRetentionBasins)))
                 {
                     m_PrefabSystem.RemovePrefab(waterSource);
+                    m_PrefabList.Remove(waterSource);
                 }
             }
 
-            foreach (WaterSourcePrefabData source in m_SourcePrefabDataList)
+            if (mode == GameMode.Editor)
             {
-                if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{PrefabPrefix}{source.m_SourceType}"), out var waterSourcePrefab) &&
-                    waterSourcePrefab is WaterSourcePrefab)
+                m_UISystem.SetPrefabList(m_PrefabList);
+            }
+
+            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out PrefabBase prefab1) &&
+                prefab1 is not null &&
+                m_PrefabSystem.TryGetEntity(prefab1, out Entity waterToolTabPrefabEntity1) &&
+                EntityManager.TryGetBuffer(waterToolTabPrefabEntity1, false, out DynamicBuffer<UIGroupElement> uiGroupBuffer1) &&
+                uiGroupBuffer1.Length == 0)
+            {
+                foreach (WaterSourcePrefabData source in m_SourcePrefabDataList)
                 {
-                    if (!m_PrefabSystem.TryGetEntity(waterSourcePrefab, out Entity waterSourcePrefabEntity))
+                    if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{PrefabPrefix}{source.m_SourceType}"), out var waterSourcePrefab) &&
+                        waterSourcePrefab is WaterSourcePrefab)
                     {
-                        m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find waterSourcePrefabEntity in waterSourcePrefab for {source.m_SourceType}.");
-                        continue;
-                    }
-
-                    if (!EntityManager.TryGetComponent(waterSourcePrefabEntity, out UIObjectData uIObjectData))
-                    {
-                        m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find UIObjectData in waterSourcePrefabEntity for {source.m_SourceType}.");
-                        continue;
-                    }
-
-                    // If all the requried components have been found and the data wasn't assigned automatically. Then this adds the data to get the water source prefabs into the water tool tab.
-                    if (uIObjectData.m_Group == Entity.Null && m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out PrefabBase prefab1))
-                    {
-                        Entity waterToolTabPrefabEntity = m_PrefabSystem.GetEntity(prefab1);
-                        if (!EntityManager.TryGetBuffer(waterToolTabPrefabEntity, false, out DynamicBuffer<UIGroupElement> uiGroupBuffer))
+                        if (!m_PrefabSystem.TryGetEntity(waterSourcePrefab, out Entity waterSourcePrefabEntity))
                         {
-                            m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find UIGroupElement buffer in waterToolTabPrefabEntity for {source.m_SourceType}");
+                            m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find waterSourcePrefabEntity in waterSourcePrefab for {source.m_SourceType}.");
                             continue;
                         }
 
-                        // This is unfortunately expected that the Entity will be null and that this information needs to be added.
-                        m_Log.Debug($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} uIObjectData.m_Group = Entity.Null so set to {waterToolTabPrefabEntity.Index}.{waterToolTabPrefabEntity.Version}");
-                        uIObjectData.m_Group = waterToolTabPrefabEntity;
-                        uIObjectData.m_Priority = source.m_Priority;
-                        EntityManager.SetComponentData(waterSourcePrefabEntity, uIObjectData);
-                        UIGroupElement groupElement = new UIGroupElement()
+                        if (!EntityManager.TryGetComponent(waterSourcePrefabEntity, out UIObjectData uIObjectData))
                         {
-                            m_Prefab = waterSourcePrefabEntity,
-                        };
-                        uiGroupBuffer.Insert(uiGroupBuffer.Length, groupElement);
+                            m_Log.Warn($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} Couldn't find UIObjectData in waterSourcePrefabEntity for {source.m_SourceType}.");
+                            continue;
+                        }
+
+                        // If all the requried components have been found and the data wasn't assigned automatically. Then this adds the data to get the water source prefabs into the water tool tab.
+                        if (uIObjectData.m_Group == Entity.Null )
+                        {
+                            // This is unfortunately expected that the Entity will be null and that this information needs to be added.
+                            m_Log.Debug($"{nameof(AddPrefabsSystem)}.{nameof(OnGameLoadingComplete)} uIObjectData.m_Group = Entity.Null so set to {waterToolTabPrefabEntity1.Index}.{waterToolTabPrefabEntity1.Version}");
+                            uIObjectData.m_Group = waterToolTabPrefabEntity1;
+                            uIObjectData.m_Priority = source.m_Priority;
+                            EntityManager.SetComponentData(waterSourcePrefabEntity, uIObjectData);
+                            UIGroupElement groupElement = new UIGroupElement()
+                            {
+                                m_Prefab = waterSourcePrefabEntity,
+                            };
+                            uiGroupBuffer1.Add(groupElement);
+                        }
                     }
                 }
             }
@@ -254,6 +278,43 @@ namespace Water_Features.Systems
             return newCategory;
         }
 
+        private string GetSource(WaterSourcePrefab prefab)
+        {
+            if (m_PrefabSystem.TryGetEntity(prefab, out Entity prefabEntity))
+            {
+                return m_ImageSystem.GetIconOrGroupIcon(prefabEntity);
+            }
+
+            foreach (WaterSourcePrefabData waterSourcePrefabData in m_SourcePrefabDataList)
+            {
+                if (prefab.m_SourceType == waterSourcePrefabData.m_SourceType)
+                {
+                    return waterSourcePrefabData.m_Icon;
+                }
+            }
+
+            return m_ImageSystem.placeholderIcon;
+        }
+
+        private bool ValidGameMode(GameMode gameMode, WaterSourcePrefab prefab)
+        {
+            if (gameMode == GameMode.Game &&
+               (prefab.m_GameMode == GameMode.Game ||
+                prefab.m_GameMode == GameMode.GameOrEditor))
+            {
+                return true;
+            }
+
+            if (gameMode == GameMode.Editor &&
+               (prefab.m_GameMode == GameMode.Editor ||
+                prefab.m_GameMode == GameMode.GameOrEditor))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// A struct with all the data for a new WaterSource Prefab. It's possible this should be replaced by a custom component.
         /// </summary>
@@ -288,6 +349,17 @@ namespace Water_Features.Systems
             /// The default amount to use with this water source. Previuosly amount.
             /// </summary>
             public float m_DefaultHeight;
+
+            /// <summary>
+            /// Defines if used in game, editor, or both.
+            /// </summary>
+            public GameMode m_GameMode;
+
+            /// <summary>
+            /// Defines if legacy water source or modern.
+            /// </summary>
+            public bool m_LegacyWaterSource;
         }
+
     }
 }

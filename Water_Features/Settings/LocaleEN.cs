@@ -7,6 +7,8 @@ namespace Water_Features.Settings
     using System.Collections.Generic;
     using Colossal;
     using Colossal.PSI.Common;
+    using Water_Features.Systems;
+    using Water_Features.Tools;
 
     /// <summary>
     /// Localization for Water Features Mod in English.
@@ -149,6 +151,8 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Editor), "Editor" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SaveGame), "Individual Save File" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.General), "General" },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Generic Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Can be placed inside the map boundary, at the map boundary, or outside the playable area. The water source behavior and color will change depending those placement areas. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove."},
             };
         }
 
@@ -161,6 +165,16 @@ namespace Water_Features.Settings
         /// <inheritdoc/>
         public void Unload()
         {
+        }
+
+        private string AssetNameKey(string assetName)
+        {
+            return $"Assets.NAME[{assetName}]";
+        }
+
+        private string AssetDescriptionKey(string assetName)
+        {
+            return $"Assets.DESCRIPTION[{assetName}]";
         }
     }
 }

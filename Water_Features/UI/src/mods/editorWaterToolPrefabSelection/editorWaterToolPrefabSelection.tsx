@@ -6,6 +6,7 @@ import { VanillaComponentResolver } from "mods/VanillaComponentResolver/VanillaC
 import mod from "../../../mod.json";
 import { useLocalization } from "cs2/l10n";
 import { getModule } from "cs2/modding";
+import { WaterSourcePrefabList } from "Domain/WaterSourcePrefabList";
 
 // This functions trigger an event on C# side and C# designates the method to implement.
 function changePrefab(prefab: string) {
@@ -40,6 +41,7 @@ const RadiusScale$ =        bindValue<number> (mod.id, 'RadiusScale');
 const MinDepthScale$ =      bindValue<number> (mod.id, 'MinDepthScale');
 const ShowMinDepth$ =       bindValue<number> (mod.id, 'ShowMinDepth');
 const ToolMode$ =           bindValue<number> (mod.id, "ToolMode");
+const WaterSourcePrefabList$ = bindValue<WaterSourcePrefabList>(mod.id, "WaterSourcePrefabList");
 
 // These are strings that will be used for translations keys and event triggers.
 const amountDownID =             "amount-down-arrow";
@@ -119,6 +121,7 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
     const MinDepthScale = useValue(MinDepthScale$);
     const ShowMinDepth = useValue(ShowMinDepth$);
     const ToolMode = useValue(ToolMode$);
+    const WaterSourcePrefabList = useValue(WaterSourcePrefabList$);
 
     // translation handling. Translates using locale keys that are defined in C# or fallback string here.
     
@@ -174,26 +177,14 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
                             </div>
                         )}>
                         <div className={styles.panelSection}>
-                            <Tooltip tooltip={descriptionTooltip(streamTooltipTitle, streamTooltipDescription)}>
-                                <Button className={assetItem.item} selected={ActivePrefabName === streamPrefab} variant="icon" onSelect={() => changePrefab(streamPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={StreamSrc} className={assetItem.thumbnail}></img>
-                                </Button>
-                            </Tooltip>
-                            <Tooltip tooltip={descriptionTooltip(riverTooltipTitle, riverTooltipDescription)}>
-                                <Button className={assetItem.item} selected={ActivePrefabName === riverPrefab} variant="icon" onSelect={() => changePrefab(riverPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={RiverSrc} className={assetItem.thumbnail}></img>
-                                </Button>
-                            </Tooltip>
-                            <Tooltip tooltip={descriptionTooltip(lakeTooltipTitle, lakeTooltipDescription)}>
-                                <Button className={assetItem.item} selected={ActivePrefabName === lakePrefab} variant="icon" onSelect={() => changePrefab(lakePrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={LakeSrc} className={assetItem.thumbnail}></img>
-                                </Button>
-                            </Tooltip>
-                            <Tooltip tooltip={descriptionTooltip(seaTooltipTitle, seaTooltipDescription)}>
-                                <Button className={assetItem.item} selected={ActivePrefabName === seaPrefab} variant="icon" onSelect={() => changePrefab(seaPrefab)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
-                                    <img src={SeaSrc} className={assetItem.thumbnail}></img>
-                                </Button>
-                            </Tooltip>
+                            { WaterSourcePrefabList.waterSourcePrefabUIDatas.map((prefab) => 
+                            (
+                                <Tooltip tooltip={descriptionTooltip(translate("Assets.NAME["+prefab.name +"]", prefab.name), translate("Assets.DESCRIPTION["+prefab.name +"]"))}>
+                                    <Button className={assetItem.item} selected={ActivePrefabName === prefab.name} variant="icon" onSelect={() => changePrefab(prefab.name)} focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>
+                                        <img src={prefab.src} className={assetItem.thumbnail}></img>
+                                    </Button>
+                                </Tooltip>
+                            ))}
                         </div>
                         <>
                     { ToolMode == WaterToolModes.PlaceWaterSource && ( 

@@ -187,7 +187,8 @@ namespace Water_Features.Systems
 
 
             // This section adds the dummy water source if it does not exist.
-            if (m_DummySeaWaterSource == Entity.Null)
+            if (m_DummySeaWaterSource == Entity.Null &&
+                m_WaterSystem.UseLegacyWaterSources)
             {
                 float seaLevel = float.MaxValue;
                 NativeArray<TidesAndWavesData> seaWaterSources = m_WavesAndTidesQuery.ToComponentDataArray<TidesAndWavesData>(Allocator.Temp);
@@ -252,7 +253,8 @@ namespace Water_Features.Systems
                purpose != Purpose.NewGame &&
               (mode == GameMode.Game ||
               mode == GameMode.Editor) &&
-              !m_WavesAndTidesQuery.IsEmptyIgnoreFilter)
+              !m_WavesAndTidesQuery.IsEmptyIgnoreFilter &&
+              m_WaterSystem.UseLegacyWaterSources)
             {
                 WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = true;
                 Enabled = true;
@@ -264,7 +266,10 @@ namespace Water_Features.Systems
             }
 
             // Sometimes the dummy water source does not have the correct sea level at first, so resetting it at game loading fixes it.
-            ResetDummySeaWaterSource();
+            if (m_WaterSystem.UseLegacyWaterSources)
+            {
+                ResetDummySeaWaterSource();
+            }
         }
 
 #if BURST

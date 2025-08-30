@@ -237,7 +237,8 @@ namespace Water_Features.Systems
                 purpose != Purpose.NewGame &&
                (mode == GameMode.Game ||
                mode == GameMode.Editor) &&
-               !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
+               !m_OriginalAmountsQuery.IsEmptyIgnoreFilter &&
+               m_WaterSystem.UseLegacyWaterSources)
             {
                 WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;
                 Enabled = true;
