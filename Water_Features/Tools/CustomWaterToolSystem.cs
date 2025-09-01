@@ -780,13 +780,13 @@ namespace Water_Features.Tools
                     else if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out SeasonalStreamsData seasonalStreamsData))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
-                        waterSourceData.m_Height = m_RaycastPoint.m_HitPosition.y - position.y;
+                        waterSourceData.m_Height = m_RaycastPoint.m_HitPosition.y - transform.m_Position.y;
                         buffer.SetComponent(m_SelectedWaterSource, waterSourceData);
                     }
                     else
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
-                        seasonalStreamsData.m_OriginalAmount = m_RaycastPoint.m_HitPosition.y - position.y;
+                        seasonalStreamsData.m_OriginalAmount = m_RaycastPoint.m_HitPosition.y - transform.m_Position.y;
                         buffer.SetComponent(m_SelectedWaterSource, seasonalStreamsData);
                     }
                 }
