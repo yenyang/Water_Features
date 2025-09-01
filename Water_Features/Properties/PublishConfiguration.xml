@@ -109,8 +109,11 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Update v2.0.0
-*</ChangeLog>
+  <ChangeLog>## Update v1.4.0
+* Added Generic Constant Level Water Source introduced with game version v1.3.4.
+* Added Seasonal Water Source which applies seasonal streams settings to a Generic water source.
+* Game and editor can handle changing between different save files that include Legacy or Modern Water Sources. 
+* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

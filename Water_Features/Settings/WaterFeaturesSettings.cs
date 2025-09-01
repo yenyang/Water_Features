@@ -118,6 +118,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(DetetionBasinToggled))]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableLegacyWaterSources))]
         public bool IncludeDetentionBasins { get; set; }
 
         /// <summary>
@@ -125,6 +126,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(RetetionBasinToggled))]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableLegacyWaterSources))]
         public bool IncludeRetentionBasins { get; set; }
 
         /// <summary>
@@ -256,7 +258,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesToggled))]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources), invert: true)]
         public bool EnableWavesAndTides { get; set; }
 
         /// <summary>
@@ -264,7 +266,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIMultilineText]
         [SettingsUISection(WavesAndTides, Warnings)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources))]
         public string WavesAndTidesSettingsAvailableInGame { get; }
 
         /// <summary>
@@ -314,7 +316,7 @@ namespace Water_Features.Settings
         [SettingsUIButton]
         [SettingsUIConfirmation]
         [SettingsUISection(WavesAndTides, Reset)]
-        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources), invert: true)]
         public bool ResetWavesAndTidesSettingsButton
         {
             set
@@ -405,7 +407,7 @@ namespace Water_Features.Settings
         /// Checks if waves and tides feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Waves and Tides.</returns>
-        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditor();
+        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditorAndLegacyWaterSources();
 
         /// <inheritdoc/>
         public override void SetDefaults()
@@ -534,6 +536,17 @@ namespace Water_Features.Settings
         }
 
         /// <summary>
+        /// Checks whether it is game or editor and using legacy water sources.
+        /// </summary>
+        /// <returns>True if in game or editor and legacy water sources. false if not.</returns>
+        public bool IsGameOrEditorAndLegacyWaterSources()
+        {
+            ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+            return toolsystem.actionMode.IsGameOrEditor() && waterSystem.UseLegacyWaterSources;
+        }
+
+        /// <summary>
         /// Checks whether it is editor.
         /// </summary>
         /// <returns>True if in editor. false if not.</returns>
@@ -600,6 +613,16 @@ namespace Water_Features.Settings
             IncludeRetentionBasins = value;
             AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
             addPrefabsSystem.ReviewPrefabs();
+        }
+
+        /// <summary>
+        /// Checks if legacy water sources are being used or not.
+        /// </summary>
+        /// <returns>True if legacy water sources are not being used. False if they area.</returns>
+        public bool DisableLegacyWaterSources()
+        {
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+            return !waterSystem.UseLegacyWaterSources;
         }
     }
 }
