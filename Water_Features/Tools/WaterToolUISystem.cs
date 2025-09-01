@@ -111,6 +111,11 @@ namespace Water_Features.Tools
             /// Vanilla water source for v2.0.
             /// </summary>
             Generic,
+
+            /// <summary>
+            /// Generic water source the rises and falls with weather and season.
+            /// </summary>
+            Seasonal,
         }
 
         /// <summary>

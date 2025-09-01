@@ -14,6 +14,7 @@ namespace Water_Features.Settings
     using Game.UI;
     using Unity.Entities;
     using Water_Features.Systems;
+    using Water_Features.Tools;
 
     /// <summary>
     /// The mod settings for the Water Features Mod.
@@ -116,12 +117,14 @@ namespace Water_Features.Settings
         /// Gets or sets a value indicating whether to Include Detention Basins.
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(DetetionBasinToggled))]
         public bool IncludeDetentionBasins { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to Include Retention Basins.
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(RetetionBasinToggled))]
         public bool IncludeRetentionBasins { get; set; }
 
         /// <summary>
@@ -449,16 +452,23 @@ namespace Water_Features.Settings
             WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)}");
             SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
             ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
             if (value && toolSystem.actionMode.IsGameOrEditor())
             {
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Enabled");
                 seasonalStreamsSystem.Enabled = true;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+
                 if (waterSystem.UseLegacyWaterSources)
                 {
                     FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
                     findWaterSourcesSystem.Enabled = true;
+                }
+                else
+                {
+                    EnableSeasonalStreams = value;
+                    AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+                    addPrefabsSystem.ReviewPrefabs();
                 }
 
                 disableSeasonalStreamSystem.Enabled = false;
@@ -469,6 +479,15 @@ namespace Water_Features.Settings
                 seasonalStreamsSystem.Enabled = false;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
                 disableSeasonalStreamSystem.Enabled = true;
+
+                if (!waterSystem.UseLegacyWaterSources &&
+                    !value)
+                {
+                    EnableSeasonalStreams = value;
+                    World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>().ResetPrefab();
+                    AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+                    addPrefabsSystem.ReviewPrefabs();
+                }
             }
         }
 
@@ -559,6 +578,28 @@ namespace Water_Features.Settings
                 RemoveFloodedSystem removeFloodedSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<RemoveFloodedSystem>();
                 removeFloodedSystem.Enabled = true;
             }
+        }
+
+        /// <summary>
+        /// Reviews prefabs and adds or removes them.
+        /// </summary>
+        /// <param name="value">Not used.</param>
+        public void DetetionBasinToggled(bool value)
+        {
+            IncludeDetentionBasins = value;
+            AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+            addPrefabsSystem.ReviewPrefabs();
+        }
+
+        /// <summary>
+        /// Reviews prefabs and adds or removes them.
+        /// </summary>
+        /// <param name="value">Not used.</param>
+        public void RetetionBasinToggled(bool value)
+        {
+            IncludeRetentionBasins = value;
+            AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+            addPrefabsSystem.ReviewPrefabs();
         }
     }
 }

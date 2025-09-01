@@ -38,9 +38,9 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SeasonalStreams), "Seasonal Streams" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WaterToolGroup), "Water Tool" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WavesAndTides), "Waves and Tides" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Add Retention Basins (Restart Required)" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Add Retention Basins" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. You may need to adjust the global evaporation rate in the settings for desirable infiltration of the pond water." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Add Detention Basins (Restart Required)" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Add Detention Basins" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. You may need to adjust the global evaporation rate in the settings for desirable infiltration of the pond water." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.TrySmallerRadii)), "Try Smaller Radii" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.TrySmallerRadii)), "Lets you try to make a water source with a radius smaller than 5m. It will not always work, but will be increased to a radius that does work." },
@@ -151,8 +151,10 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Editor), "Editor" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SaveGame), "Individual Save File" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.General), "General" },
-                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Generic Water Source" },
-                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Can be placed inside the map boundary, at the map boundary, or outside the playable area. The water source behavior and color will change depending those placement areas. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove."},
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Generic Constant Level Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Behavior and color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Seasonal Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
             };
         }
 

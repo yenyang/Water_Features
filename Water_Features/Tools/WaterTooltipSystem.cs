@@ -318,14 +318,28 @@ namespace Water_Features.Tools
                     }
                     else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out SeasonalStreamsData seasonalStreamsData))
                     {
-                        FloatTooltip originalAmount = new FloatTooltip
+                        if (m_WaterSystem.UseLegacyWaterSources)
                         {
-                            value = seasonalStreamsData.m_OriginalAmount,
-                            unit = "floatSingleFraction",
-                            path = "YY_WATER_FEATURES.OriginalFlow",
-                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
-                        };
-                        AddMouseTooltip(originalAmount);
+                            FloatTooltip originalAmount = new FloatTooltip
+                            {
+                                value = seasonalStreamsData.m_OriginalAmount,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.OriginalFlow",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
+                            };
+                            AddMouseTooltip(originalAmount);
+                        }
+                        else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Objects.Transform transform))
+                        {
+                            FloatTooltip maxElevationTooptip = new FloatTooltip
+                            {
+                                value = seasonalStreamsData.m_OriginalAmount + transform.m_Position.y,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.MaxElevation",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                            };
+                            AddMouseTooltip(maxElevationTooptip);
+                        }
 
                         if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
                         {

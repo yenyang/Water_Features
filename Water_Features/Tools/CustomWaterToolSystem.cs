@@ -38,6 +38,7 @@ namespace Water_Features.Tools
         private EntityArchetype m_DetentionBasinArchetype;
         private EntityArchetype m_RetentionBasinArchetype;
         private EntityArchetype m_AutomatedWaterSourceArchetype;
+        private EntityArchetype m_SeasonalArchetype;
         private ControlPoint m_RaycastPoint;
         private EntityQuery m_WaterSourcesQuery;
         private ToolOutputBarrier m_ToolOutputBarrier;
@@ -224,6 +225,11 @@ namespace Water_Features.Tools
                 {
                     return prefabBase6;
                 }
+                else if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{WaterToolUISystem.SourceType.Seasonal}"), out PrefabBase prefabBase7)
+                   && prefabBase7 is WaterSourcePrefab)
+                {
+                    return prefabBase7;
+                }
             }
 
             return null;
@@ -267,6 +273,14 @@ namespace Water_Features.Tools
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Resets the active prefab.
+        /// </summary>
+        public void ResetPrefab()
+        {
+            m_ActivePrefab = null;
         }
 
         /// <inheritdoc/>
@@ -344,6 +358,7 @@ namespace Water_Features.Tools
             m_DetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<DetentionBasin>());
             m_RetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<RetentionBasin>());
             m_AutomatedWaterSourceArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<AutomatedWaterSource>());
+            m_SeasonalArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<SeasonalStreamsData>());
             m_OverlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
             m_AddPrefabSystem = World.GetOrCreateSystemManaged<AddPrefabsSystem>();
             m_HoveredWaterSources = new NativeList<Entity>(0, Allocator.Persistent);
@@ -410,7 +425,7 @@ namespace Water_Features.Tools
                 }
                 else
                 {
-                    m_Log.Warn($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Couldn't set active prefab to WaterSource Stream! Tool will not work.");
+                    m_Log.Warn($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} Couldn't set active prefab to WaterSource {defaultSource}! Tool will not work.");
                     return inputDeps;
                 }
             }
@@ -430,6 +445,7 @@ namespace Water_Features.Tools
                 m_AutofillingLakeLookup = SystemAPI.GetComponentLookup<AutofillingLake>(),
                 m_AutomatedWaterSourceLookup = SystemAPI.GetComponentLookup<AutomatedWaterSource>(),
                 m_UseLegacyWaterSources = m_WaterSystem.UseLegacyWaterSources,
+                m_SeasonalStreamsLookup = SystemAPI.GetComponentLookup<SeasonalStreamsData>(),
             };
             inputDeps = JobChunkExtensions.Schedule(waterSourceCirclesRenderJob, m_WaterSourcesQuery, JobHandle.CombineDependencies(inputDeps, outJobHandle, waterSurfaceDataJob));
             m_OverlayRenderSystem.AddBufferWriter(inputDeps);
@@ -576,6 +592,7 @@ namespace Water_Features.Tools
                         m_SourceType = m_ActivePrefab.m_SourceType,
                         m_TerrainHeightData = m_TerrainSystem.GetHeightData(false),
                         m_UseLegacyWaterSources = m_WaterSystem.UseLegacyWaterSources,
+                        m_SeasonalSource = m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Seasonal,
                     };
                     JobHandle jobHandle = IJobExtensions.Schedule(waterToolRadiusJob, outJobHandle2);
                     m_TerrainSystem.AddCPUHeightReader(jobHandle);
@@ -760,11 +777,17 @@ namespace Water_Features.Tools
                             buffer.SetComponent(m_SelectedWaterSource, automatedWaterSource);
                         }
                     }
-                    else
+                    else if (!EntityManager.TryGetComponent(m_SelectedWaterSource, out SeasonalStreamsData seasonalStreamsData))
                     {
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
                         waterSourceData.m_Height = m_RaycastPoint.m_HitPosition.y - position.y;
                         buffer.SetComponent(m_SelectedWaterSource, waterSourceData);
+                    }
+                    else
+                    {
+                        inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, m_RaycastPoint.m_HitPosition.y);
+                        seasonalStreamsData.m_OriginalAmount = m_RaycastPoint.m_HitPosition.y - position.y;
+                        buffer.SetComponent(m_SelectedWaterSource, seasonalStreamsData);
                     }
                 }
             }
@@ -1010,7 +1033,8 @@ namespace Water_Features.Tools
 
             float radius = m_WaterToolUISystem.Radius;
             int constantDepth = (int)m_ActivePrefab.m_SourceType;
-            if (constantDepth >= 4 && constantDepth <= 6)
+            if ((constantDepth >= (int)WaterToolUISystem.SourceType.Lake && constantDepth <= (int)WaterToolUISystem.SourceType.RetentionBasin) ||
+                (constantDepth >= (int)WaterToolUISystem.SourceType.Generic && constantDepth <= (int)WaterToolUISystem.SourceType.Seasonal))
             {
                 constantDepth = 0;
             }
@@ -1130,6 +1154,17 @@ namespace Water_Features.Tools
                     buffer.AddComponent<Updated>(currentEntity);
                     scheduledWaterSourceCreation = true;
                 }
+                else if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.Seasonal)
+                {
+                    EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
+                    Entity entity = buffer.CreateEntity(m_SeasonalArchetype);
+                    buffer.SetComponent(entity, waterSourceDataComponent);
+                    buffer.SetComponent(entity, transformComponent);
+                    buffer.SetComponent(entity, new SeasonalStreamsData() { m_OriginalAmount = waterSourceDataComponent.m_Height, m_SnowAccumulation = 0f });
+                    buffer.AddComponent<Updated>(entity);
+
+                    scheduledWaterSourceCreation = true;
+                }
 
                 if (scheduledWaterSourceCreation && m_ToolSystem.actionMode.IsEditor())
                 {
@@ -1212,6 +1247,8 @@ namespace Water_Features.Tools
             [ReadOnly]
             public ComponentLookup<AutomatedWaterSource> m_AutomatedWaterSourceLookup;
             [ReadOnly]
+            public ComponentLookup<SeasonalStreamsData> m_SeasonalStreamsLookup;
+            [ReadOnly]
             public bool m_UseLegacyWaterSources;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
@@ -1276,6 +1313,11 @@ namespace Water_Features.Tools
                     {
                         UnityEngine.Color borderColor = GetModernWaterSourceColor(currentTransform.m_Position, currentWaterSourceData.m_Radius);
                         UnityEngine.Color insideColor = borderColor;
+                        if (m_SeasonalStreamsLookup.HasComponent(entityNativeArray[i]))
+                        {
+                            borderColor = UnityEngine.Color.red;
+                        }
+
                         insideColor.a = 0.1f;
 
                         float radius = Mathf.Clamp(currentWaterSourceData.m_Radius, 25f, 150f);
@@ -1365,6 +1407,7 @@ namespace Water_Features.Tools
             public WaterToolUISystem.SourceType m_SourceType;
             public bool m_UseLegacyWaterSources;
             public TerrainHeightData m_TerrainHeightData;
+            public bool m_SeasonalSource;
 
             public void Execute()
             {
@@ -1373,13 +1416,21 @@ namespace Water_Features.Tools
                 if (m_UseLegacyWaterSources)
                 {
                     borderColor = GetLegacyWaterSourceColor();
+                    insideColor = borderColor;
                 }
                 else
                 {
-                    borderColor = GetModernWaterSourceColor(m_Position, m_Radius);
+                    if (m_SeasonalSource)
+                    {
+                        insideColor = GetModernWaterSourceColor(m_Position, m_Radius);
+                        borderColor = UnityEngine.Color.red;
+                    }
+                    else
+                    {
+                        borderColor = GetModernWaterSourceColor(m_Position, m_Radius);
+                        insideColor = borderColor;
+                    }
                 }
-
-                insideColor = borderColor;
 
                 insideColor.a = 0.1f;
 

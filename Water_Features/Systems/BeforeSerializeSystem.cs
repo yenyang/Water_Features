@@ -7,8 +7,10 @@ namespace Water_Features.Systems
 {
     using System.Runtime.CompilerServices;
     using Colossal.Logging;
+    using Colossal.Serialization.Entities;
     using Game;
     using Game.Common;
+    using Game.Simulation;
     using Game.Tools;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
@@ -27,6 +29,7 @@ namespace Water_Features.Systems
         private EntityQuery m_DetentionBasinQuery;
         private EntityQuery m_RetentionBasinQuery;
         private TidesAndWavesSystem m_TidesAndWavesSystem;
+        private WaterSystem m_WaterSystem;
         private ILog m_Log;
 
         /// <summary>
@@ -42,6 +45,7 @@ namespace Water_Features.Systems
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_TidesAndWavesSystem = World.GetOrCreateSystemManaged<TidesAndWavesSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_SeasonalStreamsDataQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc
@@ -124,6 +128,13 @@ namespace Water_Features.Systems
             });
             RequireAnyForUpdate(new EntityQuery[] { m_AutofillingLakeQuery, m_SeasonalStreamsDataQuery, m_TidesAndWavesDataQuery, m_DetentionBasinQuery, m_RetentionBasinQuery});
             m_Log.Info($"[{nameof(BeforeSerializeSystem)}] {nameof(OnCreate)}");
+        }
+
+        /// <inheritdoc/>
+        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
+        {
+            base.OnGameLoadingComplete(purpose, mode);
+            Enabled = m_WaterSystem.UseLegacyWaterSources;
         }
 
         /// <inheritdoc/>

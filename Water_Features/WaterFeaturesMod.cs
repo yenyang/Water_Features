@@ -19,6 +19,7 @@ namespace Water_Features
     using Game.SceneFlow;
     using HarmonyLib;
     using Newtonsoft.Json;
+    using Unity.Entities;
     using UnityEngine;
     using Water_Features.Settings;
     using Water_Features.Systems;
@@ -109,7 +110,7 @@ namespace Water_Features
             m_Harmony = new Harmony("Mods_Yenyang_Water_Features");
             m_Harmony.PatchAll();
             Log.Info($"{nameof(WaterFeaturesMod)}.{nameof(OnLoad)} Injecting systems.");
-            updateSystem.UpdateAt<AddPrefabsSystem>(SystemUpdatePhase.PrefabUpdate);
+            AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
 
             updateSystem.UpdateAt<WaterToolUISystem>(SystemUpdatePhase.UIUpdate);
             updateSystem.UpdateAt<CustomWaterToolSystem>(SystemUpdatePhase.ToolUpdate);
