@@ -321,12 +321,17 @@ namespace Water_Features.Tools
         public override void InitializeRaycast()
         {
             base.InitializeRaycast();
-            m_ToolRaycastSystem.typeMask = TypeMask.Terrain | TypeMask.Water;
-            if (m_SelectedWaterSource != Entity.Null && m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange)
+
+            TypeMask typeMask = TypeMask.Terrain | TypeMask.Water;
+            if ((m_ToolRaycastSystem.GetRaycastResult(out RaycastResult result) &&
+               !IsPositionWithinBorder(result.m_Hit.m_Position)) ||
+               (m_SelectedWaterSource != Entity.Null &&
+                m_WaterToolUISystem.ToolMode == ToolModes.ElevationChange))
             {
-                m_ToolRaycastSystem.typeMask = TypeMask.Terrain;
+                typeMask = TypeMask.Terrain;
             }
 
+            m_ToolRaycastSystem.typeMask = typeMask;
             m_ToolRaycastSystem.raycastFlags = RaycastFlags.Outside;
         }
 
@@ -561,8 +566,24 @@ namespace Water_Features.Tools
                     !m_WaterSystem.UseLegacyWaterSources)
                 {
                     float radius = m_WaterToolUISystem.Radius;
-                    float terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
-                    float3 position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
+                    float terrainHeight;
+                    float3 position;
+                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_RaycastPoint.m_HitPosition ({m_RaycastPoint.m_HitPosition.x},{m_RaycastPoint.m_HitPosition.y},{m_RaycastPoint.m_HitPosition.z})");
+                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_RaycastPoint.m_Position ({m_RaycastPoint.m_Position.x},{m_RaycastPoint.m_Position.y},{m_RaycastPoint.m_Position.z})");
+
+
+                    if (IsPositionWithinBorder(m_RaycastPoint.m_HitPosition))
+                    {
+                        terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
+                        position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
+                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} terrain height ({terrainHeight})");
+                    }
+                    else
+                    {
+                        terrainHeight = TerrainUtils.SampleHeightBackdrop(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
+                        position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
+                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} background height ({terrainHeight})");
+                    }
 
                     // This section makes the overlay for Rivers snap to the boundary.
                     if (m_ActivePrefab.m_SourceType == WaterToolUISystem.SourceType.River)
@@ -584,7 +605,7 @@ namespace Water_Features.Tools
                         inputDeps = RenderTargetWaterElevation(inputDeps, position, radius, elevation);
                     }
 
-                    WaterToolRadiusJob waterToolRadiusJob = new()
+                    WaterToolRadiusJob waterToolRadiusJob = new ()
                     {
                         m_OverlayBuffer = m_OverlayRenderSystem.GetBuffer(out JobHandle outJobHandle2),
                         m_Position = position,

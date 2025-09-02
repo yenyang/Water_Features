@@ -115,7 +115,7 @@
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "Version number for the Water Features mod installed.",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsSettingsAvailableInGame]": "Seasonal Streams settings available in the Game or Editor.",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesSettingsAvailableInGame]": "Waves and Tides settings available in the Game or Editor.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesSettingsAvailableInGame]": "Waves and Tides settings available in the Game or Editor on older maps that support Legacy Water Sources.",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "Force Water Simulation Speed",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "Attempts to force a Water Simulation Speed of at least 1x while in Game.",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Editor]": "Editor",
