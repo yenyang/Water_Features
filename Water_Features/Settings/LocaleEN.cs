@@ -155,6 +155,7 @@ namespace Water_Features.Settings
                 { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Behavior and color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
                 { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Seasonal Water Source" },
                 { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
+                { TooltipDescriptionKey("AmountIsElevation"), "Elevation Set. Toggle to reset to Depth." },
             };
         }
 
@@ -177,6 +178,21 @@ namespace Water_Features.Settings
         private string AssetDescriptionKey(string assetName)
         {
             return $"Assets.DESCRIPTION[{assetName}]";
+        }
+
+        private string TooltipDescriptionKey(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.TOOLTIP_DESCRIPTION[{key}]";
+        }
+
+        private string SectionLabel(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.SECTION_TITLE[{key}]";
+        }
+
+        private string TooltipTitleKey(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.TOOLTIP_TITLE[{key}]";
         }
     }
 }

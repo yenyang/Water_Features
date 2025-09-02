@@ -30,7 +30,14 @@ namespace Water_Features
     /// </summary>
     public class WaterFeaturesMod : IMod
     {
+        /// <summary>
+        /// An id used for bindings between UI and C#.
+        /// </summary>
+        public static readonly string Id = "Water_Features";
+
         private Harmony m_Harmony;
+
+
 
         /// <summary>
         /// Gets the static reference to the mod instance.

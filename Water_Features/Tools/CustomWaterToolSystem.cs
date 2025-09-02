@@ -568,21 +568,16 @@ namespace Water_Features.Tools
                     float radius = m_WaterToolUISystem.Radius;
                     float terrainHeight;
                     float3 position;
-                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_RaycastPoint.m_HitPosition ({m_RaycastPoint.m_HitPosition.x},{m_RaycastPoint.m_HitPosition.y},{m_RaycastPoint.m_HitPosition.z})");
-                    m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} m_RaycastPoint.m_Position ({m_RaycastPoint.m_Position.x},{m_RaycastPoint.m_Position.y},{m_RaycastPoint.m_Position.z})");
-
 
                     if (IsPositionWithinBorder(m_RaycastPoint.m_HitPosition))
                     {
                         terrainHeight = TerrainUtils.SampleHeight(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
                         position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
-                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} terrain height ({terrainHeight})");
                     }
                     else
                     {
                         terrainHeight = TerrainUtils.SampleHeightBackdrop(ref terrainHeightData, m_RaycastPoint.m_HitPosition);
                         position = new float3(m_RaycastPoint.m_HitPosition.x, terrainHeight, m_RaycastPoint.m_HitPosition.z);
-                        m_Log.Debug($"{nameof(CustomWaterToolSystem)}.{nameof(OnUpdate)} background height ({terrainHeight})");
                     }
 
                     // This section makes the overlay for Rivers snap to the boundary.
