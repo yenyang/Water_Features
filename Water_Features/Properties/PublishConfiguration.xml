@@ -113,7 +113,8 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
 * Added Generic Constant Level Water Source introduced with game version v1.3.4.
 * Added Seasonal Water Source which applies seasonal streams settings to a Generic water source.
 * Game and editor can handle changing between different save files that include Legacy or Modern Water Sources. 
-* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.</ChangeLog>
+* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.
+* Added a toggle to go from a set elevation back to depth.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

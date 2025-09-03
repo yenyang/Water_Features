@@ -139,11 +139,6 @@ namespace Water_Features.Systems
             m_SeasonalStreamsSystem.SetSeasonalStreamsSetting(purpose, mode);
 
             AddOrRemovePrefabs(mode);
-
-            if (mode == GameMode.Editor)
-            {
-                m_UISystem.SetPrefabList(m_PrefabList);
-            }
         }
 
         /// <inheritdoc/>
@@ -270,6 +265,11 @@ namespace Water_Features.Systems
                     m_PrefabSystem.RemovePrefab(waterSource);
                     m_PrefabList.Remove(waterSource);
                 }
+            }
+
+            if (mode == GameMode.Editor)
+            {
+                m_UISystem.SetPrefabList(m_PrefabList);
             }
         }
 

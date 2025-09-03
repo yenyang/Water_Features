@@ -156,6 +156,9 @@ namespace Water_Features.Settings
                 { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Seasonal Water Source" },
                 { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
                 { TooltipDescriptionKey("AmountIsElevation"), "Elevation Set. Toggle to reset to Depth." },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Constant Level Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Fills slowly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove." },
+
             };
         }
 
