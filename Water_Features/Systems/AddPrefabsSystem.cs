@@ -32,7 +32,11 @@ namespace Water_Features.Systems
         /// </summary>
         public const string PrefabPrefix = "WaterSource ";
 
-        private const string TabName = "WaterTool";
+        /// <summary>
+        /// Tab name for the asset category.
+        /// </summary>
+        public const string TabName = "WaterTool";
+
         private const string CouiPathPrefix = "coui://uil/Colored/";
         private const string FileType = ".svg";
 
