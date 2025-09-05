@@ -18,6 +18,7 @@ namespace Water_Features.Systems
     using Water_Features.Domain;
     using Water_Features.Prefabs;
     using Water_Features.Tools;
+    using static Game.Simulation.WaterSystem;
     using static Game.UI.NameSystem;
     using static Water_Features.Tools.WaterToolUISystem;
 
@@ -73,6 +74,28 @@ namespace Water_Features.Systems
         public void ReviewPrefabs()
         {
             AddOrRemovePrefabs(m_ToolSystem.actionMode);
+        }
+
+        /// <summary>
+        /// Checks if UIGroupElement Buffer to ensure it's the right length. Will Clear the list and AddOrRemovePrefabs if the lengths do not match.
+        /// </summary>
+        public void ReviewPrefabUIGroupElements()
+        {
+            m_Log.Debug($"{nameof(AddPrefabsSystem)}:{nameof(ReviewPrefabUIGroupElements)}");
+            if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out var prefab) &&
+                prefab is UIAssetCategoryPrefab &&
+                m_PrefabSystem.TryGetEntity(prefab, out Entity prefabEntity) &&
+                EntityManager.TryGetBuffer(prefabEntity, isReadOnly: false, out DynamicBuffer<UIGroupElement> groupElements) &&
+                groupElements.Length != m_PrefabList.Count())
+            {
+                if (groupElements.Length > m_PrefabList.Count())
+                {
+                    groupElements.Clear();
+                }
+
+
+                AddOrRemovePrefabs(m_ToolSystem.actionMode, ensureGroupElements: true);
+            }
         }
 
         /// <inheritdoc/>
@@ -136,9 +159,11 @@ namespace Water_Features.Systems
         protected override void OnGameLoadingComplete(Colossal.Serialization.Entities.Purpose purpose, GameMode mode)
         {
             base.OnGameLoadingComplete(purpose, mode);
-            m_SeasonalStreamsSystem.SetSeasonalStreamsSetting(purpose, mode);
-
-            AddOrRemovePrefabs(mode);
+            if (mode == GameMode.Editor || mode == GameMode.Game)
+            {
+                m_SeasonalStreamsSystem.SetSeasonalStreamsSetting(purpose, mode);
+                AddOrRemovePrefabs(mode, ensureGroupElements: true);
+            }
         }
 
         /// <inheritdoc/>
@@ -224,8 +249,9 @@ namespace Water_Features.Systems
             return false;
         }
 
-        private void AddOrRemovePrefabs(GameMode mode)
+        private void AddOrRemovePrefabs(GameMode mode, bool ensureGroupElements = false)
         {
+            m_Log.Debug($"{nameof(AddPrefabsSystem)}:{nameof(AddOrRemovePrefabs)}");
             foreach (WaterSourcePrefab waterSource in m_Prefabs)
             {
                 if (m_WaterSystem.UseLegacyWaterSources == waterSource.m_LegacyWaterSource &&
@@ -239,24 +265,56 @@ namespace Water_Features.Systems
                     m_PrefabList.Add(waterSource, GetSource(waterSource));
                 }
 
+                if (m_WaterSystem.UseLegacyWaterSources == waterSource.m_LegacyWaterSource &&
+                    ValidGameMode(mode, waterSource) &&
+                    ensureGroupElements &&
+                    m_PrefabSystem.TryGetEntity(waterSource, out Entity waterSourcePrefabEntity) &&
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out var prefab) &&
+                    prefab is UIAssetCategoryPrefab &&
+                    m_PrefabSystem.TryGetEntity(prefab, out Entity prefabEntity) &&
+                    EntityManager.TryGetBuffer(prefabEntity, isReadOnly: false, out DynamicBuffer<UIGroupElement> groupElements))
+                {
+                    bool foundPrefabInGroupElements = false;
+                    for (int i = 0; i < groupElements.Length; i++)
+                    {
+                        if (groupElements[i].m_Prefab == waterSourcePrefabEntity)
+                        {
+                            foundPrefabInGroupElements = true;
+                            break;
+                        }
+                    }
+
+                    if (!foundPrefabInGroupElements)
+                    {
+                        groupElements.Add(new UIGroupElement() { m_Prefab = waterSourcePrefabEntity });
+                    }
+
+                    if (EntityManager.TryGetComponent(waterSourcePrefabEntity, out UIObjectData uIObjectData) &&
+                        uIObjectData.m_Group == Entity.Null)
+                    {
+                        uIObjectData.m_Group = prefabEntity;
+                        EntityManager.SetComponentData(waterSourcePrefabEntity, uIObjectData);
+                    }
+                }
+
                 if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), waterSource.name), out PrefabBase waterSourcePrefab) &&
-                    m_PrefabSystem.TryGetEntity(waterSourcePrefab, out Entity waterSourcePrefabEntity) &&
+                    m_PrefabSystem.TryGetEntity(waterSource, out Entity waterSourcePrefabEntity1) &&
                    (m_WaterSystem.UseLegacyWaterSources != waterSource.m_LegacyWaterSource ||
                     !ValidGameMode(mode, waterSource) ||
                    (waterSource.m_SourceType == SourceType.DetentionBasin && !WaterFeaturesMod.Instance.Settings.IncludeDetentionBasins) ||
                    (waterSource.m_SourceType == SourceType.RetentionBasin && !WaterFeaturesMod.Instance.Settings.IncludeRetentionBasins) ||
                    (waterSource.m_SourceType == SourceType.Seasonal && !WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams)))
                 {
-                    if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out var prefab) &&
-                        prefab is UIAssetCategoryPrefab &&
-                        m_PrefabSystem.TryGetEntity(prefab, out Entity prefabEntity) &&
-                        EntityManager.TryGetBuffer(prefabEntity, isReadOnly: false, out DynamicBuffer<UIGroupElement> groupElements))
+                    if (m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(UIAssetCategoryPrefab), TabName), out var prefab1) &&
+                        prefab1 is UIAssetCategoryPrefab &&
+                        m_PrefabSystem.TryGetEntity(prefab1, out Entity prefabEntity1) &&
+                        EntityManager.TryGetBuffer(prefabEntity1, isReadOnly: false, out DynamicBuffer<UIGroupElement> groupElements1))
                     {
-                        for (int i = 0; i < groupElements.Length; i++)
+                        for (int i = 0; i < groupElements1.Length; i++)
                         {
-                            if (groupElements[i].m_Prefab == waterSourcePrefabEntity)
+                            if (groupElements1[i].m_Prefab == waterSourcePrefabEntity1)
                             {
-                                groupElements.RemoveAt(i);
+                                groupElements1.RemoveAt(i);
                                 break;
                             }
                         }

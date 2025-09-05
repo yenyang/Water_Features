@@ -59,7 +59,6 @@ namespace Water_Features.Tools
         private Game.Simulation.WaterSourceData m_PressedWaterSource;
         private Game.Objects.Transform m_PressedTransform;
         private float m_PressedMaxHeight;
-        private bool m_FetchWaterSources;
         private WaterPanelSystem m_WaterPanelSystem;
 
         /// <summary>
@@ -411,16 +410,6 @@ namespace Water_Features.Tools
         {
             inputDeps = Dependency;
 
-            if (m_FetchWaterSources && m_ToolSystem.actionMode.IsEditor())
-            {
-                m_FetchWaterSources = false;
-                m_WaterPanelSystem.FetchWaterSources();
-            }
-            else if (m_FetchWaterSources && m_ToolSystem.actionMode.IsGame())
-            {
-                m_FetchWaterSources = false;
-            }
-
             if (m_ActivePrefab == null)
             {
                 WaterToolUISystem.SourceType defaultSource = m_WaterSystem.UseLegacyWaterSources ? WaterToolUISystem.SourceType.Stream : WaterToolUISystem.SourceType.Generic;
@@ -525,7 +514,7 @@ namespace Water_Features.Tools
                     buffer.AddComponent<Deleted>(closestWaterSource);
                     if (m_ToolSystem.actionMode.IsEditor())
                     {
-                        m_FetchWaterSources = true;
+                        m_WaterToolUISystem.ScheduleFetchWaterSources();
                     }
                 }
                 else
@@ -544,7 +533,7 @@ namespace Water_Features.Tools
                     inputDeps = jobHandle;
                     if (m_ToolSystem.actionMode.IsEditor())
                     {
-                        m_FetchWaterSources = true;
+                        m_WaterToolUISystem.ScheduleFetchWaterSources();
                     }
                 }
             }
@@ -675,7 +664,7 @@ namespace Water_Features.Tools
 
                 if (m_ToolSystem.actionMode.IsEditor())
                 {
-                    m_FetchWaterSources = true;
+                    m_WaterToolUISystem.ScheduleFetchWaterSources();
                 }
             }
 
@@ -738,7 +727,7 @@ namespace Water_Features.Tools
 
                     if (m_ToolSystem.actionMode.IsEditor())
                     {
-                        m_FetchWaterSources = true;
+                        m_WaterToolUISystem.ScheduleFetchWaterSources();
                     }
                 }
             }
@@ -883,7 +872,7 @@ namespace Water_Features.Tools
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
                 if (m_ToolSystem.actionMode.IsEditor())
                 {
-                    m_FetchWaterSources = true;
+                    m_WaterToolUISystem.ScheduleFetchWaterSources();
                 }
             }
 
@@ -1184,7 +1173,7 @@ namespace Water_Features.Tools
 
                 if (scheduledWaterSourceCreation && m_ToolSystem.actionMode.IsEditor())
                 {
-                    m_FetchWaterSources = true;
+                    m_WaterToolUISystem.ScheduleFetchWaterSources();
                 }
             }
             else

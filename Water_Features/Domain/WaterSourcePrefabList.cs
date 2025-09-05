@@ -70,6 +70,15 @@ namespace Water_Features.Domain
             waterSourcePrefabUIDatas.Clear();
         }
 
+        /// <summary>
+        /// Gets the count of water source prefabs.
+        /// </summary>
+        /// <returns>Int count of water source Prefab UI datas.</returns>
+        public int Count()
+        {
+            return waterSourcePrefabUIDatas.Count;
+        }
+
         private bool Contains(string name)
         {
             for (int i = 0; i < waterSourcePrefabUIDatas.Count; i++)

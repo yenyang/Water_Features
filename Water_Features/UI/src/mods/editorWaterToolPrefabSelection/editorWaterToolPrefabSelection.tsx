@@ -60,7 +60,7 @@ export const EditorWaterToolPrefabSelectionComponent = () => {
         <>
             <Portal>
                 <Panel
-                    className={ toolActive? styles.panel: ""}
+                    className={ toolActive? styles.panel: styles.inactive}
                     header={(
                         <>
                             {toolActive && (

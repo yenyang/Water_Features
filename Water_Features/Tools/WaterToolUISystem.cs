@@ -39,6 +39,7 @@ namespace Water_Features.Tools
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
         private TerrainSystem m_TerrainSystem;
+        private WaterPanelSystem m_WaterPanelSystem;
         private ILog m_Log;
         private Dictionary<string, Action> m_ChangeValueActions;
         private bool m_ResetValues = true;
@@ -61,6 +62,8 @@ namespace Water_Features.Tools
         private EditorToolUISystem m_EditorToolUISystem;
         private ValueBinding<int> m_ToolMode;
         private PrefabSystem m_PrefabSystem;
+        private bool m_FetchWaterSources;
+        private int m_AddPrefabsInXFrames;
 
         /// <summary>
         /// Types of water sources.
@@ -158,6 +161,15 @@ namespace Water_Features.Tools
         }
 
         /// <summary>
+        /// Will Fetch Water Sources on next UI Update.
+        /// </summary>
+        public void ScheduleFetchWaterSources()
+        {
+            m_FetchWaterSources = true;
+            Enabled = true;
+        }
+
+        /// <summary>
         /// Tries to save the new default values for a water source for the next time they are placed.
         /// </summary>
         /// <param name="waterSource">Generally the active prefab for custom water tool.</param>
@@ -232,6 +244,7 @@ namespace Water_Features.Tools
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_WaterPanelSystem = World.GetOrCreateSystemManaged<WaterPanelSystem>();
             m_ToolSystem.EventPrefabChanged += OnPrefabChanged;
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
@@ -349,6 +362,21 @@ namespace Water_Features.Tools
 
             File.WriteAllText(filePath, json);
 #endif
+        }
+
+        /// <inheritdoc/>
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (m_FetchWaterSources &&
+                m_ToolSystem.actionMode.IsEditor())
+            {
+                m_FetchWaterSources = false;
+                m_WaterPanelSystem.FetchWaterSources();
+            }
+
+            Enabled = false;
         }
 
         /// <summary>
