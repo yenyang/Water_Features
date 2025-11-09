@@ -136,7 +136,7 @@ namespace Water_Features.Systems
                     if (waterHeight > currentAutofillingLake.m_MaximumWaterHeight)
                     {
                         currentWaterSourceData.m_ConstantDepth = (int)WaterToolUISystem.SourceType.VanillaLake;
-                        currentWaterSourceData.m_Amount = currentAutofillingLake.m_MaximumWaterHeight;
+                        currentWaterSourceData.m_Height = currentAutofillingLake.m_MaximumWaterHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                         buffer.RemoveComponent<AutofillingLake>(currentEntity);
                     }
@@ -145,10 +145,10 @@ namespace Water_Features.Systems
                     else if (waterDepth >= 0.75f * maxDepth)
                     {
                         currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        currentWaterSourceData.m_Amount = maxDepth * 0.1f;
+                        currentWaterSourceData.m_Height = maxDepth * 0.1f;
                         if (currentWaterSourceData.m_Radius < 20f)
                         {
-                            currentWaterSourceData.m_Amount *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
+                            currentWaterSourceData.m_Height *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
                         }
 
                         if (currentWaterSourceData.m_ConstantDepth != 0) // Stream
@@ -160,13 +160,13 @@ namespace Water_Features.Systems
                     }
 
                     // If an automatic filling lake was saved and converted to a vanilla lake, then this converts it back into a stream to continue filling.
-                    else if (currentWaterSourceData.m_ConstantDepth != 0 || currentWaterSourceData.m_Amount == 0f) // Stream
+                    else if (currentWaterSourceData.m_ConstantDepth != 0 || currentWaterSourceData.m_Height == 0f) // Stream
                     {
                         currentWaterSourceData.m_ConstantDepth = 0; // Stream
-                        currentWaterSourceData.m_Amount = maxDepth * 0.4f;
+                        currentWaterSourceData.m_Height = maxDepth * 0.4f;
                         if (currentWaterSourceData.m_Radius < 20f)
                         {
-                            currentWaterSourceData.m_Amount *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
+                            currentWaterSourceData.m_Height *= Mathf.Pow(currentWaterSourceData.m_Radius / 20f, 2);
                         }
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);

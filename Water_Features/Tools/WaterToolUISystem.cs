@@ -24,6 +24,7 @@ namespace Water_Features.Tools
     using Unity.Entities;
     using UnityEngine;
     using Water_Features;
+    using Water_Features.Domain;
     using Water_Features.Prefabs;
     using Water_Features.Settings;
     using Water_Features.Utils;
@@ -38,12 +39,12 @@ namespace Water_Features.Tools
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
         private TerrainSystem m_TerrainSystem;
+        private WaterPanelSystem m_WaterPanelSystem;
         private ILog m_Log;
         private Dictionary<string, Action> m_ChangeValueActions;
         private bool m_ResetValues = true;
         private string m_ContentFolder;
         private Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository> m_WaterSourcePrefabValuesRepositories;
-        private bool m_AmountIsElevation;
         private ValueBinding<float> m_Radius;
         private ValueBinding<float> m_Amount;
         private ValueBinding<float> m_MinDepth;
@@ -56,9 +57,13 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_RadiusScale;
         private ValueBinding<bool> m_ShowMinDepth;
         private ValueBinding<string> m_ActivePrefabName;
+        private ValueBinding<WaterSourcePrefabList> m_WaterSourcePrefabList;
+        private ValueBinding<bool> m_AmountIsElevation;
         private EditorToolUISystem m_EditorToolUISystem;
         private ValueBinding<int> m_ToolMode;
         private PrefabSystem m_PrefabSystem;
+        private bool m_FetchWaterSources;
+        private int m_AddPrefabsInXFrames;
 
         /// <summary>
         /// Types of water sources.
@@ -104,6 +109,16 @@ namespace Water_Features.Tools
             /// All in one water source.
             /// </summary>
             Automated,
+
+            /// <summary>
+            /// Vanilla water source for v2.0.
+            /// </summary>
+            Generic,
+
+            /// <summary>
+            /// Generic water source the rises and falls with weather and season.
+            /// </summary>
+            Seasonal,
         }
 
         /// <summary>
@@ -114,7 +129,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets the amount.
         /// </summary>
-        public float Amount { get => m_Amount.value; }
+        public float Height { get => m_Amount.value; }
 
         /// <summary>
         /// Gets the min depth.
@@ -129,7 +144,7 @@ namespace Water_Features.Tools
         /// <summary>
         /// Gets a value indicating whether the amount is an elevation.
         /// </summary>
-        public bool AmountIsAnElevation { get => m_AmountIsElevation; }
+        public bool HeightIsAnElevation { get => m_AmountIsElevation.value; }
 
         /// <summary>
         /// Sets the amount value equal to elevation parameter. And sets the label for that row to Elevation.
@@ -141,8 +156,17 @@ namespace Water_Features.Tools
             elevation = Mathf.Round(elevation * 10f) * 0.1f;
             m_Amount.Update(elevation);
             m_AmountScale.Update(1);
-            m_AmountIsElevation = true;
+            m_AmountIsElevation.Update(true);
             m_AmountLocaleKey.Update("YY_WATER_FEATURES.Elevation");
+        }
+
+        /// <summary>
+        /// Will Fetch Water Sources on next UI Update.
+        /// </summary>
+        public void ScheduleFetchWaterSources()
+        {
+            m_FetchWaterSources = true;
+            Enabled = true;
         }
 
         /// <summary>
@@ -202,6 +226,16 @@ namespace Water_Features.Tools
             return false;
         }
 
+        /// <summary>
+        /// Sets the list of water source prefabs for the editor.
+        /// </summary>
+        /// <param name="waterSourcePrefabList">List of prefab names.</param>
+        public void SetPrefabList(WaterSourcePrefabList waterSourcePrefabList)
+        {
+            m_WaterSourcePrefabList.Update(waterSourcePrefabList);
+            m_WaterSourcePrefabList.TriggerUpdate();
+        }
+
         /// <inheritdoc/>
         protected override void OnCreate()
         {
@@ -210,13 +244,14 @@ namespace Water_Features.Tools
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_WaterPanelSystem = World.GetOrCreateSystemManaged<WaterPanelSystem>();
             m_ToolSystem.EventPrefabChanged += OnPrefabChanged;
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_EditorToolUISystem = World.GetOrCreateSystemManaged<EditorToolUISystem>();
             IEditorTool[] existingTools = m_EditorToolUISystem.tools;
-            IEditorTool[] newTools = new IEditorTool[existingTools.Length+1];
+            IEditorTool[] newTools = new IEditorTool[existingTools.Length + 1];
             int i = 0;
             foreach (IEditorTool currentTool in existingTools)
             {
@@ -265,6 +300,12 @@ namespace Water_Features.Tools
             // This binding communicates the ActivePrefabName when using Custom Water tool in editor.
             AddBinding(m_ToolMode = new ValueBinding<int>(ModId, "ToolMode", (int)CustomWaterToolSystem.ToolModes.PlaceWaterSource));
 
+            // This binding communicates a list of water source prefab names to be used in the editor.
+            AddBinding(m_WaterSourcePrefabList = new ValueBinding<WaterSourcePrefabList>(ModId, "WaterSourcePrefabList", new WaterSourcePrefabList() { waterSourcePrefabUIDatas = new List<WaterSourcePrefabUIData>() }));
+
+            // This binding communicates whether amount is an elevation.
+            AddBinding(m_AmountIsElevation = new ValueBinding<bool>(ModId, "AmountIsElevation", false));
+
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
 
@@ -298,6 +339,9 @@ namespace Water_Features.Tools
             // This binding hanldes changing tool mode for water tool.
             AddBinding(new TriggerBinding<int>(ModId, "ChangeToolMode", ChangeToolMode));
 
+            // This binding handles toggle amount is elevation.
+            AddBinding(new TriggerBinding(ModId, "AmountIsElevationToggled", AmountIsElevationToggled));
+
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
 
@@ -318,6 +362,21 @@ namespace Water_Features.Tools
 
             File.WriteAllText(filePath, json);
 #endif
+        }
+
+        /// <inheritdoc/>
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+
+            if (m_FetchWaterSources &&
+                m_ToolSystem.actionMode.IsEditor())
+            {
+                m_FetchWaterSources = false;
+                m_WaterPanelSystem.FetchWaterSources();
+            }
+
+            Enabled = false;
         }
 
         /// <summary>
@@ -543,7 +602,7 @@ namespace Water_Features.Tools
         {
             float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountStep.value, 2f));
             float tempValue = m_Amount.value;
-            if (!m_AmountIsElevation)
+            if (!m_AmountIsElevation.value)
             {
                 if (tempValue >= 500f && tempValue < 1000f)
                 {
@@ -602,7 +661,7 @@ namespace Water_Features.Tools
         {
             float signaficantFigures = Mathf.Pow(10f, -1f * Mathf.Log(m_AmountStep.value, 2f));
             float tempValue = m_Amount.value;
-            if (!m_AmountIsElevation)
+            if (!m_AmountIsElevation.value)
             {
                 if (tempValue <= 1f)
                 {
@@ -709,6 +768,22 @@ namespace Water_Features.Tools
 
         private void ChangeToolMode(int toolMode) => m_ToolMode.Update(toolMode);
 
+        private void AmountIsElevationToggled()
+        {
+            m_AmountIsElevation.Update(!m_AmountIsElevation.value);
+            PrefabBase prefab = m_CustomWaterToolSystem.GetPrefab();
+            if (prefab is not null &&
+                prefab is WaterSourcePrefab)
+            {
+                WaterSourcePrefab waterSourcePrefab = prefab as WaterSourcePrefab;
+                float tempRadius = waterSourcePrefab.m_DefaultRadius;
+                float tempAmount = waterSourcePrefab.m_DefaultHeight;
+                TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref tempAmount, ref tempRadius);
+                m_Amount.Update(tempAmount);
+                m_AmountLocaleKey.Update(waterSourcePrefab.m_HeightLocaleKey);
+            }
+        }
+
         private void OnPrefabChanged(PrefabBase prefabBase)
         {
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(OnPrefabChanged)}");
@@ -718,14 +793,14 @@ namespace Water_Features.Tools
                 WaterSourcePrefab waterSourcePrefab = prefabBase as WaterSourcePrefab;
 
                 float tempRadius = waterSourcePrefab.m_DefaultRadius;
-                float tempAmount = waterSourcePrefab.m_DefaultAmount;
+                float tempAmount = waterSourcePrefab.m_DefaultHeight;
                 TryGetDefaultValuesForWaterSource(waterSourcePrefab, ref tempAmount, ref tempRadius);
-                m_AmountIsElevation = false;
+                m_AmountIsElevation.Update(false);
                 m_Radius.Update(tempRadius);
                 m_Amount.Update(tempAmount);
                 m_AmountScale.Update(Math.Max(0, CalculateScale(tempAmount)));
                 m_RadiusScale.Update(Math.Max(0, CalculateScale(tempRadius)));
-                m_AmountLocaleKey.Update(waterSourcePrefab.m_AmountLocaleKey);
+                m_AmountLocaleKey.Update(waterSourcePrefab.m_HeightLocaleKey);
                 bool flag = waterSourcePrefab.m_SourceType == SourceType.RetentionBasin;
                 if (m_ShowMinDepth.value != flag)
                 {

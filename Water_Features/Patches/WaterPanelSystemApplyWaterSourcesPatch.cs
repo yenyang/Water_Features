@@ -6,6 +6,7 @@ namespace Water_Features.Patches
 {
     using Colossal.Entities;
     using Game;
+    using Game.Simulation;
     using Game.UI.Editor;
     using HarmonyLib;
     using Unity.Collections;
@@ -39,7 +40,7 @@ namespace Water_Features.Patches
 
                     if (waterSourceData.m_ConstantDepth == 0)
                     {
-                        waterSourceData.m_Amount = seasonalStreamsData.m_OriginalAmount;
+                        waterSourceData.m_Height = seasonalStreamsData.m_OriginalAmount;
                         seasonalStreamsSystem.EntityManager.SetComponentData(entity, waterSourceData);
                     }
                     else
@@ -61,7 +62,7 @@ namespace Water_Features.Patches
 
                     if (waterSourceData.m_ConstantDepth == 3)
                     {
-                        waterSourceData.m_Amount = tidesAndWavesData.m_OriginalAmount;
+                        waterSourceData.m_Height = tidesAndWavesData.m_OriginalAmount;
                         wavesAndTidesSystem.EntityManager.SetComponentData(entity, waterSourceData);
                     }
                     else
@@ -81,6 +82,7 @@ namespace Water_Features.Patches
             TidesAndWavesSystem wavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<TidesAndWavesSystem>();
             EndFrameBarrier endFrameBarrier = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<EndFrameBarrier>();
             EntityCommandBuffer buffer = endFrameBarrier.CreateCommandBuffer();
+            FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
             if (!seasonalStreamsSystem.SeasonalStreamsSourcesQuery.IsEmptyIgnoreFilter)
             {
                 NativeArray<Entity> seasonalStreamsEntities = seasonalStreamsSystem.SeasonalStreamsSourcesQuery.ToEntityArray(Allocator.Temp);
@@ -88,6 +90,8 @@ namespace Water_Features.Patches
                 {
                     buffer.RemoveComponent<SeasonalStreamsData>(entity);
                 }
+
+                findWaterSourcesSystem.Enabled = true;
             }
 
             if (!wavesAndTidesSystem.WavesAndTidesDataQuery.IsEmptyIgnoreFilter)
@@ -97,10 +101,10 @@ namespace Water_Features.Patches
                 {
                     buffer.RemoveComponent<TidesAndWavesData>(entity);
                 }
+
+                findWaterSourcesSystem.Enabled = true;
             }
 
-            FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-            findWaterSourcesSystem.Enabled = true;
         }
     }
 }

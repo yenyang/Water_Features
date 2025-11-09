@@ -1,3 +1,6 @@
-﻿## Update v1.3.0
-* New toggle for Water Causes Flooding and Damage. When toggled off, existing damage and flooding notifications are removed for anything that is not already destroyed. While off, water does not cause flooding nor damage.
-* Updated Localization.
+﻿## Update v1.4.0
+* Added Generic Constant Level Water Source introduced with game version v1.3.6f1.
+* Added Seasonal Water Source which applies seasonal streams settings to a Generic water source.
+* Game and editor can handle changing between different save files that include Legacy or Modern Water Sources. 
+* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.
+* Added a toggle to go from a set elevation back to depth.

@@ -7,6 +7,8 @@ namespace Water_Features.Settings
     using System.Collections.Generic;
     using Colossal;
     using Colossal.PSI.Common;
+    using Water_Features.Systems;
+    using Water_Features.Tools;
 
     /// <summary>
     /// Localization for Water Features Mod in English.
@@ -36,9 +38,9 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SeasonalStreams), "Seasonal Streams" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WaterToolGroup), "Water Tool" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.WavesAndTides), "Waves and Tides" },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Add Retention Basins (Restart Required)" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Add Retention Basins" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.IncludeRetentionBasins)), "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. You may need to adjust the global evaporation rate in the settings for desirable infiltration of the pond water." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Add Detention Basins (Restart Required)" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Add Detention Basins" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.IncludeDetentionBasins)), "Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. You may need to adjust the global evaporation rate in the settings for desirable infiltration of the pond water." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(WaterFeaturesSettings.TrySmallerRadii)), "Try Smaller Radii" },
                 { m_Setting.GetOptionDescLocaleID(nameof(WaterFeaturesSettings.TrySmallerRadii)), "Lets you try to make a water source with a radius smaller than 5m. It will not always work, but will be increased to a radius that does work." },
@@ -143,12 +145,19 @@ namespace Water_Features.Settings
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Version)), "Version" },
                 { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Version)), $"Version number for the Water Features mod installed." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.SeasonalStreamsSettingsAvailableInGame)), "Seasonal Streams settings available in the Game or Editor." },
-                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.WavesAndTidesSettingsAvailableInGame)), "Waves and Tides settings available in the Game or Editor." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.WavesAndTidesSettingsAvailableInGame)), "Waves and Tides settings available in the Game or Editor on older maps that support Legacy Water Sources." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Force Water Simulation Speed" },
                 { m_Setting.GetOptionDescLocaleID(nameof(m_Setting.ForceWaterSimulationSpeed)), "Attempts to force a Water Simulation Speed of at least 1x while in Game." },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.Editor), "Editor" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.SaveGame), "Individual Save File" },
                 { m_Setting.GetOptionGroupLocaleID(WaterFeaturesSettings.General), "General" },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Generic Constant Level Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Generic}"), "Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Behavior and color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Seasonal Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.Seasonal}"), "Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove." },
+                { TooltipDescriptionKey("AmountIsElevation"), "Elevation Set. Toggle to reset to Depth." },
+                { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Constant Level Water Source" },
+                { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Fills slowly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove." },
             };
         }
 
@@ -161,6 +170,31 @@ namespace Water_Features.Settings
         /// <inheritdoc/>
         public void Unload()
         {
+        }
+
+        private string AssetNameKey(string assetName)
+        {
+            return $"Assets.NAME[{assetName}]";
+        }
+
+        private string AssetDescriptionKey(string assetName)
+        {
+            return $"Assets.DESCRIPTION[{assetName}]";
+        }
+
+        private string TooltipDescriptionKey(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.TOOLTIP_DESCRIPTION[{key}]";
+        }
+
+        private string SectionLabel(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.SECTION_TITLE[{key}]";
+        }
+
+        private string TooltipTitleKey(string key)
+        {
+            return $"{WaterFeaturesMod.Id}.TOOLTIP_TITLE[{key}]";
         }
     }
 }

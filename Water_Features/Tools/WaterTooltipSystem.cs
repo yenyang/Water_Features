@@ -6,6 +6,7 @@ namespace Water_Features.Tools
 {
     using Colossal.Entities;
     using Colossal.Logging;
+    using Game.Simulation;
     using Game.Tools;
     using Game.UI.Localization;
     using Game.UI.Tooltip;
@@ -28,6 +29,7 @@ namespace Water_Features.Tools
         private float m_StartedHoveringTime;
         private ILog m_Log;
         private WaterToolUISystem m_WaterToolUISystem;
+        private WaterSystem m_WaterSystem;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WaterTooltipSystem"/> class.
@@ -58,6 +60,7 @@ namespace Water_Features.Tools
             base.OnCreate();
             m_Log = WaterFeaturesMod.Instance.Log;
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_CustomWaterTool = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_WaterToolUISystem = World.GetOrCreateSystemManaged<WaterToolUISystem>();
             m_Log.Info($"[{nameof(WaterTooltipSystem)}] {nameof(OnCreate)}");
@@ -125,7 +128,7 @@ namespace Water_Features.Tools
                     }
 
                     // Checks position of water sources placed in playable area and displays tooltip if needed.
-                    else
+                    else if (m_WaterSystem.UseLegacyWaterSources)
                     {
                         if (!m_CustomWaterTool.IsPositionWithinBorder(position))
                         {
@@ -140,7 +143,7 @@ namespace Water_Features.Tools
                 }
 
                 // Informs the player if they can set the elevation by right clicking.
-                if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && !m_WaterToolUISystem.AmountIsAnElevation && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.PlaceWaterSource)
+                if (waterSourcePrefab.m_SourceType != WaterToolUISystem.SourceType.Stream && !m_WaterToolUISystem.HeightIsAnElevation && m_WaterToolUISystem.ToolMode == CustomWaterToolSystem.ToolModes.PlaceWaterSource)
                 {
                     StringTooltip lockElevationTooltip = new ()
                     {
@@ -206,22 +209,28 @@ namespace Water_Features.Tools
                 {
                     if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Simulation.WaterSourceData waterSourceData))
                     {
-                        string amountLocaleKey = "YY_WATER_FEATURES.Elevation";
+                        string heightLocaleKey = "YY_WATER_FEATURES.Elevation";
                         string fallback = "Elevation";
-                        if (waterSourceData.m_ConstantDepth == 0)
+                        if (waterSourceData.m_ConstantDepth == 0 && m_WaterSystem.UseLegacyWaterSources)
                         {
-                            amountLocaleKey = "YY_WATER_FEATURES.Flow";
+                            heightLocaleKey = "YY_WATER_FEATURES.Flow";
                             fallback = "Flow";
                         }
 
-                        FloatTooltip amountTooltip = new FloatTooltip
+                        FloatTooltip heightTooltip = new FloatTooltip
                         {
-                            value = waterSourceData.m_Amount,
+                            value = waterSourceData.m_Height,
                             unit = "floatSingleFraction",
-                            path = amountLocaleKey,
-                            label = LocalizedString.IdWithFallback(amountLocaleKey, fallback),
+                            path = heightLocaleKey,
+                            label = LocalizedString.IdWithFallback(heightLocaleKey, fallback),
                         };
-                        AddMouseTooltip(amountTooltip);
+                        if (!m_WaterSystem.UseLegacyWaterSources &&
+                            EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Objects.Transform transform))
+                        {
+                            heightTooltip.value = waterSourceData.m_Height + transform.m_Position.y;
+                        }
+
+                        AddMouseTooltip(heightTooltip);
 
                         FloatTooltip radiusTooltip = new FloatTooltip
                         {
@@ -309,14 +318,28 @@ namespace Water_Features.Tools
                     }
                     else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out SeasonalStreamsData seasonalStreamsData))
                     {
-                        FloatTooltip originalAmount = new FloatTooltip
+                        if (m_WaterSystem.UseLegacyWaterSources)
                         {
-                            value = seasonalStreamsData.m_OriginalAmount,
-                            unit = "floatSingleFraction",
-                            path = "YY_WATER_FEATURES.OriginalFlow",
-                            label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
-                        };
-                        AddMouseTooltip(originalAmount);
+                            FloatTooltip originalAmount = new FloatTooltip
+                            {
+                                value = seasonalStreamsData.m_OriginalAmount,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.OriginalFlow",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.OriginalFlow", "Original Flow"),
+                            };
+                            AddMouseTooltip(originalAmount);
+                        }
+                        else if (EntityManager.TryGetComponent(hoveredWaterSourceEntity, out Game.Objects.Transform transform))
+                        {
+                            FloatTooltip maxElevationTooptip = new FloatTooltip
+                            {
+                                value = seasonalStreamsData.m_OriginalAmount + transform.m_Position.y,
+                                unit = "floatSingleFraction",
+                                path = "YY_WATER_FEATURES.MaxElevation",
+                                label = LocalizedString.IdWithFallback("YY_WATER_FEATURES.MaxElevation", "Max Elevation"),
+                            };
+                            AddMouseTooltip(maxElevationTooptip);
+                        }
 
                         if (WaterFeaturesMod.Instance.Settings.SimulateSnowMelt)
                         {

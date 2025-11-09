@@ -139,15 +139,16 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            if (!m_WaterSystem.UseLegacyWaterSources)
             {
-                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
-                m_FindWaterSourcesSystem.Enabled = true;
+                return;
             }
 
-
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            if (m_ToolSystem.actionMode.IsEditor() &&
+                m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed &&
+                m_WaterSystem.UseLegacyWaterSources)
             {
+                m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
                 m_FindWaterSourcesSystem.Enabled = true;
             }
 
@@ -159,7 +160,7 @@ namespace Water_Features.Systems
                 }
 
                 m_ChangeWaterSystemValues.TemporarilyUseOriginalDamping = true;
-                m_WaterSystem.m_Damping = m_ChangeWaterSystemValues.OriginalDamping;
+                m_WaterSystem.WaterSimulation.Damping = m_ChangeWaterSystemValues.OriginalDamping;
                 m_TerrainToolCooloff = 300;
             }
 
@@ -184,14 +185,15 @@ namespace Water_Features.Systems
                     }
 
                     m_ChangeWaterSystemValues.TemporarilyUseOriginalDamping = true;
-                    m_WaterSystem.m_Damping = m_ChangeWaterSystemValues.OriginalDamping;
+                    m_WaterSystem.WaterSimulation.Damping = m_ChangeWaterSystemValues.OriginalDamping;
                     m_TerrainToolCooloff -= 1;
                 }
             }
 
 
             // This section adds the dummy water source if it does not exist.
-            if (m_DummySeaWaterSource == Entity.Null)
+            if (m_DummySeaWaterSource == Entity.Null &&
+                m_WaterSystem.UseLegacyWaterSources)
             {
                 float seaLevel = float.MaxValue;
                 NativeArray<TidesAndWavesData> seaWaterSources = m_WavesAndTidesQuery.ToComponentDataArray<TidesAndWavesData>(Allocator.Temp);
@@ -208,7 +210,7 @@ namespace Water_Features.Systems
                 seaLevel -= WaterFeaturesMod.Instance.Settings.WaveHeight + WaterFeaturesMod.Instance.Settings.TideHeight;
                 WaterSourceData waterSourceData = new WaterSourceData()
                 {
-                    m_Amount = seaLevel,
+                    m_Height = seaLevel,
                     m_ConstantDepth = 3,
                     m_Multiplier = 30f,
                     m_Polluted = 0f,
@@ -256,7 +258,8 @@ namespace Water_Features.Systems
                purpose != Purpose.NewGame &&
               (mode == GameMode.Game ||
               mode == GameMode.Editor) &&
-              !m_WavesAndTidesQuery.IsEmptyIgnoreFilter)
+              !m_WavesAndTidesQuery.IsEmptyIgnoreFilter &&
+              m_WaterSystem.UseLegacyWaterSources)
             {
                 WaterFeaturesMod.Instance.Settings.EnableWavesAndTides = true;
                 Enabled = true;
@@ -268,7 +271,10 @@ namespace Water_Features.Systems
             }
 
             // Sometimes the dummy water source does not have the correct sea level at first, so resetting it at game loading fixes it.
-            ResetDummySeaWaterSource();
+            if (m_WaterSystem.UseLegacyWaterSources)
+            {
+                ResetDummySeaWaterSource();
+            }
         }
 
 #if BURST
@@ -296,9 +302,9 @@ namespace Water_Features.Systems
                     Entity currentEntity = entityNativeArray[i];
                     Game.Simulation.WaterSourceData currentWaterSourceData = waterSourceDataNativeArray[i];
                     TidesAndWavesData currentTidesAndWavesData = wavesAndTidesDataNativeArray[i];
-                    if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Amount > 0f)
+                    if (currentWaterSourceData.m_ConstantDepth == 3 && currentWaterSourceData.m_Height > 0f)
                     {
-                        currentWaterSourceData.m_Amount = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
+                        currentWaterSourceData.m_Height = currentTidesAndWavesData.m_OriginalAmount - m_WaveHeight;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                     else if (currentWaterSourceData.m_ConstantDepth != 3)

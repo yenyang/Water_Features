@@ -6,6 +6,7 @@ namespace Water_Features.Prefabs
 {
     using System;
     using System.Collections.Generic;
+    using Game;
     using Game.Prefabs;
     using Unity.Entities;
     using Water_Features.Tools;
@@ -22,9 +23,9 @@ namespace Water_Features.Prefabs
         public WaterToolUISystem.SourceType m_SourceType;
 
         /// <summary>
-        /// The locale key for this type of water source for the amount row.
+        /// The locale key for this type of water source for the height row. Previouly this was amount row.
         /// </summary>
-        public string m_AmountLocaleKey;
+        public string m_HeightLocaleKey;
 
         /// <summary>
         /// The default value for the radius field.
@@ -32,9 +33,19 @@ namespace Water_Features.Prefabs
         public float m_DefaultRadius;
 
         /// <summary>
-        /// The default value for the amount field.
+        /// The default value for the height field. Previously this was amount.
         /// </summary>
-        public float m_DefaultAmount;
+        public float m_DefaultHeight;
+
+        /// <summary>
+        /// Defines is it's a legacy water source of modern.
+        /// </summary>
+        public bool m_LegacyWaterSource;
+
+        /// <summary>
+        /// Defines game mode to use this prefab in.
+        /// </summary>
+        public GameMode m_GameMode;
 
         /// <inheritdoc/>
         public override void GetPrefabComponents(HashSet<ComponentType> components)

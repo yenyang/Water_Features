@@ -175,16 +175,16 @@ namespace Water_Features.Systems
 
 
                     // When it reaches 100% full or higher the amount is set to 0.
-                    if (waterHeight > currentRetentionBasin.m_MaximumWaterHeight && currentWaterSourceData.m_Amount >= 0f)
+                    if (waterHeight > currentRetentionBasin.m_MaximumWaterHeight && currentWaterSourceData.m_Height >= 0f)
                     {
-                        currentWaterSourceData.m_Amount = 0f;
+                        currentWaterSourceData.m_Height = 0f;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
 
                     // If the water depth is less than 95% of the minimum depth than set the amount of water.
                     else if (waterDepth < 0.95 * minDepth && currentRetentionBasin.m_MinimumWaterHeight < currentRetentionBasin.m_MaximumWaterHeight)
                     {
-                        currentWaterSourceData.m_Amount = minDepth * maxDepthToRunoffCoefficient;
+                        currentWaterSourceData.m_Height = minDepth * maxDepthToRunoffCoefficient;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                     else if (m_Precipiation > 0f && !m_Snowing) // If it's not full and it's raining add water.
@@ -192,20 +192,20 @@ namespace Water_Features.Systems
                         // If there is no snow to melt than just simulate rain.
                         if (Mathf.Approximately(currentRetentionBasin.m_SnowAccumulation, 0f) && temperatureDifferentialAtWaterSource > 0f)
                         {
-                            currentWaterSourceData.m_Amount = m_Precipiation * maxDepth * maxDepthToRunoffCoefficient;
+                            currentWaterSourceData.m_Height = m_Precipiation * maxDepth * maxDepthToRunoffCoefficient;
                         }
 
                         // If there is snow that is melting add that to the amount.
                         else
                         {
-                            currentWaterSourceData.m_Amount = (m_Precipiation * maxDepth * maxDepthToRunoffCoefficient) + TryMeltSnow(ref currentRetentionBasin, temperatureDifferentialAtWaterSource, maxDepth);
+                            currentWaterSourceData.m_Height = (m_Precipiation * maxDepth * maxDepthToRunoffCoefficient) + TryMeltSnow(ref currentRetentionBasin, temperatureDifferentialAtWaterSource, maxDepth);
                             buffer.SetComponent(currentEntity, currentRetentionBasin);
                         }
 
                         // When it reaches 95% full then the amount is throttled.
                         if (waterHeight > 0.95f * currentRetentionBasin.m_MaximumWaterHeight)
                         {
-                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, maxDepth * .05f);
+                            currentWaterSourceData.m_Height = Mathf.Min(currentWaterSourceData.m_Height, maxDepth * .05f);
                         }
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
@@ -214,18 +214,18 @@ namespace Water_Features.Systems
                     // If it is not raining, but their is snow that can melt.
                     else if (m_Precipiation == 0f && temperatureDifferentialAtWaterSource > 0f && currentRetentionBasin.m_SnowAccumulation > 0f)
                     {
-                        currentWaterSourceData.m_Amount = TryMeltSnow(ref currentRetentionBasin, temperatureDifferentialAtWaterSource, maxDepth); // If there is snow that is melting add that to the amount.
+                        currentWaterSourceData.m_Height = TryMeltSnow(ref currentRetentionBasin, temperatureDifferentialAtWaterSource, maxDepth); // If there is snow that is melting add that to the amount.
 
                         if (waterDepth > 0.95f * maxDepth) // When it reaches 95% full then the amount is throttled.
                         {
-                            currentWaterSourceData.m_Amount = Mathf.Min(currentWaterSourceData.m_Amount, maxDepth * .05f);
+                            currentWaterSourceData.m_Height = Mathf.Min(currentWaterSourceData.m_Height, maxDepth * .05f);
                         }
 
                         buffer.SetComponent(currentEntity, currentRetentionBasin);
                     }
                     else
                     {
-                        currentWaterSourceData.m_Amount = 0f;
+                        currentWaterSourceData.m_Height = 0f;
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
                 }

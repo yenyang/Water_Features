@@ -73,6 +73,29 @@ namespace Water_Features.Systems
             }
         }
 
+        /// <summary>
+        /// Sets the seasonal streams setting.
+        /// </summary>
+        /// <param name="purpose">Purpose of Game loading.</param>
+        /// <param name="mode">New Game Mode.</param>
+        public void SetSeasonalStreamsSetting(Purpose purpose, GameMode mode)
+        {
+            if (purpose != Purpose.NewMap &&
+               purpose != Purpose.NewGame &&
+              (mode == GameMode.Game ||
+              mode == GameMode.Editor) &&
+              !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
+            {
+                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;
+                Enabled = true;
+            }
+            else
+            {
+                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = false;
+                Enabled = false;
+            }
+        }
+
 
         /// <inheritdoc/>
         public void Serialize<TWriter>(TWriter writer)
@@ -147,14 +170,11 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         protected override void OnUpdate()
         {
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
+            if (m_ToolSystem.actionMode.IsEditor() &&
+                m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed &&
+                m_WaterSystem.UseLegacyWaterSources)
             {
                 m_RecordedWaterSimSpeed = m_WaterSystem.WaterSimSpeed;
-                m_FindWaterSourceSystem.Enabled = true;
-            }
-
-            if (m_ToolSystem.actionMode.IsEditor() && m_RecordedWaterSimSpeed != m_WaterSystem.WaterSimSpeed)
-            {
                 m_FindWaterSourceSystem.Enabled = true;
             }
 
@@ -218,6 +238,8 @@ namespace Water_Features.Systems
                 reviseWaterSourcesJob.m_TemperatureDifferential = 0f;
             }
 
+            reviseWaterSourcesJob.m_UseLegacyWaterSources = m_WaterSystem.UseLegacyWaterSources;
+
             ReviseWaterSourcesJob jobData = reviseWaterSourcesJob;
             JobHandle jobHandle = JobChunkExtensions.Schedule(jobData, m_OriginalAmountsQuery, Dependency);
             m_TerrainSystem.AddCPUHeightReader(jobHandle);
@@ -230,26 +252,6 @@ namespace Water_Features.Systems
         {
             ClimateInteractionInitialized = false;
             base.OnGamePreload(purpose, mode);
-        }
-
-        /// <inheritdoc/>
-        protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
-        {
-            base.OnGameLoadingComplete(purpose, mode);
-            if (purpose != Purpose.NewMap &&
-                purpose != Purpose.NewGame &&
-               (mode == GameMode.Game ||
-               mode == GameMode.Editor) &&
-               !m_OriginalAmountsQuery.IsEmptyIgnoreFilter)
-            {
-                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = true;
-                Enabled = true;
-            }
-            else
-            {
-                WaterFeaturesMod.Instance.Settings.EnableSeasonalStreams = false;
-                Enabled = false;
-            }
         }
 
         /// <summary>
@@ -313,10 +315,6 @@ namespace Water_Features.Systems
             return normalizedClimateDate;
         }
 
-        
-
-
-
         /// <summary>
         /// This job sets the stream flow amount based on all the various factors calculated during the onUpdate.
         /// </summary>
@@ -333,6 +331,7 @@ namespace Water_Features.Systems
             public float m_SnowAccumulationMultiplier;
             public float m_PotentialSnowMeltMultiplier;
             public float m_TemperatureDifferential;
+            public bool m_UseLegacyWaterSources;
             public TerrainHeightData m_TerrainHeightData;
             public EntityCommandBuffer buffer;
 
@@ -381,7 +380,8 @@ namespace Water_Features.Systems
                     }
 
                     // Set the amount.
-                    currentWaterSourceData.m_Amount = (seasonalStreamDataNativeArray[i].m_OriginalAmount * m_WaterSourceMultiplier) + snowMelt;
+                    currentWaterSourceData.m_Height = (seasonalStreamDataNativeArray[i].m_OriginalAmount * m_WaterSourceMultiplier) + snowMelt;
+
                     buffer.SetComponent(entityNativeArray[i], currentWaterSourceData);
                 }
             }

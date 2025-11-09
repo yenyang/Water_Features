@@ -103,15 +103,18 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.3.0" />
+  <ModVersion Value="1.4.0" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.3.*" />
+  <GameVersion Value="1.3.4.*" />
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Update v1.3.0
-* New toggle for Water Causes Flooding and Damage. When toggled off, existing damage and flooding notifications are removed for anything that is not already destroyed. While off, water does not cause flooding nor damage.
-* Updated Localization.</ChangeLog>
+  <ChangeLog>## Update v1.4.0
+* Added Generic Constant Level Water Source introduced with game version v1.3.6f1.
+* Added Seasonal Water Source which applies seasonal streams settings to a Generic water source.
+* Game and editor can handle changing between different save files that include Legacy or Modern Water Sources. 
+* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.
+* Added a toggle to go from a set elevation back to depth.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />

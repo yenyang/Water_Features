@@ -14,6 +14,7 @@ namespace Water_Features.Settings
     using Game.UI;
     using Unity.Entities;
     using Water_Features.Systems;
+    using Water_Features.Tools;
 
     /// <summary>
     /// The mod settings for the Water Features Mod.
@@ -116,12 +117,16 @@ namespace Water_Features.Settings
         /// Gets or sets a value indicating whether to Include Detention Basins.
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(DetetionBasinToggled))]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableLegacyWaterSources))]
         public bool IncludeDetentionBasins { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to Include Retention Basins.
         /// </summary>
         [SettingsUISection(WaterToolGroup, General)]
+        [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(RetetionBasinToggled))]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(DisableLegacyWaterSources))]
         public bool IncludeRetentionBasins { get; set; }
 
         /// <summary>
@@ -253,7 +258,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUISection(WavesAndTides, SaveGame)]
         [SettingsUISetter(typeof(WaterFeaturesSettings), nameof(WavesAndTidesToggled))]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources), invert: true)]
         public bool EnableWavesAndTides { get; set; }
 
         /// <summary>
@@ -261,7 +266,7 @@ namespace Water_Features.Settings
         /// </summary>
         [SettingsUIMultilineText]
         [SettingsUISection(WavesAndTides, Warnings)]
-        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor))]
+        [SettingsUIHideByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources))]
         public string WavesAndTidesSettingsAvailableInGame { get; }
 
         /// <summary>
@@ -311,7 +316,7 @@ namespace Water_Features.Settings
         [SettingsUIButton]
         [SettingsUIConfirmation]
         [SettingsUISection(WavesAndTides, Reset)]
-        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditor), invert: true)]
+        [SettingsUIDisableByCondition(typeof(WaterFeaturesSettings), nameof(IsGameOrEditorAndLegacyWaterSources), invert: true)]
         public bool ResetWavesAndTidesSettingsButton
         {
             set
@@ -402,7 +407,7 @@ namespace Water_Features.Settings
         /// Checks if waves and tides feature is off or on.
         /// </summary>
         /// <returns>Opposite of Enable Waves and Tides.</returns>
-        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditor();
+        public bool IsWavesAndTidesDisabled() => !EnableWavesAndTides || !IsGameOrEditorAndLegacyWaterSources();
 
         /// <inheritdoc/>
         public override void SetDefaults()
@@ -449,13 +454,25 @@ namespace Water_Features.Settings
             WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)}");
             SeasonalStreamsSystem seasonalStreamsSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<SeasonalStreamsSystem>();
             ToolSystem toolSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
             if (value && toolSystem.actionMode.IsGameOrEditor())
             {
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(SeasonalStreamsToggled)} Enabled");
                 seasonalStreamsSystem.Enabled = true;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
+
+                if (waterSystem.UseLegacyWaterSources)
+                {
+                    FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                    findWaterSourcesSystem.Enabled = true;
+                }
+                else
+                {
+                    EnableSeasonalStreams = value;
+                    AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+                    addPrefabsSystem.ReviewPrefabs();
+                }
+
                 disableSeasonalStreamSystem.Enabled = false;
             }
             else
@@ -464,6 +481,15 @@ namespace Water_Features.Settings
                 seasonalStreamsSystem.Enabled = false;
                 DisableSeasonalStreamSystem disableSeasonalStreamSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableSeasonalStreamSystem>();
                 disableSeasonalStreamSystem.Enabled = true;
+
+                if (!waterSystem.UseLegacyWaterSources &&
+                    !value)
+                {
+                    EnableSeasonalStreams = value;
+                    World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<CustomWaterToolSystem>().ResetPrefab();
+                    AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+                    addPrefabsSystem.ReviewPrefabs();
+                }
             }
         }
 
@@ -481,8 +507,13 @@ namespace Water_Features.Settings
                 WaterFeaturesMod.Instance.Log.Info($"{nameof(WaterFeaturesSettings)}.{nameof(WavesAndTidesToggled)} Enabled");
                 tidesAndWavesSystem.Enabled = true;
                 DisableWavesAndTidesSystem disableWavesAndTidesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<DisableWavesAndTidesSystem>();
-                FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-                findWaterSourcesSystem.Enabled = true;
+                WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+                if (waterSystem.UseLegacyWaterSources)
+                {
+                    FindWaterSourcesSystem findWaterSourcesSystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
+                    findWaterSourcesSystem.Enabled = true;
+                }
+
                 disableWavesAndTidesSystem.Enabled = false;
             }
             else
@@ -502,6 +533,17 @@ namespace Water_Features.Settings
         {
             ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
             return toolsystem.actionMode.IsGameOrEditor();
+        }
+
+        /// <summary>
+        /// Checks whether it is game or editor and using legacy water sources.
+        /// </summary>
+        /// <returns>True if in game or editor and legacy water sources. false if not.</returns>
+        public bool IsGameOrEditorAndLegacyWaterSources()
+        {
+            ToolSystem toolsystem = World.DefaultGameObjectInjectionWorld?.GetOrCreateSystemManaged<ToolSystem>();
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+            return toolsystem.actionMode.IsGameOrEditor() && waterSystem.UseLegacyWaterSources;
         }
 
         /// <summary>
@@ -549,6 +591,38 @@ namespace Water_Features.Settings
                 RemoveFloodedSystem removeFloodedSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<RemoveFloodedSystem>();
                 removeFloodedSystem.Enabled = true;
             }
+        }
+
+        /// <summary>
+        /// Reviews prefabs and adds or removes them.
+        /// </summary>
+        /// <param name="value">Not used.</param>
+        public void DetetionBasinToggled(bool value)
+        {
+            IncludeDetentionBasins = value;
+            AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+            addPrefabsSystem.ReviewPrefabs();
+        }
+
+        /// <summary>
+        /// Reviews prefabs and adds or removes them.
+        /// </summary>
+        /// <param name="value">Not used.</param>
+        public void RetetionBasinToggled(bool value)
+        {
+            IncludeRetentionBasins = value;
+            AddPrefabsSystem addPrefabsSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<AddPrefabsSystem>();
+            addPrefabsSystem.ReviewPrefabs();
+        }
+
+        /// <summary>
+        /// Checks if legacy water sources are being used or not.
+        /// </summary>
+        /// <returns>True if legacy water sources are not being used. False if they area.</returns>
+        public bool DisableLegacyWaterSources()
+        {
+            WaterSystem waterSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<WaterSystem>();
+            return !waterSystem.UseLegacyWaterSources;
         }
     }
 }
