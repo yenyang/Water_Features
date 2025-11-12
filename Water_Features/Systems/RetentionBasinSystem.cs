@@ -133,7 +133,7 @@ namespace Water_Features.Systems
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
             public ComponentTypeHandle<Game.Objects.Transform> m_TransformType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<Game.Simulation.SurfaceWater> m_WaterSurfaceData;
             public EntityCommandBuffer buffer;
             public float m_Precipiation;
             public bool m_Snowing;

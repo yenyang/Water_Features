@@ -4,12 +4,6 @@
 
 namespace Water_Features.Tools
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Dynamic;
-    using System.IO;
-    using System.Linq;
-    using System.Xml.Serialization;
     using Colossal.Logging;
     using Colossal.PSI.Environment;
     using Colossal.Serialization.Entities;
@@ -21,6 +15,13 @@ namespace Water_Features.Tools
     using Game.Tools;
     using Game.UI;
     using Game.UI.Editor;
+    using System;
+    using System.Collections.Generic;
+    using System.Dynamic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Xml.Serialization;
     using Unity.Entities;
     using UnityEngine;
     using Water_Features;
@@ -351,6 +352,13 @@ namespace Water_Features.Tools
         {
             base.OnGameLoadingComplete(purpose, mode);
 
+            MethodInfo waterPanelSystemRebuildWaterSoruceData = colorPainterTool.GetType().GetMethod("HasCustomColorVariation");
+            if (colorPainterHasCustomColorVariation is not null)
+            {
+                m_ColorPainterTool = colorPainterTool;
+                m_Log.Info($"{nameof(ReloadFoliageColorDataSystem)}.{nameof(OnGameLoadingComplete)} saved Color Painter Tool");
+            }
+
 #if DUMP_VANILLA_LOCALIZATION && DEBUG
             var strings = GameManager.instance.localizationManager.activeDictionary.entries
                 .OrderBy(kv => kv.Key)
@@ -373,9 +381,8 @@ namespace Water_Features.Tools
                 m_ToolSystem.actionMode.IsEditor())
             {
                 m_FetchWaterSources = false;
-                m_WaterPanelSystem.FetchWaterSources();
+                m_WaterPanelSystem.reb
             }
-
             Enabled = false;
         }
 

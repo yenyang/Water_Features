@@ -137,7 +137,7 @@ namespace Water_Features.Systems
             m_Log = WaterFeaturesMod.Instance.Log;
             m_ToolSystem = World.GetOrCreateSystemManaged<ToolSystem>();
             m_ClimateSystem = World.GetOrCreateSystemManaged<ClimateSystem>();
-            m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
+            m_CurrentSeason = m_ClimateSystem.currentSeasonName;
             m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_ClimateQuery = GetEntityQuery(ComponentType.ReadOnly<ClimateData>());
             m_FindWaterSourceSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
@@ -184,9 +184,9 @@ namespace Water_Features.Systems
                 ClimateInteractionInitialized = true;
             }
 
-            if (m_ClimateSystem.currentSeasonNameID != m_CurrentSeason)
+            if (m_ClimateSystem.currentSeasonName != m_CurrentSeason)
             {
-                m_CurrentSeason = m_ClimateSystem.currentSeasonNameID;
+                m_CurrentSeason = m_ClimateSystem.currentSeasonName;
                 float normalizedClimateDate = GetClimateDate();
                 m_CurrentSeasonMeanPrecipitation = GetMeanPrecipitation(m_ClimatePrefab, normalizedClimateDate);
             }
