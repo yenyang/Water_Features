@@ -25,7 +25,10 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class DetentionBasinSystem : GameSystemBase
     {
-        public static readonly int kUpdatesPerDay = 128;
+        /// <summary>
+        /// Part of calculating the amount of times the system is run during a simulated day.
+        /// </summary>
+        public static readonly int UpdatesPerDay = 128;
         private EndFrameBarrier m_EndFrameBarrier;
         private ClimateSystem m_ClimateSystem;
         private WaterSystem m_WaterSystem;
@@ -36,7 +39,7 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
-            return 262144 / kUpdatesPerDay;
+            return 262144 / UpdatesPerDay;
         }
 
         /// <inheritdoc/>
@@ -79,7 +82,7 @@ namespace Water_Features.Systems
                 return;
             }
 
-            DetentionBasinJob detentionBasinJob = new()
+            DetentionBasinJob detentionBasinJob = new ()
             {
                 m_DetentionBasinType = SystemAPI.GetComponentTypeHandle<DetentionBasin>(),
                 m_EntityType = SystemAPI.GetEntityTypeHandle(),
@@ -127,7 +130,7 @@ namespace Water_Features.Systems
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
             public ComponentTypeHandle<Game.Objects.Transform> m_TransformType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
             public EntityCommandBuffer buffer;
             public float m_Precipiation;
             public bool m_Snowing;

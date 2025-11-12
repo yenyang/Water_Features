@@ -25,18 +25,18 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class AutofillingLakesSystem : GameSystemBase
     {
+        private EndFrameBarrier m_EndFrameBarrier;
+        private WaterSystem m_WaterSystem;
+        private TerrainSystem m_TerrainSystem;
+        private EntityQuery m_AutofillingLakesQuery;
+        private ILog m_Log;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AutofillingLakesSystem"/> class.
         /// </summary>
         public AutofillingLakesSystem()
         {
         }
-
-        private EndFrameBarrier m_EndFrameBarrier;
-        private WaterSystem m_WaterSystem;
-        private TerrainSystem m_TerrainSystem;
-        private EntityQuery m_AutofillingLakesQuery;
-        private ILog m_Log;
 
         /// <inheritdoc/>
         protected override void OnCreate()
@@ -45,7 +45,8 @@ namespace Water_Features.Systems
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_AutofillingLakesQuery = GetEntityQuery(new EntityQueryDesc[] {
+            m_AutofillingLakesQuery = GetEntityQuery(new EntityQueryDesc[]
+            {
                 new EntityQueryDesc
                 {
                     All = new ComponentType[]
@@ -75,7 +76,7 @@ namespace Water_Features.Systems
                 return;
             }
 
-            AutofillingLakesJob autofillingLakesJob = new()
+            AutofillingLakesJob autofillingLakesJob = new ()
             {
                 buffer = m_EndFrameBarrier.CreateCommandBuffer(),
                 m_AutofillingLakeType = SystemAPI.GetComponentTypeHandle<AutofillingLake>(),
@@ -111,7 +112,7 @@ namespace Water_Features.Systems
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
             public ComponentTypeHandle<Game.Objects.Transform> m_TransformType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
             public EntityCommandBuffer buffer;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
@@ -171,7 +172,6 @@ namespace Water_Features.Systems
 
                         buffer.SetComponent(currentEntity, currentWaterSourceData);
                     }
-
                 }
             }
         }

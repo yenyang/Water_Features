@@ -185,7 +185,7 @@ namespace Water_Features.Tools
             {
                 if (waterSource.m_ConstantDepth != (int)WaterToolUISystem.SourceType.Stream &&
                    !EntityManager.HasComponent<AutomatedWaterSource>(m_SelectedWaterSource) &&
-                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{(WaterToolUISystem.SourceType)waterSource.m_ConstantDepth}"), out PrefabBase prefabBase) && 
+                    m_PrefabSystem.TryGetPrefab(new PrefabID(nameof(WaterSourcePrefab), $"{m_AddPrefabSystem.Prefix}{(WaterToolUISystem.SourceType)waterSource.m_ConstantDepth}"), out PrefabBase prefabBase) &&
                     prefabBase is WaterSourcePrefab)
                 {
                     return prefabBase;
@@ -238,6 +238,7 @@ namespace Water_Features.Tools
         /// Gets the radius of the selected water source.
         /// </summary>
         /// <returns>float of radius of selected water source.</returns>
+        /// <param name="radius">Gets the radius as a float.</param>
         public bool TryGetSelectedRadius(out float radius)
         {
             radius = -1;
@@ -258,6 +259,7 @@ namespace Water_Features.Tools
         /// Gets the radius of the selected water source.
         /// </summary>
         /// <returns>float of radius of selected water source.</returns>
+        /// <param name="position">Gets the position as a float3.</param>
         public bool TryGetSelectedPosition(out float3 position)
         {
             position = default;
@@ -668,7 +670,6 @@ namespace Water_Features.Tools
                 }
             }
 
-
             // This section handles moving water sources.
             else if (m_WaterToolUISystem.ToolMode == ToolModes.MoveWaterSource && applyAction.IsPressed() && m_SelectedWaterSource != Entity.Null)
             {
@@ -875,7 +876,6 @@ namespace Water_Features.Tools
                     m_WaterToolUISystem.ScheduleFetchWaterSources();
                 }
             }
-
 
             // This section renders target water elevation over hovered water source.
             else
@@ -1242,7 +1242,7 @@ namespace Water_Features.Tools
             [ReadOnly]
             public EntityTypeHandle m_EntityType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
             [ReadOnly]
             public ComponentLookup<RetentionBasin> m_RetentionBasinLookup;
             [ReadOnly]

@@ -345,7 +345,6 @@ namespace Water_Features.Tools
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
 
-
         /// <inheritdoc/>
         protected override void OnGameLoadingComplete(Purpose purpose, GameMode mode)
         {
@@ -391,13 +390,11 @@ namespace Water_Features.Tools
                 return;
             }
 
-
             m_Log.Debug($"{nameof(WaterToolUISystem)}.{nameof(ChangeValue)} buttonID = {buttonID}");
             if (m_ChangeValueActions.ContainsKey(buttonID))
             {
                 m_ChangeValueActions[buttonID].Invoke();
             }
-
         }
 
         private void IncreaseRadius()
