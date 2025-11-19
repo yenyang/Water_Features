@@ -26,18 +26,20 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class AutomatedWaterSourceSystem : GameSystemBase
     {
-        public static readonly int kUpdatesPerDay = 1024;
+        /// <summary>
+        /// Used to calcuate how many times this system runs during a simulated game day.
+        /// </summary>
+        public static readonly int UpdatesPerDay = 1024;
         private EndFrameBarrier m_EndFrameBarrier;
         private WaterSystem m_WaterSystem;
         private TerrainSystem m_TerrainSystem;
         private EntityQuery m_AutomatedWaterSources;
         private ILog m_Log;
 
-
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
-            return 262144 / kUpdatesPerDay;
+            return 262144 / UpdatesPerDay;
         }
 
         /// <inheritdoc/>
@@ -47,7 +49,8 @@ namespace Water_Features.Systems
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_AutomatedWaterSources = GetEntityQuery(new EntityQueryDesc[] {
+            m_AutomatedWaterSources = GetEntityQuery(new EntityQueryDesc[]
+            {
                 new EntityQueryDesc
                 {
                     All = new ComponentType[]
@@ -113,7 +116,7 @@ namespace Water_Features.Systems
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
             public ComponentTypeHandle<Game.Objects.Transform> m_TransformType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
             public EntityCommandBuffer buffer;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
@@ -149,7 +152,7 @@ namespace Water_Features.Systems
 
                         totalPreviousWaterHeight += previousWaterHeights[j];
                     }
-                        
+
                     float averagePreviousWaterHeight = totalPreviousWaterHeight / 4f;
                     float rateOfChange = (previousWaterHeights.w - previousWaterHeights.x) / 4f;
                     float fillDepth = maxDepth - waterDepth;
@@ -235,7 +238,6 @@ namespace Water_Features.Systems
 
                 return false;
             }
-
         }
     }
 }

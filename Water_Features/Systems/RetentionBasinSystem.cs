@@ -26,7 +26,10 @@ namespace Water_Features.Systems
     /// </summary>
     public partial class RetentionBasinSystem : GameSystemBase
     {
-        public static readonly int kUpdatesPerDay = 128;
+        /// <summary>
+        /// Helps define how many times this system is run in a simulated day.
+        /// </summary>
+        public static readonly int UpdatesPerDay = 128;
 
         private EndFrameBarrier m_EndFrameBarrier;
         private ClimateSystem m_ClimateSystem;
@@ -45,7 +48,7 @@ namespace Water_Features.Systems
         /// <inheritdoc/>
         public override int GetUpdateInterval(SystemUpdatePhase phase)
         {
-            return 262144 / kUpdatesPerDay;
+            return 262144 / UpdatesPerDay;
         }
 
         /// <inheritdoc/>
@@ -57,7 +60,7 @@ namespace Water_Features.Systems
             m_EndFrameBarrier = World.GetOrCreateSystemManaged<EndFrameBarrier>();
             m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_RetentionBasinQuery = GetEntityQuery(new EntityQueryDesc[] 
+            m_RetentionBasinQuery = GetEntityQuery(new EntityQueryDesc[]
             {
                 new EntityQueryDesc
                 {
@@ -133,7 +136,7 @@ namespace Water_Features.Systems
             public ComponentTypeHandle<Game.Simulation.WaterSourceData> m_SourceType;
             public ComponentTypeHandle<Game.Objects.Transform> m_TransformType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData m_WaterSurfaceData;
+            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
             public EntityCommandBuffer buffer;
             public float m_Precipiation;
             public bool m_Snowing;
@@ -172,7 +175,6 @@ namespace Water_Features.Systems
                         currentRetentionBasin.m_SnowAccumulation += m_Precipiation * maxDepth * maxDepthToRunoffCoefficient;
                         buffer.SetComponent(currentEntity, currentRetentionBasin);
                     }
-
 
                     // When it reaches 100% full or higher the amount is set to 0.
                     if (waterHeight > currentRetentionBasin.m_MaximumWaterHeight && currentWaterSourceData.m_Height >= 0f)
@@ -240,7 +242,6 @@ namespace Water_Features.Systems
                 return maxSnowMelt;
             }
 
-
             // Determines the minimum between two floats.
             private float GetMinimum(float one, float two)
             {
@@ -249,8 +250,7 @@ namespace Water_Features.Systems
                     return one;
                 }
 
-               return two;
-
+                return two;
             }
         }
     }

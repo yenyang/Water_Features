@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34622.214
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11205.157 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Water_Features", "Water_Features\Water_Features.csproj", "{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocaleGen", "LocaleGen\LocaleGen.csproj", "{3D1ADC7F-C04B-409F-8EBE-2F0A3876C124}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CC1CDBCF-2768-45D0-BC55-38A88A2D48EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3D1ADC7F-C04B-409F-8EBE-2F0A3876C124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D1ADC7F-C04B-409F-8EBE-2F0A3876C124}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D1ADC7F-C04B-409F-8EBE-2F0A3876C124}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D1ADC7F-C04B-409F-8EBE-2F0A3876C124}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,11 +6,9 @@
   <!--Short description of the mod-->
   <ShortDescription Value="In-Game Water Tool, Optional Seasonal Streams, and Optional Waves and Tides" />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-  <LongDescription>In-Game Water Tool - Place, remove, and edit water sources. Lakes, Streams, Rivers, and Seas.
-Optional Seasonal Streams - Flow rates vary with season, precipitation, and snow melt.
-Optional Waves and Tides - Sea level rises and falls.
+  <LongDescription>In-Game Water Tool - Place, remove, and edit water sources, and other optional modifications to the water simulation.
 
-Sully has made an outstanding demo video covering the new features related to water. Available on Youtube.
+Sully has made an outstanding demo video covering the new features related to water. Available on Youtube. The video uses the Legacy Water Simulation.
 ## Dependencies
 Unified Icon Library
 
@@ -19,23 +17,37 @@ If you want to say thank you with a donation you can do so on Paypal.
 
 ## Translations
 I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -&gt; mods-wip -&gt; Water Features: Translations.
-Fully or Partially Suppored Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, Russian, Italian, Chinese Traditional and European Portuguese. See credits for list of translators.
+Fully or Partially Supported Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, Russian, Italian, Chinese Traditional and European Portuguese. See credits for list of translators.
 
-Support for European Portuguese translations requries: European Portuguese Localization and I18N Everywhere mods.
+Support for European Portuguese translations requires: European Portuguese Localization and I18N Everywhere mods.
 
 # Detailed Description
-## Water Tool
-Water Sources:
-Stream - Constant or Variable Rate Water Source: Emits water depending on the settings for this mod. With Seasonal Streams disabled, the flow rate will be constant. With Seasonal Streams enabled the flow rate will vary with season, precipitation, and snowmelt depending on your settings. Left click to place within playable area. Hover over and right click to remove.
-River - Border River Water Source: Has a constant level and controls water flowing into or out of the border. While near the border, the source will snap to the border. Right click to designate the target elevation. Left click to place. Hover over and right click to remove.
-Lake - Constant Level Water Source: Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove.
-Sea - Border Sea Water Source: Controls water flowing into or out of the border and the lowest sea controls sea level. With Waves and Tides disabled, it will maintain constant level. With Waves and Tides enabled the sea level rises and falls below the original sea level. Right click to designate the elevation. Left click to place if the radius touches a border. Hover over and right click to remove.
-Automated - New! Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
+## Water Sources
+Maps can either have the Modern Water Simulation or the Legacy Water Simulation.
 
-Optional Opt-In Custom Water Sources: (Enabling/Disabling these in the settings requires restarting the game)
+The modern Water Simulation has one vanilla water source that is constant level. I call it: Generic Constant Level Water Source.
+That water source fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Behavior and color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove.
+
+Legacy Water Sources:
+
+Stream - Constant or Variable Rate Water Source: Emits water depending on the settings for this mod. With Seasonal Streams disabled, the flow rate will be constant. With Seasonal Streams enabled the flow rate will vary with season, precipitation, and snowmelt depending on your settings. Left click to place within playable area. Hover over and right click to remove.
+
+River - Border River Water Source: Has a constant level and controls water flowing into or out of the border. While near the border, the source will snap to the border. Right click to designate the target elevation. Left click to place. Hover over and right click to remove.
+
+Lake - Constant Level Water Source: Fills quickly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove.
+
+Sea - Border Sea Water Source: Controls water flowing into or out of the border and the lowest sea controls sea level. With Waves and Tides disabled, it will maintain constant level. With Waves and Tides enabled the sea level rises and falls below the original sea level. Right click to designate the elevation. Left click to place if the radius touches a border. Hover over and right click to remove.
+
+Automated - Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
+
+Optional Opt-In Custom Legacy Water Sources:
+
 Detention Basin: Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
+
 Retention Basin: Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation and a minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
 
+
+## Water Tool
 The tool is accessed in the landscaping menu with a tab with a water drop and icons for the different water sources.
 Small radius water sources will have some extra clickable space for interacting with them.
 Large radius water sources will have a small filled circle for interacting with them.
@@ -49,12 +61,17 @@ Move Water Source will move existing water sources. Target elevations of existin
 Radius Change will change radius of water sources. Right click to cancel.
 
 ## Seasonal Streams - Optional
+For Legacy Water Simulation:
 Seasonal Streams takes Streams (Modified Constant Rate Water Source): and ties them to the climate and weather for the map. 
 For example, if your map features a dry summer, then these water sources will decrease during the summer. 
 Seasonal streams by it-self should not cause flooding since it treats the map's default water source amount as a maximum unless you change it. 
 All aspects are optional and adjustable in the mod's settings while in game or the editor. These settings are enabled or disabled per save file.
 
-## Waves and Tides - Optional
+For Modern Water Simulation:
+Adds a new custom modded Water Source: Seasonal Water Source.
+That water source is a Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove.
+
+## Waves and Tides - Optional - Legacy Water Simulation Only.
 This feature is dependent on map design. Maps with a sea water source and a single shoreline work best. 
 All aspects are optional and adjustable in the mod's settings while in game or the editor. These settings are enabled or disabled per save file.
 The point of the waves feature is to make the shore move in and out and make sand along the shoreline. A better way to make beaches is to just paint them with surface painter instead. 
@@ -75,15 +92,7 @@ Experimental: Adjust fluidness.
 ## In the Editor
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
 Evaporation, water cleanup cycle, and fluidness will not affect the editor simulation unless you opt-in with the settings.
-Seasonal streams and waves and tides must be inidvidually enabled per save file in the editor. In theory, they should be appropriately enabled/disabled when users of the mod start to use the map.
-
-## Planned Features
-Option to add polluted water sources...?
-Rainfall 2 including storm drains might be included as opt-in option eventually.
-Tying snow melt simulation to snow system graphics.
-
-## Support
-I will respond on the code modding channels on **Cities: Skylines Modding Discord**
+Seasonal streams and waves and tides must be individually enabled per save file in the editor. In theory, they should be appropriately enabled/disabled when users of the mod start to use the map.
 
 ## Credits 
 * yenyang - Mod Author
@@ -103,18 +112,14 @@ I will respond on the code modding channels on **Cities: Skylines Modding Discor
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.4.0" />
+  <ModVersion Value="1.4.1" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.3.4.*" />
+  <GameVersion Value="1.4.*" />
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Update v1.4.0
-* Added Generic Constant Level Water Source introduced with game version v1.3.6f1.
-* Added Seasonal Water Source which applies seasonal streams settings to a Generic water source.
-* Game and editor can handle changing between different save files that include Legacy or Modern Water Sources. 
-* When using Legacy water sources, Detention and Retention basin water sources can be enabled or disabled without restarting the game.
-* Added a toggle to go from a set elevation back to depth.</ChangeLog>
+  <ChangeLog>## Patch v1.4.1
+* Minor compatibility fixes for game update.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
