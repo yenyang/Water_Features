@@ -30,9 +30,9 @@ Lake - Constant Level Water Source: Fills quickly until it gets to the desired l
 
 Sea - Border Sea Water Source: Controls water flowing into or out of the border and the lowest sea controls sea level. With Waves and Tides disabled, it will maintain constant level. With Waves and Tides enabled the sea level rises and falls below the original sea level. Right click to designate the elevation. Left click to place if the radius touches a border. Hover over and right click to remove.
 
-Automated - New! Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
+Automated - Custom modded water source that dynamically changes water source type to automatically fill and stabilize to the desired water surface elevation. Not affected by Seasonal Streams or Waves and Tides settings. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
 
-Optional Opt-In Custom Legacy Water Sources: (Enabling/Disabling these in the settings requires restarting the game)
+Optional Opt-In Custom Legacy Water Sources:
 
 Detention Basin: Custom modded water source that rises with precipitation and snowmelt and slowly drains when the weather is dry. They have a maximum water surface elevation but no minimum water surface elevation. Right click to designate the maximum elevation. Left click to place within playable area. Hover over and right click to remove.
 
@@ -85,14 +85,6 @@ Experimental: Adjust fluidness.
 Yenyang's custom water tool is available in the editor, and can be used alongside the vanilla water tool. 
 Evaporation, water cleanup cycle, and fluidness will not affect the editor simulation unless you opt-in with the settings.
 Seasonal streams and waves and tides must be individually enabled per save file in the editor. In theory, they should be appropriately enabled/disabled when users of the mod start to use the map.
-
-## Planned Features
-Option to add polluted water sources...?
-Rainfall 2 including storm drains might be included as opt-in option eventually.
-Tying snow melt simulation to snow system graphics.
-
-## Support
-I will respond on the code modding channels on **Cities: Skylines Modding Discord**
 
 ## Credits 
 * yenyang - Mod Author
