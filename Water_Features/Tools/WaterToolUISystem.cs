@@ -404,7 +404,7 @@ namespace Water_Features.Tools
 
             m_SeaLevel.Update(m_WaterSystem.SeaLevel);
 
-            m_SeaLevelLocked.Update(false);
+            m_SeaLevelLocked.Update(true);
         }
 
         /// <inheritdoc/>

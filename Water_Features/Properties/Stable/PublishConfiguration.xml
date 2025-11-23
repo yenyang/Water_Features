@@ -126,4 +126,6 @@ Seasonal streams and waves and tides must be individually enabled per save file 
   <ExternalLink Type="github" Url="https://github.com/yenyang/Water_Features" />
   <ExternalLink Type="paypal" Url="https://www.paypal.com/paypalme/YenyangsMods" />
   <ExternalLink Type="crowdin" Url="https://crowdin.com/project/csl2-mod-tree-controller" />
+  <!-- Supported values Public, Private, Unlisted -->
+  <AccessLevel Value="Public"/>
 </Publish>
