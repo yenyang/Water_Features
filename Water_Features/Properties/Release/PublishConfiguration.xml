@@ -104,7 +104,7 @@ Seasonal streams and waves and tides must be individually enabled per save file 
 * ST-Apps - Help with UI and Code Sharing
 * Tigon Ologdring, Chair, Dante  - Testing, Feedback</LongDescription>
   <!--Thumbnail-->
-  <Thumbnail Value="Properties/Thumbnail.png" />
+  <Thumbnail Value="Properties/Release/Thumbnail.png" />
   <!--Screenshot, can be set multiple-->
   <Screenshot Value="Properties/Previews/waterFall.jpg" />
   <!--Tag, can be set multiple-->
