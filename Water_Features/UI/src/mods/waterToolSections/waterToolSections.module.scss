@@ -1,0 +1,27 @@
+.SliderFieldWidth {
+    width: 375rem;
+}
+
+.SliderFieldWidth > div {
+    padding-top: 0!important;    
+    padding-left: 0!important;    
+    padding-right: 0!important;    
+    padding-bottom: 0!important;
+}
+
+.SmallerText > div {
+    font-size: x-small !important;
+}
+
+
+.rowGroup {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-bottom: 5rem;
+}
+
+.smallSpacer {
+    width: 3rem;
+}

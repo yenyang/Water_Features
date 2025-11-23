@@ -35,14 +35,23 @@ namespace Water_Features.Tools
     public partial class WaterToolUISystem : UISystemBase
     {
         private const string ModId = "Water_Features";
+        private readonly int[] SeaLevelSliderRanges = new int[]
+        {
+            10,
+            20,
+            50,
+            200,
+            1000,
+            2000,
+        };
 
         private ToolSystem m_ToolSystem;
         private CustomWaterToolSystem m_CustomWaterToolSystem;
         private TerrainSystem m_TerrainSystem;
         private WaterPanelSystem m_WaterPanelSystem;
+        private WaterSystem m_WaterSystem;
         private ILog m_Log;
         private Dictionary<string, Action> m_ChangeValueActions;
-        private bool m_ResetValues = true;
         private string m_ContentFolder;
         private Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository> m_WaterSourcePrefabValuesRepositories;
         private ValueBinding<float> m_Radius;
@@ -61,9 +70,13 @@ namespace Water_Features.Tools
         private ValueBinding<bool> m_AmountIsElevation;
         private EditorToolUISystem m_EditorToolUISystem;
         private ValueBinding<int> m_ToolMode;
+        private ValueBinding<float> m_SeaLevel;
+        private ValueBinding<bool> m_SeaLevelLocked;
+        private ValueBinding<bool> m_LegacyWaterSources;
+        private ValueBinding<int> m_SeaLevelSliderRange;
+        private int m_SeaLevelSliderIndex = 2;
         private PrefabSystem m_PrefabSystem;
         private bool m_FetchWaterSources;
-        private int m_AddPrefabsInXFrames;
 
         /// <summary>
         /// Types of water sources.
@@ -245,6 +258,7 @@ namespace Water_Features.Tools
             m_CustomWaterToolSystem = World.GetOrCreateSystemManaged<CustomWaterToolSystem>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_WaterPanelSystem = World.GetOrCreateSystemManaged<WaterPanelSystem>();
+            m_WaterSystem = World.GetOrCreateSystemManaged<WaterSystem>();
             m_ToolSystem.EventPrefabChanged += OnPrefabChanged;
             m_ContentFolder = Path.Combine(EnvPath.kUserDataPath, "ModsData", "Mods_Yenyang_Water_Features");
             Directory.CreateDirectory(m_ContentFolder);
@@ -306,6 +320,18 @@ namespace Water_Features.Tools
             // This binding communicates whether amount is an elevation.
             AddBinding(m_AmountIsElevation = new ValueBinding<bool>(ModId, "AmountIsElevation", false));
 
+            // this binding communicates whether the water system is using legacy water sources or not.
+            AddBinding(m_LegacyWaterSources = new ValueBinding<bool>(ModId, "LegacyWaterSources", m_WaterSystem.UseLegacyWaterSources));
+
+            // This binding communicates whether the sea level is locked for safety.
+            AddBinding(m_SeaLevelLocked = new ValueBinding<bool>(ModId, "SeaLevelLocked", true));
+
+            // This binding communicates what Sea Level is.
+            AddBinding(m_SeaLevel = new ValueBinding<float>(ModId, "SeaLevel", m_WaterSystem.SeaLevel));
+
+            // This binding sets the slider range for sea level.
+            AddBinding(m_SeaLevelSliderRange = new ValueBinding<int>(ModId, "SeaLevelSliderRange", SeaLevelSliderRanges[m_SeaLevelSliderIndex]));
+
             // This binding listens for whether the amount-up-arrow button was clicked.
             AddBinding(new TriggerBinding(ModId, "amount-up-arrow", IncreaseAmount));
 
@@ -342,6 +368,18 @@ namespace Water_Features.Tools
             // This binding handles toggle amount is elevation.
             AddBinding(new TriggerBinding(ModId, "AmountIsElevationToggled", AmountIsElevationToggled));
 
+            // This bindinging sets sea level when changed by UI.
+            AddBinding(new TriggerBinding<float>(ModId, "SetSeaLevel", SetSeaLevel));
+
+            // This binding descrease the sea leve slider range.
+            AddBinding(new TriggerBinding(ModId, "DecreaseSeaLevelSliderRange", DecreaseSeaLevelSliderRange));
+
+            // This binding increases the sea level slider range.
+            AddBinding(new TriggerBinding(ModId, "IncreaseSeaLevelSliderRange", IncreaseSeaLevelSliderRange));
+
+            // This bindinging toggles the sea level lock.
+            AddBinding(new TriggerBinding(ModId, "ToggleSeaLevelLock", () => m_SeaLevelLocked.Update(!m_SeaLevelLocked.value)));
+
             m_WaterSourcePrefabValuesRepositories = new Dictionary<WaterSourcePrefab, WaterSourcePrefabValuesRepository>();
         }
 
@@ -361,6 +399,12 @@ namespace Water_Features.Tools
 
             File.WriteAllText(filePath, json);
 #endif
+
+            m_LegacyWaterSources.Update(m_WaterSystem.UseLegacyWaterSources);
+
+            m_SeaLevel.Update(m_WaterSystem.SeaLevel);
+
+            m_SeaLevelLocked.Update(false);
         }
 
         /// <inheritdoc/>
@@ -375,7 +419,10 @@ namespace Water_Features.Tools
                 m_WaterPanelSystem.FetchWaterSources();
             }
 
-            Enabled = false;
+            if (m_WaterSystem.SeaLevelChanged)
+            {
+                m_SeaLevel.Update(m_WaterSystem.SeaLevel);
+            }
         }
 
         /// <summary>
@@ -909,6 +956,27 @@ namespace Water_Features.Tools
             }
 
             return false;
+        }
+
+        private void SetSeaLevel (float elevation)
+        {
+            m_WaterSystem.SeaLevel = elevation;
+            m_WaterSystem.UpdateSealevel();
+            m_SeaLevel.Update(elevation);
+        }
+
+        private void IncreaseSeaLevelSliderRange()
+        {
+            m_SeaLevelSliderIndex = Math.Clamp(m_SeaLevelSliderIndex + 1, 0, SeaLevelSliderRanges.Length - 1);
+
+            m_SeaLevelSliderRange.Update(SeaLevelSliderRanges[m_SeaLevelSliderIndex]);
+        }
+
+        private void DecreaseSeaLevelSliderRange()
+        {
+            m_SeaLevelSliderIndex = Math.Clamp(m_SeaLevelSliderIndex - 1, 0, SeaLevelSliderRanges.Length - 1);
+
+            m_SeaLevelSliderRange.Update(SeaLevelSliderRanges[m_SeaLevelSliderIndex]);
         }
     }
 }
