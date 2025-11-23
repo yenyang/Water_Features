@@ -56,7 +56,11 @@ namespace Water_Features
         /// <summary>
         /// Gets the version of the mod.
         /// </summary>
+#if STABLE
         internal string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+#else
+        internal string Version => Assembly.GetExecutingAssembly().GetName().Version.ToString(4);
+#endif
 
         /// <summary>
         /// Gets or sets the Settings for the mod.

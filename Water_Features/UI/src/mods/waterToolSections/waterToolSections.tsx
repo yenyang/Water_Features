@@ -40,7 +40,18 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         if (PreviousSeaLevelSliderRange !== SeaLevelSliderRange) 
         {
             setPreviousSeaLevelSliderRange(SeaLevelSliderRange);
-            setStartingSeaLevel(SeaLevel);
+            let nextStartingSeaLevel = SeaLevel;
+            if (nextStartingSeaLevel - SeaLevelSliderRange <= 0) 
+            {
+                nextStartingSeaLevel = SeaLevelSliderRange/2;
+            }
+
+            if (nextStartingSeaLevel + SeaLevelSliderRange > 2000) 
+            {
+                nextStartingSeaLevel = 2000 - SeaLevelSliderRange / 2;
+            }
+
+            setStartingSeaLevel(nextStartingSeaLevel);
         }
 
         var result = Component();
