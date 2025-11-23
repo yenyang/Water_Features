@@ -1,12 +1,12 @@
 import { bindValue, trigger, useValue } from "cs2/api";
 import {getModule, ModuleRegistryExtend} from "cs2/modding";
-import { CommonWaterToolSections } from "mods/CommonWaterToolSections/commonWaterToolSections";
+import { CommonWaterToolSections, descriptionTooltip } from "mods/CommonWaterToolSections/commonWaterToolSections";
 import mod from "../../../mod.json";
 import { VanillaComponentResolver } from "mods/VanillaComponentResolver/VanillaComponentResolver";
 import styles from "../waterToolSections/waterToolSections.module.scss";
 import { useState } from "react";
 import { tool } from "cs2/bindings";
-import classNames from "classnames";
+import locale from "../../lang/en-US.json";
 
 const SeaLevel$ =           bindValue<number>(mod.id, 'SeaLevel');
 const SeaLevelLocked$ =     bindValue<boolean>(mod.id, 'SeaLevelLocked');
@@ -15,19 +15,7 @@ const SeaLevelSliderRange$ = bindValue<number>(mod.id, 'SeaLevelSliderRange');
 
 const SliderField : any = getModule("game-ui/editor/widgets/fields/number-slider-field.tsx", "FloatSliderField");
 
-export const StringInputField : any = getModule(
-    "game-ui/editor/widgets/fields/string-input-field.tsx",
-    "StringInputField"
-)
-
-export const FloatInputField : any = getModule(
-    "game-ui/editor/widgets/fields/float-input-field.tsx",
-    "FloatInputField"
-)
-
 const uilStandard =                         "coui://uil/Standard/";
-const plusSrc =     uilStandard + "Plus.svg";
-const minusSrc =    uilStandard + "Minus.svg";
 const lockedSrc =     uilStandard + "LockClosed.svg";
 const unlockedSrc =     uilStandard + "LockOpen.svg";
 const arrowDownSrc =         uilStandard +  "ArrowDownThickStroke.svg";
@@ -62,7 +50,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                 <CommonWaterToolSections></CommonWaterToolSections>                     
                     {LegacyWaterSources == false && toolActive && (
                         <>
-                            <VanillaComponentResolver.instance.Section title={"Sea Level"}>   
+                            <VanillaComponentResolver.instance.Section title={locale["Water_Features.SECTION_TITLE[SeaLevel]"]}>   
                                 <div className={styles.rowGroup}>
                                     {!SeaLevelLocked ?
                                         <>
@@ -82,7 +70,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                     }
                                     <VanillaComponentResolver.instance.ToolButton
                                         className={SeaLevelLocked ? VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton : VanillaComponentResolver.instance.toolButtonTheme.button} 
-                                        tooltip={"tooltip"} 
+                                        tooltip={descriptionTooltip(locale["Water_Features.TOOLTIP_TITLE[LockSeaLevel]"], locale["Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]"])}
                                         onSelect={() => trigger(mod.id, "ToggleSeaLevelLock")} 
                                         src={ SeaLevelLocked ?  lockedSrc : unlockedSrc }
                                         focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          
@@ -90,12 +78,12 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                 </div>
                             </VanillaComponentResolver.instance.Section>
                             { !SeaLevelLocked && (
-                                <VanillaComponentResolver.instance.Section title={"Slider Range"}>
+                                <VanillaComponentResolver.instance.Section title={locale["Water_Features.SECTION_TITLE[SliderRange]"]}>
                                         <div className={styles.rowGroup}>              
                                             <VanillaComponentResolver.instance.ToolButton
                                                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
                                                 disabled={SeaLevelSliderRange <= 10}
-                                                tooltip={"tooltip"} 
+                                                tooltip={locale["Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]"]} 
                                                 onSelect={() => trigger(mod.id, "DecreaseSeaLevelSliderRange")} 
                                                 src={arrowDownSrc}
                                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          
@@ -104,7 +92,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                             <VanillaComponentResolver.instance.ToolButton
                                                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
                                                 disabled={SeaLevelSliderRange >= 2000}
-                                                tooltip={"tooltip"} 
+                                                tooltip={locale["Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]"]} 
                                                 onSelect={() => trigger(mod.id, "IncreaseSeaLevelSliderRange")} 
                                                 src={arrowUpSrc}
                                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          

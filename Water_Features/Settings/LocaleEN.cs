@@ -158,6 +158,12 @@ namespace Water_Features.Settings
                 { TooltipDescriptionKey("AmountIsElevation"), "Elevation Set. Toggle to reset to Depth." },
                 { AssetNameKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Constant Level Water Source" },
                 { AssetDescriptionKey($"{AddPrefabsSystem.PrefabPrefix}{WaterToolUISystem.SourceType.VanillaLake}"), "Fills slowly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove." },
+                { SectionLabel("SeaLevel"), "Sea Level" },
+                { SectionLabel("SliderRange"), "Slider Range" },
+                { TooltipTitleKey("LockSeaLevel"), "Sea Level Lock" },
+                { TooltipDescriptionKey("LockSeaLevel"), "Toggles whether Sea Level can be modified. Modifying Sea Level can quickly flood areas. Be careful with the slider. Expect contour lines to move." },
+                { TooltipTitleKey("IncreaseSeaLevelSliderRange"), "Increase Sea Level Slider Range" },
+                { TooltipTitleKey("DecreaseSeaLevelSliderRange"), "Decrease Sea Level Slider Range" },
             };
         }
 
