@@ -131,7 +131,7 @@
   "Water_Features.SECTION_TITLE[SeaLevel]": "Sea Level",
   "Water_Features.SECTION_TITLE[SliderRange]": "Slider Range",
   "Water_Features.TOOLTIP_TITLE[LockSeaLevel]": "Sea Level Lock",
-  "Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]": "Toggles whether Sea Level can be modified. Modifying Sea Level can quickly flood areas. Be careful with the slider.",
+  "Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]": "Toggles whether Sea Level can be modified. Modifying Sea Level can quickly flood areas. Be careful with the slider. Expect contour lines to move.",
   "Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]": "Increase Sea Level Slider Range",
   "Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]": "Decrease Sea Level Slider Range"
 }
