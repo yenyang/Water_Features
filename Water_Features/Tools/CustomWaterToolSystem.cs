@@ -1051,8 +1051,8 @@ namespace Water_Features.Tools
                 m_Radius = radius,
                 m_Polluted = pollution,
                 m_Multiplier = 30f,
-                m_id = m_WaterSystem.GetNextSourceId(),
-                m_modifier = 1,
+                m_Id = m_WaterSystem.GetNextSourceId(),
+                m_Modifier = 1,
             };
             Game.Objects.Transform transformComponent = new ()
             {
@@ -1242,7 +1242,7 @@ namespace Water_Features.Tools
             [ReadOnly]
             public EntityTypeHandle m_EntityType;
             public TerrainHeightData m_TerrainHeightData;
-            public WaterSurfaceData<SurfaceWater> m_WaterSurfaceData;
+            public WaterSurfaceData<Game.Simulation.SurfaceWater> m_WaterSurfaceData;
             [ReadOnly]
             public ComponentLookup<RetentionBasin> m_RetentionBasinLookup;
             [ReadOnly]
