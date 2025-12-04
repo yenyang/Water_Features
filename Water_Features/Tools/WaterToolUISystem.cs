@@ -77,7 +77,6 @@ namespace Water_Features.Tools
         private ValueBinding<int> m_SeaLevelSliderRange;
         private int m_SeaLevelSliderIndex = 2;
         private PrefabSystem m_PrefabSystem;
-        private bool m_FetchWaterSources;
 
         /// <summary>
         /// Types of water sources.
@@ -172,15 +171,6 @@ namespace Water_Features.Tools
             m_AmountScale.Update(1);
             m_AmountIsElevation.Update(true);
             m_AmountLocaleKey.Update("YY_WATER_FEATURES.Elevation");
-        }
-
-        /// <summary>
-        /// Will Fetch Water Sources on next UI Update.
-        /// </summary>
-        public void ScheduleFetchWaterSources()
-        {
-            m_FetchWaterSources = true;
-            Enabled = true;
         }
 
         /// <summary>
@@ -389,12 +379,6 @@ namespace Water_Features.Tools
         {
             base.OnGameLoadingComplete(purpose, mode);
 
-            MethodInfo waterPanelSystemRebuildWaterSoruceData = colorPainterTool.GetType().GetMethod("HasCustomColorVariation");
-            if (colorPainterHasCustomColorVariation is not null)
-            {
-                m_ColorPainterTool = colorPainterTool;
-                m_Log.Info($"{nameof(ReloadFoliageColorDataSystem)}.{nameof(OnGameLoadingComplete)} saved Color Painter Tool");
-            }
 
 #if DUMP_VANILLA_LOCALIZATION && DEBUG
             var strings = GameManager.instance.localizationManager.activeDictionary.entries
@@ -419,14 +403,7 @@ namespace Water_Features.Tools
         protected override void OnUpdate()
         {
             base.OnUpdate();
-
-            if (m_FetchWaterSources &&
-                m_ToolSystem.actionMode.IsEditor())
-            {
-                m_FetchWaterSources = false;
-                m_WaterPanelSystem.reb
-            }
-
+            
             if (m_WaterSystem.SeaLevelChanged)
             {
                 m_SeaLevel.Update(m_WaterSystem.SeaLevel);
@@ -969,7 +946,7 @@ namespace Water_Features.Tools
         private void SetSeaLevel (float elevation)
         {
             m_WaterSystem.SeaLevel = elevation;
-            m_WaterSystem.UpdateSealevel();
+            m_WaterSystem.UpdateSeaLevel();
             m_SeaLevel.Update(elevation);
         }
 

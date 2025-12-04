@@ -359,12 +359,12 @@ namespace Water_Features.Tools
             m_TidesAndWavesSystem = World.GetOrCreateSystemManaged<TidesAndWavesSystem>();
             m_WaterToolUISystem = World.GetOrCreateSystemManaged<WaterToolUISystem>();
             m_FindWaterSourcesSystem = World.GetOrCreateSystemManaged<FindWaterSourcesSystem>();
-            m_WaterSourceArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>());
+            m_WaterSourceArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<Game.Common.Created>());
             m_AutoFillingLakeArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<AutofillingLake>());
             m_DetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<DetentionBasin>());
             m_RetentionBasinArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<RetentionBasin>());
             m_AutomatedWaterSourceArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<AutomatedWaterSource>());
-            m_SeasonalArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<SeasonalStreamsData>());
+            m_SeasonalArchetype = EntityManager.CreateArchetype(ComponentType.ReadWrite<Game.Simulation.WaterSourceData>(), ComponentType.ReadWrite<Game.Objects.Transform>(), ComponentType.ReadWrite<SeasonalStreamsData>(), ComponentType.ReadWrite<Game.Common.Created>());
             m_OverlayRenderSystem = World.GetOrCreateSystemManaged<OverlayRenderSystem>();
             m_AddPrefabSystem = World.GetOrCreateSystemManaged<AddPrefabsSystem>();
             m_HoveredWaterSources = new NativeList<Entity>(0, Allocator.Persistent);
@@ -514,10 +514,6 @@ namespace Water_Features.Tools
                 {
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     buffer.AddComponent<Deleted>(closestWaterSource);
-                    if (m_ToolSystem.actionMode.IsEditor())
-                    {
-                        m_WaterToolUISystem.ScheduleFetchWaterSources();
-                    }
                 }
                 else
                 {
@@ -533,10 +529,6 @@ namespace Water_Features.Tools
                     JobHandle jobHandle = JobChunkExtensions.Schedule(removeWaterSourcesJob, m_WaterSourcesQuery, inputDeps);
                     m_ToolOutputBarrier.AddJobHandleForProducer(jobHandle);
                     inputDeps = jobHandle;
-                    if (m_ToolSystem.actionMode.IsEditor())
-                    {
-                        m_WaterToolUISystem.ScheduleFetchWaterSources();
-                    }
                 }
             }
 
@@ -663,11 +655,6 @@ namespace Water_Features.Tools
 
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
-
-                if (m_ToolSystem.actionMode.IsEditor())
-                {
-                    m_WaterToolUISystem.ScheduleFetchWaterSources();
-                }
             }
 
             // This section handles moving water sources.
@@ -725,11 +712,6 @@ namespace Water_Features.Tools
                     EntityCommandBuffer buffer = m_ToolOutputBarrier.CreateCommandBuffer();
                     transform.m_Position = position;
                     buffer.SetComponent(m_SelectedWaterSource, transform);
-
-                    if (m_ToolSystem.actionMode.IsEditor())
-                    {
-                        m_WaterToolUISystem.ScheduleFetchWaterSources();
-                    }
                 }
             }
 
@@ -871,10 +853,6 @@ namespace Water_Features.Tools
                 // This resets everything after action.
                 m_SelectedWaterSource = Entity.Null;
                 m_WaterSystem.WaterSimSpeed = m_PressedWaterSimSpeed;
-                if (m_ToolSystem.actionMode.IsEditor())
-                {
-                    m_WaterToolUISystem.ScheduleFetchWaterSources();
-                }
             }
 
             // This section renders target water elevation over hovered water source.
@@ -1169,11 +1147,6 @@ namespace Water_Features.Tools
                     buffer.AddComponent<Updated>(entity);
 
                     scheduledWaterSourceCreation = true;
-                }
-
-                if (scheduledWaterSourceCreation && m_ToolSystem.actionMode.IsEditor())
-                {
-                    m_WaterToolUISystem.ScheduleFetchWaterSources();
                 }
             }
             else

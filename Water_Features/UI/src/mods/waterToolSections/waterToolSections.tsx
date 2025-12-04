@@ -7,6 +7,7 @@ import styles from "../waterToolSections/waterToolSections.module.scss";
 import { useState } from "react";
 import { tool } from "cs2/bindings";
 import locale from "../../lang/en-US.json";
+import { useLocalization } from "cs2/l10n";
 
 const SeaLevel$ =           bindValue<number>(mod.id, 'SeaLevel');
 const SeaLevelLocked$ =     bindValue<boolean>(mod.id, 'SeaLevelLocked');
@@ -33,6 +34,8 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
         const SeaLevel = useValue(SeaLevel$);
         const SeaLevelLocked = useValue(SeaLevelLocked$);
         const SeaLevelSliderRange = useValue(SeaLevelSliderRange$);
+
+        const { translate } = useLocalization();
         
         let [StartingSeaLevel, setStartingSeaLevel] = useState(SeaLevel);
         let [PreviousSeaLevelSliderRange, setPreviousSeaLevelSliderRange] = useState(SeaLevelSliderRange);
@@ -61,7 +64,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                 <CommonWaterToolSections></CommonWaterToolSections>                     
                     {LegacyWaterSources == false && toolActive && (
                         <>
-                            <VanillaComponentResolver.instance.Section title={locale["Water_Features.SECTION_TITLE[SeaLevel]"]}>   
+                            <VanillaComponentResolver.instance.Section title={translate("Water_Features.SECTION_TITLE[SeaLevel]", locale["Water_Features.SECTION_TITLE[SeaLevel]"])}>   
                                 <div className={styles.rowGroup}>
                                     {!SeaLevelLocked ?
                                         <>
@@ -81,7 +84,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                     }
                                     <VanillaComponentResolver.instance.ToolButton
                                         className={SeaLevelLocked ? VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton : VanillaComponentResolver.instance.toolButtonTheme.button} 
-                                        tooltip={descriptionTooltip(locale["Water_Features.TOOLTIP_TITLE[LockSeaLevel]"], locale["Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]"])}
+                                        tooltip={descriptionTooltip(translate("Water_Features.TOOLTIP_TITLE[LockSeaLevel]", locale["Water_Features.TOOLTIP_TITLE[LockSeaLevel]"]), translate( "Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]", locale["Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]"]))}
                                         onSelect={() => trigger(mod.id, "ToggleSeaLevelLock")} 
                                         src={ SeaLevelLocked ?  lockedSrc : unlockedSrc }
                                         focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          
@@ -94,7 +97,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                             <VanillaComponentResolver.instance.ToolButton
                                                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
                                                 disabled={SeaLevelSliderRange <= 10}
-                                                tooltip={locale["Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]"]} 
+                                                tooltip={translate("Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]", locale["Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]"])} 
                                                 onSelect={() => trigger(mod.id, "DecreaseSeaLevelSliderRange")} 
                                                 src={arrowDownSrc}
                                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          
@@ -103,7 +106,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                             <VanillaComponentResolver.instance.ToolButton
                                                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.endButton} 
                                                 disabled={SeaLevelSliderRange >= 2000}
-                                                tooltip={locale["Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]"]} 
+                                                tooltip={translate("Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]", locale["Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]"])} 
                                                 onSelect={() => trigger(mod.id, "IncreaseSeaLevelSliderRange")} 
                                                 src={arrowUpSrc}
                                                 focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}>                          
