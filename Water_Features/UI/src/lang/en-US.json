@@ -127,5 +127,11 @@
   "Assets.DESCRIPTION[WaterSource Seasonal]": "Generic Water Source where the level varies according to Seasonal Streams settings, the map's seasonal properties, and current weather. Behavior and outer ring color will change depending on whether it's placed inside the map boundary, at the map boundary, or outside the playable area. Right click to designate the target elevation. Left click to place anywhere. Hover over and right click to remove.",
   "Water_Features.TOOLTIP_DESCRIPTION[AmountIsElevation]": "Elevation Set. Toggle to reset to Depth.",
   "Assets.NAME[WaterSource VanillaLake]": "Constant Level Water Source",
-  "Assets.DESCRIPTION[WaterSource VanillaLake]": "Fills slowly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove."
+  "Assets.DESCRIPTION[WaterSource VanillaLake]": "Fills slowly until it gets to the desired level and then maintains that level. If it has a target elevation below the ground level, it can drain water faster than evaporation. Right click to designate the target elevation. Left click to place within playable area. Hover over and right click to remove.",
+  "Water_Features.SECTION_TITLE[SeaLevel]": "Sea Level",
+  "Water_Features.SECTION_TITLE[SliderRange]": "Slider Range",
+  "Water_Features.TOOLTIP_TITLE[LockSeaLevel]": "Sea Level Lock",
+  "Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]": "Toggles whether Sea Level can be modified. Modifying Sea Level can quickly flood areas. Be careful with the slider. Expect contour lines to move.",
+  "Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]": "Increase Sea Level Slider Range",
+  "Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]": "Decrease Sea Level Slider Range"
 }

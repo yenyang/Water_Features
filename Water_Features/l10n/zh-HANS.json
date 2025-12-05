@@ -8,9 +8,7 @@
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "季节性溪流",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "水源工具",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "海浪与潮汐",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeRetentionBasins]": "添加蓄水池（需要重启）",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeRetentionBasins]": "自定义模组水源的水位会在降雨以及雪融时上升，遭遇干燥天气时则会下降。此外，水源的水位还有着最大最小值。因此，如果你想进一步控制蓄水的程度，你还需要自行调节全局蒸发率。",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeDetentionBasins]": "添加滞留池（需要重启）",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeDetentionBasins]": "自定义模组水源的水位会在降雨以及雪融时上升，遭遇干燥天气时则会下降。此外，水源的水位只有最大值。因此，如果你想进一步控制蓄水的程度，你还需要自行调节全局蒸发率。",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.TrySmallerRadii]": "尝试更小的半径",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.TrySmallerRadii]": "尝试放置半径小于 5 米的水源。放置出的水源如果实在太小，无法算作是正常水源，模组则会将该水源的半径增加至可被算作正常水源的半径。",
@@ -113,10 +111,10 @@
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "版本",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.Version]": "已安装的 Water Features 版本号。",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.SeasonalStreamsSettingsAvailableInGame]": "在游戏或编辑器中可用的季节性溪流设置。",
-  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.WavesAndTidesSettingsAvailableInGame]": "在游戏或编辑器中可用的海浪与潮汐设置。",
   "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "强制固定水模拟速度",
   "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.ForceWaterSimulationSpeed]": "尝试在游戏中将水模拟速度强制固定为1倍。",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Editor]": "编辑器",
   "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.SaveGame]": "单独保存文件",
-  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "常规"
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.General]": "常规",
+  "Assets.NAME[WaterSource Seasonal]": "季节性水源"
 }

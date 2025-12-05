@@ -1,12 +1,4 @@
-<Publish>
-  <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-  <ModId Value="75613" />
-  <!--Name of the mod to display to players-->
-  <DisplayName Value="Water Features" />
-  <!--Short description of the mod-->
-  <ShortDescription Value="In-Game Water Tool, Optional Seasonal Streams, and Optional Waves and Tides" />
-  <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
-  <LongDescription>In-Game Water Tool - Place, remove, and edit water sources, and other optional modifications to the water simulation.
+﻿In-Game Water Tool - Place, remove, and edit water sources, and other optional modifications to the water simulation.
 
 Sully has made an outstanding demo video covering the new features related to water. Available on Youtube. The video uses the Legacy Water Simulation.
 ## Dependencies
@@ -16,7 +8,7 @@ Unified Icon Library
 If you want to say thank you with a donation you can do so on Paypal.
 
 ## Translations
-I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -&gt; mods-wip -&gt; Water Features: Translations.
+I am looking for volunteers to help translate the mod into the official languages. For those interested please find the project in the discord link. CSL2:CODEMODS -> mods-wip -> Water Features: Translations.
 Fully or Partially Supported Languages: German, Spanish, Brazilian Portuguese, Polish, Korean, French, Russian, Italian, Chinese Traditional and European Portuguese. See credits for list of translators.
 
 Support for European Portuguese translations requires: European Portuguese Localization and I18N Everywhere mods.
@@ -100,30 +92,6 @@ Seasonal streams and waves and tides must be individually enabled per save file 
 * Chameleon TBN - Testing, Feedback, Icons, and Logo
 * Klyte45, Algernon, Triton Supreme - Help with UI, Cooperative Development and Code Sharing
 * T.D.W., krzychu124, and Quboid - Cooperative Development and Code Sharing
-* Localization: Hendrix and Fuchs23 (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st and Hinanchovo (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo (Chinese Traditional), T14goc and Obelix (European Portuguese), Nullpinter and RilkeXS (Chinese Simplified)
+* Localization: Hendrix and Fuchs23 (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st and Hinanchovo (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo (Chinese Traditional), T14goc and Obelix (European Portuguese), Nullpinter, RilkeXS and GuaGua_Ua  (Chinese Simplified)
 * ST-Apps - Help with UI and Code Sharing
-* Tigon Ologdring, Chair, Dante  - Testing, Feedback</LongDescription>
-  <!--Thumbnail-->
-  <Thumbnail Value="Properties/Thumbnail.png" />
-  <!--Screenshot, can be set multiple-->
-  <Screenshot Value="Properties/Previews/waterFall.jpg" />
-  <!--Tag, can be set multiple-->
-  <Tag Value="Code Mod" />
-  <!--Link to the forum post where the mod can be discussed-->
-  <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
-  <!--Version of the mod-->
-  <ModVersion Value="1.4.1" />
-  <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.4.*" />
-  <!--Dependency for the mod, can be set multiple-->
-  <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
-  <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog>## Patch v1.4.1
-* Minor compatibility fixes for game update.</ChangeLog>
-  <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
-  <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
-  <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
-  <ExternalLink Type="github" Url="https://github.com/yenyang/Water_Features" />
-  <ExternalLink Type="paypal" Url="https://www.paypal.com/paypalme/YenyangsMods" />
-  <ExternalLink Type="crowdin" Url="https://crowdin.com/project/csl2-mod-tree-controller" />
-</Publish>
+* Tigon Ologdring, Chair, Dante  - Testing, Feedback

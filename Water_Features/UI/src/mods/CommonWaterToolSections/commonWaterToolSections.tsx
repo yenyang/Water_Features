@@ -213,7 +213,7 @@ export const CommonWaterToolSections = () => {
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.ElevationChange}     tooltip={descriptionTooltip(elevationChangeTitle, elevationChangeTooltip)}     onSelect={() => changeToolMode(WaterToolModes.ElevationChange)}    src={elevationChangeSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.MoveWaterSource}     tooltip={descriptionTooltip(moveWaterSourceTitle, moveWaterSourceTooltip)}     onSelect={() => changeToolMode(WaterToolModes.MoveWaterSource)}    src={moveWaterSourceSrc}  focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
                             <VanillaComponentResolver.instance.ToolButton  selected={ToolMode == WaterToolModes.RadiusChange}        tooltip={descriptionTooltip(radiusChangeTitle, radiusChangeTooltip)}           onSelect={() => changeToolMode(WaterToolModes.RadiusChange)}       src={radiusChangeSrc}     focusKey={VanillaComponentResolver.instance.FOCUS_DISABLED}     className={VanillaComponentResolver.instance.toolButtonTheme.button}></VanillaComponentResolver.instance.ToolButton>
-                    </VanillaComponentResolver.instance.Section>        
+                    </VanillaComponentResolver.instance.Section>
                 </>
              )}            
         </>
