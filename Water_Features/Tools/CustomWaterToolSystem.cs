@@ -16,6 +16,8 @@ namespace Water_Features.Tools
     using Game.Simulation;
     using Game.Tools;
     using Game.UI.Editor;
+    using System;
+    using System.Reflection;
     using Unity.Burst;
     using Unity.Burst.Intrinsics;
     using Unity.Collections;
@@ -60,6 +62,7 @@ namespace Water_Features.Tools
         private Game.Objects.Transform m_PressedTransform;
         private float m_PressedMaxHeight;
         private WaterPanelSystem m_WaterPanelSystem;
+        private bool m_FoundTopoToggle;
 
         /// <summary>
         /// Enum for the types of tool modes.
@@ -340,8 +343,11 @@ namespace Water_Features.Tools
         public override void GetAvailableSnapMask(out Snap onMask, out Snap offMask)
         {
             base.GetAvailableSnapMask(out onMask, out offMask);
-            onMask |= Snap.ContourLines;
-            offMask |= Snap.ContourLines;
+            if (!m_FoundTopoToggle)
+            {
+                onMask |= Snap.ContourLines;
+                offMask |= Snap.ContourLines;
+            }
         }
 
         /// <inheritdoc/>
@@ -395,6 +401,19 @@ namespace Water_Features.Tools
             m_ToolSystem.tools.Remove(this);
             m_ToolSystem.tools.Insert(0, this);
             m_ActivePrefab = null;
+
+            // Topo toggle compatibility
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            foreach (Assembly assembly in assemblies)
+            {
+                if (assembly.FullName.Contains("TopoToggle,"))
+                {
+                    m_Log.Info($"{nameof(CustomWaterToolSystem)}.{nameof(OnGameLoadingComplete)} Found Assembly: {assembly.FullName}");
+                    m_FoundTopoToggle = true;
+                    break;
+                }
+            }
         }
 
         /// <inheritdoc/>
