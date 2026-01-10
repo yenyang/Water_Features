@@ -112,16 +112,14 @@ Seasonal streams and waves and tides must be individually enabled per save file 
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/water-features.1644999/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.4.2" />
+  <ModVersion Value="1.4.3" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.5.*" />
   <!--Dependency for the mod, can be set multiple-->
   <Dependency Id="74417" DisplayName="Unified Icon Library" Version="1.0.13" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog># Patch v1.4.2
-* While in-game and using the modern water simulation, adds a field for seeing Sea Level that can be modified with a configurable slider and text field input.
-* Compatibility fixes with game version 1.5.2f1.
-* Update localization.</ChangeLog>
+  <ChangeLog># Patch v1.4.3
+* Compatibility fixes for using with Topo Toggle.</ChangeLog>
   <!--External link. supported types are discord, github, youtube, twitch, x, paypal, patreon-->
   <ExternalLink Type="youtube" Url="https://www.youtube.com/watch?v=Q9QZ0n60i9c" />
   <ExternalLink Type="discord" Url="https://discord.gg/HTav7ARPs2" />
