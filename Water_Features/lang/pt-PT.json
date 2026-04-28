@@ -127,5 +127,11 @@
   "Assets.DESCRIPTION[WaterSource Seasonal]": "Fonte de água genérica cujo nível varia de acordo com as definições de cursos de água sazonais, as propriedades sazonais do mapa e o clima atual. O comportamento e a cor do anel exterior vão mudar consoante esteja colocada dentro dos limites do mapa, na fronteira do mapa ou fora da área jogável. Clica com o botão direito para definir a elevação-alvo. Clica com o botão esquerdo para colocar em qualquer sítio. Passa o cursor por cima e clica com o botão direito para remover.",
   "Water_Features.TOOLTIP_DESCRIPTION[AmountIsElevation]": "Elevação definida. Alterna para voltar a Profundidade.",
   "Assets.NAME[WaterSource VanillaLake]": "Fonte de água de nível constante",
-  "Assets.DESCRIPTION[WaterSource VanillaLake]": "Enche lentamente até atingir o nível desejado e depois mantém esse nível. Se tiver uma elevação-alvo abaixo do nível do solo, pode drenar a água mais depressa do que a evaporação. Clica com o botão direito para definir a elevação-alvo. Clica com o botão esquerdo para colocar dentro da área jogável. Passa o cursor por cima e clica com o botão direito para remover."
+  "Assets.DESCRIPTION[WaterSource VanillaLake]": "Enche lentamente até atingir o nível desejado e depois mantém esse nível. Se tiver uma elevação-alvo abaixo do nível do solo, pode drenar a água mais depressa do que a evaporação. Clica com o botão direito para definir a elevação-alvo. Clica com o botão esquerdo para colocar dentro da área jogável. Passa o cursor por cima e clica com o botão direito para remover.",
+  "Water_Features.SECTION_TITLE[SeaLevel]": "Nível do Mar",
+  "Water_Features.SECTION_TITLE[SliderRange]": "Faixa deslizante",
+  "Water_Features.TOOLTIP_TITLE[LockSeaLevel]": "Bloquear por nível do mar",
+  "Water_Features.TOOLTIP_DESCRIPTION[LockSeaLevel]": "Alterna se o nível do mar pode ser modificado. Alterar o nível do mar pode inundar rapidamente as áreas. Tem cuidado ao utilizar o controlo deslizante. Aguarda que as curvas de nível se mova.",
+  "Water_Features.TOOLTIP_TITLE[IncreaseSeaLevelSliderRange]": "Aumentar faixa deslizante do nível do mar",
+  "Water_Features.TOOLTIP_TITLE[DecreaseSeaLevelSliderRange]": "Diminuir faixa deslizante do nível do mar"
 }

@@ -1,2 +1,3 @@
-﻿# Patch v1.4.3
-* Compatibility fixes for using with Topo Toggle.
+﻿# Patch v1.4.4
+* Updated Localization.
+* Rebuilt for Game v1.5.7f1.

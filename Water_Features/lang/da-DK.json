@@ -1,0 +1,19 @@
+{
+  "Options.SECTION[Water_Features.Water_Features.WaterFeaturesMod]": "Vand Funktioner",
+  "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Sæsonbestemte Vandløb",
+  "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Vand Værktøj",
+  "Options.TAB[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Bølger og Tidevand",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Stable]": "Stabil",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Experimental]": "Eksperimentel",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Seasonal Streams]": "Sæsonbestemte Vandløb",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Water Tool]": "Vand Værktøj",
+  "Options.GROUP[Water_Features.Water_Features.WaterFeaturesMod.Waves and Tides]": "Bølger og Tidevand",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeRetentionBasins]": "Tilføj Våde Bassiner",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeRetentionBasins]": "Tilpasset moddet vandkilde som stiger med nedbør og smeltning af sne, og langsomt falder, når vejret er tørt. De har en maksimal vandoverflade højde og en minimal vandoverflade højde. Du er muligvis nødt til at justere den globale fordampnings hastighed i indstillingerne for ønskværdig vandinfiltration.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeDetentionBasins]": "Tilføj tørre bassiner",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.IncludeDetentionBasins]": "Tilpasset moddet vandkilde som stiger med nedbør og smeltning af sne, og langsomt falder, når vejret er tørt. De har en maksimal vandoverflade højde, men ingen minimal vandoverflade højde. Du er muligvis nødt til at justere den globale fordampnings hastighed i indstillingerne for ønskværdig vandinfiltration.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.TrySmallerRadii]": "Prøv mindre radius",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.TrySmallerRadii]": "Lader dig prøve at lave en vandkilde med en radius mindre end 5m. Det vil ikke altid virke, men vil blive øget til en radius, der virker.",
+  "Options.OPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.EvaporationRate]": "Fordampnings Hastighed",
+  "Options.OPTION_DESCRIPTION[Water_Features.Water_Features.WaterFeaturesMod.WaterFeaturesSettings.EvaporationRate]": "Bør formentlig lade være ved standard, med mindre du bruger tørre eller våde bassiner. Faktisk fordampnings hastighed er 1000x mindre, men dette giver dig kontrol over hastigheden. Dette er globalt, og du vil muligvis ønske at genskabe balance og øge strømmene af vandkilder efter forøgelse af den."
+}
