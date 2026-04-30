@@ -92,7 +92,7 @@ export const WaterToolComponent: ModuleRegistryExtend = (Component : any) => {
                                 </div>
                             </VanillaComponentResolver.instance.Section>
                             { !SeaLevelLocked && (
-                                <VanillaComponentResolver.instance.Section title={locale["Water_Features.SECTION_TITLE[SliderRange]"]}>
+                                <VanillaComponentResolver.instance.Section title={translate(locale["Water_Features.SECTION_TITLE[SliderRange]"], "Water_Features.SECTION_TITLE[SliderRange]")}>
                                         <div className={styles.rowGroup}>              
                                             <VanillaComponentResolver.instance.ToolButton
                                                 className={VanillaComponentResolver.instance.mouseToolOptionsTheme.startButton} 
