@@ -1,3 +1,3 @@
-﻿# Patch v1.4.4
+﻿# Patch v1.4.5
+* Fix Slider Range localization problem.
 * Updated Localization.
-* Rebuilt for Game v1.5.7f1.
