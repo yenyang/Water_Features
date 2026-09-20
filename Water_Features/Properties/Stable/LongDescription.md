@@ -92,6 +92,6 @@ Seasonal streams and waves and tides must be individually enabled per save file 
 * Chameleon TBN - Testing, Feedback, Icons, and Logo
 * Klyte45, Algernon, Triton Supreme - Help with UI, Cooperative Development and Code Sharing
 * T.D.W., krzychu124, and Quboid - Cooperative Development and Code Sharing
-* Localization: Hendrix, Fuchs23 and redlabracer (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st, Hinanchovo, and acelion19 (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo and _Windy_ (Chinese Traditional), T14goc and Obelix (European Portuguese), Nullpinter, RilkeXS and GuaGua_Ua (Chinese Simplified), TinyPosie (Danish), GeraspteGatenKaas (Dutch)
+* Localization: Hendrix, Fuchs23 and redlabracer (German), Nyoko and Citadino (Spanish), Luiz Fernando de Paula (Portuguese), Karmel68 (Polish), Morgan Toverux, CEO of Tabarnak, edouardtherrien24, and Karg (French), TwotoolusFLY_LSh.st, Hinanchovo, and acelion19 (Korean), _hayrynenart and OWSEEX(Russian), Furios (Italian), ystartgo and _Windy_ (Chinese Traditional), T14goc and Obelix (European Portuguese), Nullpinter, RilkeXS, GuaGua_Ua and AXYDXY (Chinese Simplified), TinyPosie (Danish), GeraspteGatenKaas (Dutch)
 * ST-Apps - Help with UI and Code Sharing
 * Tigon Ologdring, Chair, Dante  - Testing, Feedback
